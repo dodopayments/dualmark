@@ -1,6 +1,6 @@
 {
   "name": "@dualmark/astro",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Astro integration for the Dualmark AEO framework. Auto-generates .md endpoints from collection config + injects Link rel=alternate middleware + generates llms.txt.",
   "license": "MIT",
   "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",
@@ -53,7 +53,11 @@
       "import": "./dist/virtual.js"
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "tsup",

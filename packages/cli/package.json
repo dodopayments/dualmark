@@ -1,6 +1,6 @@
 {
   "name": "@dualmark/cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Conformance test runner for the AEO spec. `dualmark verify <url>` scores any site against the AEO Specification.",
   "license": "MIT",
   "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",
@@ -33,7 +33,11 @@
   "bin": {
     "dualmark": "./dist/cli.js"
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "tsup",

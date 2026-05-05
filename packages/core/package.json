@@ -1,6 +1,6 @@
 {
   "name": "@dualmark/core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Framework-agnostic primitives for AEO infrastructure: content negotiation, AI-bot detection, markdown response, token estimation, composition helpers.",
   "license": "MIT",
   "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",
@@ -25,7 +25,11 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "tsup",

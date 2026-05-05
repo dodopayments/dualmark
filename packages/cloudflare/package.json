@@ -1,6 +1,6 @@
 {
   "name": "@dualmark/cloudflare",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Cloudflare Workers edge adapter for the Dualmark AEO framework. Wraps any upstream Worker and transparently serves markdown to AI bots.",
   "license": "MIT",
   "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",
@@ -25,7 +25,11 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "tsup",
