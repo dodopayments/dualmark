@@ -1,5 +1,13 @@
 # dualmark-example-nextjs-app-router
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies [fbc7b17]
+  - @dualmark/core@0.3.1
+  - @dualmark/converters@0.3.1
+
 ## 0.0.2
 
 ### Patch Changes
