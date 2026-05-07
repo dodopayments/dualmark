@@ -1,6 +1,6 @@
 {
   "name": "@dualmark/converters",
-  "version": "0.3.1",
+  "version": "0.5.0",
   "description": "12 production-tested markdown converter factories (blog, case-study, changelog, compare, docs, feature, glossary, legal, pricing, pseo, tool, video) for the Dualmark AEO framework.",
   "license": "Apache-2.0",
   "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",

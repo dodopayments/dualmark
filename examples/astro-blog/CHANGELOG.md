@@ -1,5 +1,14 @@
 # dualmark-example-astro-blog
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [9f9f1d1]
+  - @dualmark/astro@0.5.0
+  - @dualmark/core@0.5.0
+  - @dualmark/converters@0.5.0
+
 ## 0.0.3
 
 ### Patch Changes
