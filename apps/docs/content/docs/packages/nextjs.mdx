@@ -1,0 +1,251 @@
+---
+title: "@dualmark/nextjs"
+description: Next.js 15 App Router adapter — withDualmark, middleware factory, route handler factory, llms.txt handler.
+---
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/nextjs @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/nextjs @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/nextjs @dualmark/core @dualmark/converters
+```
+</Tab>
+</Tabs>
+
+## `withDualmark(nextConfig, options)`
+
+Wrap your Next.js config. Adds the dualmark workspace packages to `transpilePackages` and validates the options at boot.
+
+```ts title="next.config.mjs"
+import { withDualmark } from "@dualmark/nextjs";
+
+export default withDualmark(
+  { reactStrictMode: true },
+  { siteUrl: "https://example.com" },
+);
+```
+
+## `createDualmarkMiddleware(options)`
+
+Returns the Next.js middleware function. Pair it with a static `config.matcher` literal.
+
+```ts title="middleware.ts"
+import { createDualmarkMiddleware } from "@dualmark/nextjs";
+
+export default createDualmarkMiddleware({
+  siteUrl: "https://example.com",
+});
+
+export const config = {
+  matcher: [
+    {
+      source: "/((?!_next/|favicon.ico|md/).*)",
+      missing: [{ type: "header", key: "next-router-prefetch" }],
+    },
+  ],
+};
+```
+
+The middleware:
+
+- Rewrites `*.md` URLs to the internal `/md/<path>` namespace
+- Detects 19 known AI bot User-Agents and rewrites their requests to markdown
+- Honors `Accept: text/markdown` per RFC 7231
+- Returns `406 Not Acceptable` when the request explicitly excludes both `text/html` and `text/markdown`
+- Adds `Link: <…>; rel="alternate"; type="text/markdown"` and `Vary: Accept` to HTML responses
+
+<Callout>
+  The matcher must be an inline literal — Next.js statically parses `export const config` and rejects imports/expressions. If you customize `internalNamespace`, replace `md/` accordingly.
+</Callout>
+
+## `createDualmarkRouteHandler(options)`
+
+Returns `{ GET, generateStaticParams }` for the catch-all `app/<namespace>/[...path]/route.ts`.
+
+```ts title="app/md/[...path]/route.ts"
+import { createDualmarkRouteHandler } from "@dualmark/nextjs";
+import { POSTS } from "@/lib/posts";
+
+const handler = createDualmarkRouteHandler({
+  siteUrl: "https://example.com",
+  collections: {
+    posts: {
+      converter: "blog",
+      getEntries: () => POSTS.map(toEntry),
+      listingMetadata: { title: "Posts", description: "All posts." },
+    },
+  },
+  staticPages: [
+    { pattern: "/", render: () => "# Home\n\nWelcome." },
+    { pattern: "/about", render: () => "# About" },
+  ],
+  parameterizedRoutes: [
+    {
+      pattern: "/tax/[country]",
+      getStaticPaths: () => [
+        { params: { country: "us" } },
+        { params: { country: "uk" } },
+      ],
+      render: ({ params }) => `# Tax: ${params.country.toUpperCase()}`,
+    },
+  ],
+});
+
+export const dynamic = "force-static";
+export const GET = handler.GET;
+export const generateStaticParams = handler.generateStaticParams;
+```
+
+## `createLlmsTxtHandler(options)`
+
+Returns `{ GET }` for `app/llms.txt/route.ts`.
+
+```ts title="app/llms.txt/route.ts"
+import { createLlmsTxtHandler } from "@dualmark/nextjs";
+
+const handler = createLlmsTxtHandler({
+  brandName: "Acme",
+  description: "Acme's docs and blog.",
+  sections: [
+    {
+      title: "Pages",
+      links: [
+        { title: "Home", href: "https://example.com/" },
+        { title: "Blog", href: "https://example.com/blog" },
+      ],
+    },
+  ],
+});
+
+export const dynamic = "force-static";
+export const GET = handler.GET;
+```
+
+## Config
+
+```ts
+interface DualmarkNextConfig {
+  siteUrl: string;
+  internalNamespace?: string;          // default "md"
+
+  collections?: Record<string, CollectionConfig>;
+  staticPages?: StaticPageConfig[];
+  parameterizedRoutes?: ParameterizedRouteConfig[];
+
+  llmsTxt?: {
+    enabled?: boolean;
+    brandName?: string;
+    description?: string;
+    sections?: LlmsTxtSection[];
+  };
+
+  middleware?: {
+    injectLinkHeader?: boolean;        // default true
+    skipPaths?: ReadonlyArray<string>; // additional path prefixes the middleware ignores
+  };
+
+  headers?: {
+    cacheControl?: string;             // default "public, max-age=3600"
+    noindex?: boolean;                 // default true
+  };
+}
+```
+
+### Collections
+
+```ts
+collections: {
+  blog: {
+    converter:
+      | "blog" | "case-study" | "changelog" | "compare" | "docs"
+      | "feature" | "glossary" | "legal" | "pricing" | "pseo"
+      | "tool" | "video"
+      | ((entry) => string),
+
+    getEntries: () => Entry[] | Promise<Entry[]>,
+
+    route?: string,                    // URL segment — defaults to the collection key
+    slugStrategy?: "catch-all" | "single",
+    filter?: (entry) => boolean,
+    sort?: (a, b) => number,
+    listingMetadata?: { title: string; description: string },
+    emitListing?: boolean,             // default true
+  },
+}
+```
+
+For each collection, the route handler emits:
+
+- `/<collection>/<slug>` for every entry (served via the `/md/<collection>/<slug>` rewrite)
+- `/<collection>` listing (unless `emitListing: false`)
+
+<Callout>
+  Unlike Astro's `astro:content`, Next.js has no built-in content discovery, so you supply `getEntries`. The function may be sync or async — read from the filesystem, a CMS, a database, anything.
+</Callout>
+
+### Static pages
+
+```ts
+staticPages: [
+  { pattern: "/", render: () => "# Home\n\nWelcome." },
+  { pattern: "/about", render: () => "# About" },
+]
+```
+
+Generates `/index.md` and `/about.md` (served via the `/md/index` and `/md/about` rewrites).
+
+### Parameterized routes
+
+```ts
+parameterizedRoutes: [
+  {
+    pattern: "/tax/[country]",
+    getStaticPaths: async () => [
+      { params: { country: "us" } },
+      { params: { country: "uk" } },
+    ],
+    render: ({ params }) => `# Tax in ${params.country.toUpperCase()}`,
+  },
+]
+```
+
+Generates `/tax/us.md`, `/tax/uk.md`.
+
+## Programmatic API
+
+```ts
+import {
+  createDualmarkMiddleware,
+  createDualmarkRouteHandler,
+  createLlmsTxtHandler,
+  withDualmark,
+  resolveConfig,
+  resolveBuiltInConverter,
+  buildMatcherSource,
+  toInternalMarkdownPath,
+  DUALMARK_DEFAULT_MATCHER_SOURCE,
+  DualmarkConfigError,
+  type DualmarkNextConfig,
+  type CollectionConfig,
+  type StaticPageConfig,
+  type ParameterizedRouteConfig,
+} from "@dualmark/nextjs";
+```
+
+- `resolveConfig(input)` — validate + normalize a config (throws `DualmarkConfigError`)
+- `resolveBuiltInConverter({ name, collectionName, baseConfig })` — get a converter by name
+- `buildMatcherSource(internalNamespace)` — compute the matcher source string for runtime use
+- `toInternalMarkdownPath(pathname, ns)` — convert a public pathname to the internal `/<ns>/<…>` form
+
+## License
+
+Apache 2.0

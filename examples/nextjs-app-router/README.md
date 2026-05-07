@@ -1,15 +1,24 @@
 # dualmark-example-nextjs-app-router
 
-Reference implementation of Dualmark on Next.js 15 App Router using `@dualmark/core` directly (no dedicated `@dualmark/nextjs` adapter exists yet).
+End-to-end Next.js 15 App Router example built on the dedicated **`@dualmark/nextjs`** adapter.
 
-## Architecture
+## What this shows
 
-Next.js doesn't ship an integration package for Dualmark, so this example wires the primitives manually:
+A minimal Next.js site where every page has a markdown twin AI agents can read, in three small files:
+
+```
+middleware.ts                 ← createDualmarkMiddleware()
+next.config.mjs               ← withDualmark()
+app/md/[...path]/route.ts     ← createDualmarkRouteHandler()
+app/llms.txt/route.ts         ← createLlmsTxtHandler()
+```
+
+The middleware rewrites bot/`Accept: text/markdown`/`.md` traffic to an internal `/md/<path>` namespace where the route handler factory dispatches to your collections, static pages, and parameterized routes.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ middleware.ts                                               │
-│   - if path ends in .md → rewrite to /md/<path-no-ext>     │
+│ middleware.ts (createDualmarkMiddleware)                    │
+│   - if path ends in .md     → rewrite to /md/<path>        │
 │   - if AI bot UA OR Accept: text/markdown                   │
 │       → rewrite to /md/<path>                               │
 │   - if Accept rules out html+md → 406                       │
@@ -21,7 +30,7 @@ app/
 ├── posts/
 │   ├── page.tsx              → /posts         (HTML)
 │   └── [slug]/page.tsx       → /posts/<slug>  (HTML)
-├── md/[...path]/route.ts     → /md/<*path>    (markdown twin handler;
+├── md/[...path]/route.ts     → /md/<*path>    (markdown handler;
 │                                              never reached directly,
 │                                              only via middleware rewrite)
 └── llms.txt/route.ts         → /llms.txt
@@ -29,9 +38,9 @@ app/
 
 > **Why the `/md/` indirection?** Next.js 15's route type generator and
 > static prerender can't currently express dotted segments like `[slug].md`.
-> A separate `md/` namespace + middleware rewrite is the cleanest pattern
-> that preserves negotiation for both `Accept: text/markdown` and direct
-> `.md` URLs while staying type-safe.
+> A separate `md/` namespace + middleware rewrite is the cleanest pattern that
+> preserves negotiation for both `Accept: text/markdown` and direct `.md` URLs
+> while staying type-safe. It's customizable via `internalNamespace`.
 
 ## Run
 
@@ -57,7 +66,7 @@ curl -sI -H "User-Agent: GPTBot/1.0" -H "Accept: text/markdown" http://localhost
 curl -sI http://localhost:3000/posts/hello.md
 
 # Conformance
-bun run verify           # → Score 120/125 under `next dev` (Vary header strips on local dev; full 125/125 in production behind a Cloudflare Worker)
+bun run verify           # → Score 120/125 under `next dev`
 ```
 
 > **Production note**: `next start` serves prerendered 404s for unknown slugs

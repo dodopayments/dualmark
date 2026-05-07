@@ -1,8 +1,13 @@
+import { withDualmark } from "@dualmark/nextjs";
+
+const SITE_URL = "https://nextjs.dualmark.dev";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   trailingSlash: false,
-  transpilePackages: ["@dualmark/core", "@dualmark/converters"],
 };
 
-export default nextConfig;
+export default withDualmark(nextConfig, {
+  siteUrl: SITE_URL,
+});

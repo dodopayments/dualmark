@@ -64,15 +64,46 @@ bun run build && bunx dualmark verify https://localhost:4321/blog/your-post
 
 That's it. Every blog post has a markdown twin at `/blog/<slug>.md`. `llms.txt` is generated. Every HTML response advertises its twin via `Link: <…>; rel="alternate"; type="text/markdown"`. ChatGPT crawler sees clean markdown. Your existing pages don't change.
 
-### Next.js 15 App Router
+### Next.js 15 App Router (60 seconds)
 
-No adapter package needed — `@dualmark/core` plugs into middleware + a route handler.
+```bash
+bun add @dualmark/nextjs
+```
 
 ```ts
 // middleware.ts
-import { detectAIBot, negotiateFormat } from "@dualmark/core";
-// ...full middleware in examples/nextjs-app-router
+import { createDualmarkMiddleware } from "@dualmark/nextjs";
+
+export default createDualmarkMiddleware({ siteUrl: "https://yourcompany.com" });
+
+export const config = {
+  matcher: [
+    {
+      source: "/((?!_next/|favicon.ico|md/).*)",
+      missing: [{ type: "header", key: "next-router-prefetch" }],
+    },
+  ],
+};
 ```
+
+```ts
+// app/md/[...path]/route.ts
+import { createDualmarkRouteHandler } from "@dualmark/nextjs";
+import { POSTS } from "@/lib/posts";
+
+const handler = createDualmarkRouteHandler({
+  siteUrl: "https://yourcompany.com",
+  collections: {
+    blog: { converter: "blog", getEntries: () => POSTS.map(toEntry) },
+  },
+});
+
+export const dynamic = "force-static";
+export const GET = handler.GET;
+export const generateStaticParams = handler.generateStaticParams;
+```
+
+That's it. Bot UAs get markdown, browsers get HTML with a `Link rel="alternate"` header, direct `.md` URLs serve markdown. Full example with `next dev` → 120/125 conformance score:
 
 [Full Next.js example →](./examples/nextjs-app-router)
 
@@ -207,6 +238,7 @@ Three conformance levels — **Basic** (60%), **Standard** (80%), **Advanced** (
 | [`@dualmark/core`](./packages/core) | `npm i @dualmark/core` | 14 KB | Framework-agnostic primitives: content negotiation (RFC 7231), AI-bot detection (19 known bots), markdown response builder, token estimation, composition helpers, `llms.txt` rendering. Zero runtime deps. |
 | [`@dualmark/converters`](./packages/converters) | `npm i @dualmark/converters` | 16 KB | 12 production-tested converter factories. |
 | [`@dualmark/astro`](./packages/astro) | `npm i @dualmark/astro` | 22 KB | Astro 5 integration. Auto-generates `.md` endpoints, ships middleware, generates `llms.txt`. |
+| [`@dualmark/nextjs`](./packages/nextjs) | `npm i @dualmark/nextjs` | 15 KB | Next.js 15 App Router adapter. `withDualmark()`, `createDualmarkMiddleware()`, `createDualmarkRouteHandler()`, `createLlmsTxtHandler()`. |
 | [`@dualmark/cloudflare`](./packages/cloudflare) | `npm i @dualmark/cloudflare` | 9 KB | Workers edge adapter. Wraps any upstream Worker. Hooks for analytics + telemetry. |
 | [`@dualmark/cli`](./packages/cli) | `npm i -g @dualmark/cli` | 16 KB | `dualmark verify <url>`. Programmatic API too. |
 
@@ -228,15 +260,16 @@ Plus:
 | `@dualmark/cloudflare` | 23 tests pass |
 | `@dualmark/cli` | 17 tests pass |
 | `@dualmark/astro` | 35 tests pass |
+| `@dualmark/nextjs` | 47 tests pass |
 | `examples/astro-blog` | **80/80** under `astro dev` (`--skip-negotiation`) |
 | `examples/astro-cloudflare-full` | **125/125 perfect** under `wrangler dev` (full negotiation) |
-| `examples/nextjs-app-router` | **120/125** under `next dev` |
+| `examples/nextjs-app-router` | **120/125** under `next dev` (now using `@dualmark/nextjs`) |
 | `apps/docs` | 26 routes prerendered, all serve 200 |
 | `/play` route | Live at dualmark.dev/play, integrated into the docs app |
 
 ```bash
 bun install
-bun run build && bun run test && bun run typecheck   # 266 tests across 5 packages
+bun run build && bun run test && bun run typecheck   # 313 tests across 6 packages
 ```
 
 ---
@@ -245,7 +278,7 @@ bun run build && bun run test && bun run typecheck   # 266 tests across 5 packag
 
 We're building toward Dualmark being **the** AEO infrastructure for marketing sites — the same way Tailwind became the default for marketing CSS or Vercel for marketing hosting. The roadmap:
 
-- **More framework adapters**: SvelteKit, Remix/React Router, Nuxt, dedicated `@dualmark/nextjs`
+- **More framework adapters**: SvelteKit, Remix/React Router, Nuxt
 - **More edge adapters**: Vercel, Netlify, Fastly Compute, Deno Deploy
 - **More converters**: pricing tables, changelog, docs/API reference, status pages, integrations
 - **AEO Analytics**: a hosted dashboard on top of the `onAIRequest` hook, so marketing can see which bot reads which page, when

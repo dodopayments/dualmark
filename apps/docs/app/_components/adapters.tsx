@@ -42,9 +42,9 @@ const adapters: Adapter[] = [
   },
   {
     name: "Next.js",
-    pkg: "@dualmark/core",
-    desc: "App Router middleware + route handler. Use @dualmark/core directly — no adapter needed.",
-    install: "bun add @dualmark/core",
+    pkg: "@dualmark/nextjs",
+    desc: "Next.js 15 App Router adapter. withDualmark() + middleware factory + route handler factory + llms.txt handler.",
+    install: "bun add @dualmark/nextjs",
     score: "120/125",
     status: "Stable",
     accent: "oklch(0.985 0 0)",

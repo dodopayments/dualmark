@@ -1,0 +1,74 @@
+{
+  "name": "@dualmark/nextjs",
+  "version": "0.4.0",
+  "description": "Next.js 15 App Router adapter for the Dualmark AEO framework. Drop-in middleware + route-handler factory + withDualmark() config wrapper. Same API surface as @dualmark/astro.",
+  "license": "Apache-2.0",
+  "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dodopayments/dualmark.git",
+    "directory": "packages/nextjs"
+  },
+  "bugs": {
+    "url": "https://github.com/dodopayments/dualmark/issues"
+  },
+  "homepage": "https://github.com/dodopayments/dualmark/tree/main/packages/nextjs#readme",
+  "funding": "https://github.com/sponsors/dodopayments",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo"
+  },
+  "peerDependencies": {
+    "next": ">=14.0.0"
+  },
+  "dependencies": {
+    "@dualmark/core": "workspace:*",
+    "@dualmark/converters": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "next": "^15.0.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "keywords": [
+    "aeo",
+    "answer-engine-optimization",
+    "next.js",
+    "nextjs",
+    "next-app-router",
+    "ai-search",
+    "ai-agents",
+    "markdown",
+    "llms-txt",
+    "dualmark"
+  ],
+  "engines": {
+    "node": ">=18.18.0"
+  }
+}
