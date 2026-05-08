@@ -3,7 +3,6 @@ import type { DualmarkNextConfig } from "./types.js";
 
 interface NextConfigShape {
   transpilePackages?: string[];
-  [key: string]: unknown;
 }
 
 const REQUIRED_TRANSPILE = ["@dualmark/core", "@dualmark/converters", "@dualmark/nextjs"] as const;
