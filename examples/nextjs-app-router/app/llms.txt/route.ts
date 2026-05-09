@@ -4,7 +4,7 @@ const SITE_URL = "https://nextjs.dualmark.dev";
 
 const handler = createLlmsTxtHandler({
   brandName: "Dualmark Next.js Example",
-  description: "Reference implementation of Dualmark on Next.js 15 App Router.",
+  description: "Reference implementation of Dualmark on Next.js 16 App Router.",
   sections: [
     {
       title: "Pages",

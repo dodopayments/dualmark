@@ -34,9 +34,9 @@ const handler = createDualmarkRouteHandler({
       pattern: "/",
       render: () => `# Dualmark Next.js Example
 
-> Reference implementation of Dualmark on Next.js 15 App Router.
+> Reference implementation of Dualmark on Next.js 16 App Router.
 
-A minimal site demonstrating the \`@dualmark/nextjs\` adapter — middleware handles negotiation, the route handler factory serves markdown twins.
+A minimal site demonstrating the \`@dualmark/nextjs\` adapter — the proxy handles negotiation, the route handler factory serves markdown twins.
 
 ## Posts
 
