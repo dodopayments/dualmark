@@ -1,12 +1,12 @@
 ---
 title: Next.js
-description: Drop Dualmark into a Next.js 15 App Router site with @dualmark/nextjs.
+description: Drop Dualmark into a Next.js App Router site with @dualmark/nextjs.
 ---
 
-`@dualmark/nextjs` is a first-class adapter for Next.js 15 App Router — same one-line install as `@dualmark/astro`. It ships:
+`@dualmark/nextjs` is a first-class adapter for the Next.js App Router — same one-line install as `@dualmark/astro`. It ships:
 
 - `withDualmark(nextConfig, options)` for `next.config.mjs`
-- `createDualmarkMiddleware(options)` for `middleware.ts`
+- `createDualmarkMiddleware(options)` for `proxy.ts` (or `middleware.ts` on Next ≤15)
 - `createDualmarkRouteHandler(options)` for the markdown twin route handler
 - `createLlmsTxtHandler(options)` for `/llms.txt`
 
@@ -16,7 +16,7 @@ The reference example at `examples/nextjs-app-router` scores **120/125** under `
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ middleware.ts (createDualmarkMiddleware)                    │
+│ proxy.ts (createDualmarkMiddleware)                         │
 │   - if path ends in .md     → rewrite to /md/<path>        │
 │   - if AI bot UA OR Accept: text/markdown                   │
 │       → rewrite to /md/<path>                               │
@@ -29,11 +29,11 @@ app/
 ├── md/[...path]/route.ts     ← createDualmarkRouteHandler
 │                                (markdown twin handler; never
 │                                 reached directly, only via
-│                                 middleware rewrite)
+│                                 proxy rewrite)
 └── llms.txt/route.ts         ← createLlmsTxtHandler
 ```
 
-> **Why the `/md/` indirection?** Next.js 15's route type generator and static prerender can't currently express dotted segments like `[slug].md`. A separate `md/` namespace + middleware rewrite is the cleanest pattern that preserves negotiation for both `Accept: text/markdown` and direct `.md` URLs while staying type-safe. Customizable via `internalNamespace`.
+> **Why the `/md/` indirection?** Next.js's route type generator and static prerender can't currently express dotted segments like `[slug].md`. A separate `md/` namespace + proxy rewrite is the cleanest pattern that preserves negotiation for both `Accept: text/markdown` and direct `.md` URLs while staying type-safe. Customizable via `internalNamespace`.
 
 ## Install
 
@@ -72,9 +72,9 @@ export default withDualmark(nextConfig, {
 
 `withDualmark` adds `@dualmark/core`, `@dualmark/converters`, and `@dualmark/nextjs` to your `transpilePackages` and validates the config at boot.
 
-## middleware.ts
+## proxy.ts
 
-```ts title="middleware.ts"
+```ts title="proxy.ts"
 import { createDualmarkMiddleware } from "@dualmark/nextjs";
 
 export default createDualmarkMiddleware({
@@ -90,6 +90,8 @@ export const config = {
   ],
 };
 ```
+
+_On Next.js ≤15, name the file `middleware.ts` instead. Body is identical._
 
 <Callout>
   The `matcher` source must be an inline literal — Next.js parses `export const config` statically and rejects imports/expressions. If you customize `internalNamespace`, replace `md/` accordingly.
@@ -174,7 +176,7 @@ If you wired `@dualmark/core` into Next.js by hand before `@dualmark/nextjs` shi
 
 | Before (`@dualmark/core` only) | After (`@dualmark/nextjs`) |
 |---|---|
-| Hand-rolled `middleware.ts` with `detectAIBot` + `negotiateFormat` + manual rewrite logic | `createDualmarkMiddleware({ siteUrl })` |
+| Hand-rolled `proxy.ts`/`middleware.ts` with `detectAIBot` + `negotiateFormat` + manual rewrite logic | `createDualmarkMiddleware({ siteUrl })` |
 | Hand-rolled `app/md/[...path]/route.ts` with `if`-chains over the joined path | `createDualmarkRouteHandler({ siteUrl, collections, staticPages, parameterizedRoutes })` |
 | Hand-rolled `app/llms.txt/route.ts` calling `renderLlmsTxt` | `createLlmsTxtHandler({ brandName, sections })` |
 | Manual `transpilePackages: ["@dualmark/core", ...]` | `withDualmark(nextConfig, options)` |
@@ -188,12 +190,12 @@ Next.js's `base-server` overwrites the `Vary` header with its own internal value
 - **Prerendered HTML pages** (`/posts/<slug>`) — costs `html.vary` (recommended, **−5pt**)
 - **Prerendered/cached `.md` route handlers** when deployed to Vercel — costs `md.vary` (required, **−10pt**)
 
-Your middleware-set `Link` header survives. Your `markdownResponse()` body and other AEO headers (`X-Markdown-Tokens`, `X-AEO-Version`, `X-Robots-Tag: noindex`, `X-Content-Type-Options: nosniff`) survive. But `Vary: Accept` does not.
+Your proxy-set `Link` header survives. Your `markdownResponse()` body and other AEO headers (`X-Markdown-Tokens`, `X-AEO-Version`, `X-Robots-Tag: noindex`, `X-Content-Type-Options: nosniff`) survive. But `Vary: Accept` does not.
 
 This is a Next.js + Vercel architectural quirk, not a Dualmark bug. The practical impact:
 
 - **Local `next dev`**: 120/125 (only `html.vary` fails)
-- **Vercel production**: 110/125 (both `md.vary` and `html.vary` fail because Vercel's edge cache layer strips middleware-set `Vary`)
+- **Vercel production**: 110/125 (both `md.vary` and `html.vary` fail because Vercel's edge cache layer strips proxy-set `Vary`)
 
 Both 110 and 120 are still **Standard conformance (≥80%)**. This is what `dualmark.dev` itself ships with — and it's the same level Dodo Payments runs in production, where they saw a 5× lift in AI agent traffic over 2 months.
 

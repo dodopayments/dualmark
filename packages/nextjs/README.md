@@ -1,10 +1,11 @@
 # @dualmark/nextjs
 
-Next.js 15 App Router adapter for the Dualmark AEO framework.
+Next.js App Router adapter for the Dualmark AEO framework.
 
 Same one-line install as `@dualmark/astro` — `withDualmark()` for the config,
-`createDualmarkMiddleware()` for `middleware.ts`, `createDualmarkRouteHandler()`
-for the markdown twin route handler, and `createLlmsTxtHandler()` for `/llms.txt`.
+`createDualmarkMiddleware()` for `proxy.ts` (or `middleware.ts` on Next ≤15),
+`createDualmarkRouteHandler()` for the markdown twin route handler, and
+`createLlmsTxtHandler()` for `/llms.txt`.
 
 ## Install
 
@@ -36,7 +37,7 @@ export default withDualmark(
 );
 ```
 
-```ts title="middleware.ts"
+```ts title="proxy.ts"
 import { createDualmarkMiddleware } from "@dualmark/nextjs";
 
 const middleware = createDualmarkMiddleware({
@@ -46,6 +47,8 @@ const middleware = createDualmarkMiddleware({
 export default middleware;
 export const config = middleware.config;
 ```
+
+_On Next.js ≤15, name the file `middleware.ts` instead. The body is identical._
 
 ```ts title="app/md/[...path]/route.ts"
 import { createDualmarkRouteHandler } from "@dualmark/nextjs";
@@ -83,7 +86,7 @@ export const dynamic = "force-static";
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ middleware.ts                                               │
+│ proxy.ts                                                    │
 │   - if path ends in .md     → rewrite to /md/<path>        │
 │   - if AI bot UA OR Accept: text/markdown                   │
 │       → rewrite to /md/<path>                               │
@@ -97,7 +100,7 @@ app/
 └── llms.txt/route.ts       ← createLlmsTxtHandler (renders /llms.txt)
 ```
 
-`/md/...` is an internal namespace your users never see — middleware rewrites
+`/md/...` is an internal namespace your users never see — the proxy rewrites
 to it, and the route handler dispatches to your collections, static pages, or
 parameterized routes. Configurable via `internalNamespace` if you need a
 different name.

@@ -1,6 +1,6 @@
 ---
 title: "@dualmark/nextjs"
-description: Next.js 15 App Router adapter — withDualmark, middleware factory, route handler factory, llms.txt handler.
+description: Next.js App Router adapter — withDualmark, proxy/middleware factory, route handler factory, llms.txt handler.
 ---
 
 <Tabs items={["bun", "npm", "yarn"]}>
@@ -36,9 +36,9 @@ export default withDualmark(
 
 ## `createDualmarkMiddleware(options)`
 
-Returns the Next.js middleware function. Pair it with a static `config.matcher` literal.
+Returns the Next.js proxy/middleware function. Pair it with a static `config.matcher` literal.
 
-```ts title="middleware.ts"
+```ts title="proxy.ts"
 import { createDualmarkMiddleware } from "@dualmark/nextjs";
 
 export default createDualmarkMiddleware({
@@ -54,6 +54,8 @@ export const config = {
   ],
 };
 ```
+
+_On Next.js ≤15, name the file `middleware.ts` instead. Body is identical._
 
 The middleware:
 

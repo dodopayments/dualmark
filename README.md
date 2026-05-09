@@ -64,14 +64,14 @@ bun run build && bunx dualmark verify https://localhost:4321/blog/your-post
 
 That's it. Every blog post has a markdown twin at `/blog/<slug>.md`. `llms.txt` is generated. Every HTML response advertises its twin via `Link: <…>; rel="alternate"; type="text/markdown"`. ChatGPT crawler sees clean markdown. Your existing pages don't change.
 
-### Next.js 15 App Router (60 seconds)
+### Next.js App Router (60 seconds)
 
 ```bash
 bun add @dualmark/nextjs
 ```
 
 ```ts
-// middleware.ts
+// proxy.ts (or middleware.ts on Next ≤15)
 import { createDualmarkMiddleware } from "@dualmark/nextjs";
 
 export default createDualmarkMiddleware({ siteUrl: "https://yourcompany.com" });
@@ -238,7 +238,7 @@ Three conformance levels — **Basic** (60%), **Standard** (80%), **Advanced** (
 | [`@dualmark/core`](./packages/core) | `npm i @dualmark/core` | 14 KB | Framework-agnostic primitives: content negotiation (RFC 7231), AI-bot detection (19 known bots), markdown response builder, token estimation, composition helpers, `llms.txt` rendering. Zero runtime deps. |
 | [`@dualmark/converters`](./packages/converters) | `npm i @dualmark/converters` | 16 KB | 12 production-tested converter factories. |
 | [`@dualmark/astro`](./packages/astro) | `npm i @dualmark/astro` | 22 KB | Astro 5 integration. Auto-generates `.md` endpoints, ships middleware, generates `llms.txt`. |
-| [`@dualmark/nextjs`](./packages/nextjs) | `npm i @dualmark/nextjs` | 15 KB | Next.js 15 App Router adapter. `withDualmark()`, `createDualmarkMiddleware()`, `createDualmarkRouteHandler()`, `createLlmsTxtHandler()`. |
+| [`@dualmark/nextjs`](./packages/nextjs) | `npm i @dualmark/nextjs` | 15 KB | Next.js App Router adapter. `withDualmark()`, `createDualmarkMiddleware()`, `createDualmarkRouteHandler()`, `createLlmsTxtHandler()`. |
 | [`@dualmark/cloudflare`](./packages/cloudflare) | `npm i @dualmark/cloudflare` | 9 KB | Workers edge adapter. Wraps any upstream Worker. Hooks for analytics + telemetry. |
 | [`@dualmark/cli`](./packages/cli) | `npm i -g @dualmark/cli` | 16 KB | `dualmark verify <url>`. Programmatic API too. |
 
