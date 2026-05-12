@@ -1,5 +1,29 @@
 # @dualmark/astro
 
+## 0.5.2
+
+### Patch Changes
+
+- a4567de: Add `seo`, `performance`, `optimization` keywords to enable
+  auto-discovery by the official [Astro Integrations catalog](https://astro.build/integrations/),
+  which routes integrations into categories based on npm keywords.
+  With these, `@dualmark/astro` will appear under "Performance + SEO"
+  on the next weekly catalog sync after the next publish.
+
+  No runtime behavior change — npm metadata only.
+
+- b3ad299: Release pipeline now publishes with **npm provenance attestation**. Every
+  `@dualmark/*` tarball on npmjs.com is now Sigstore-signed and traceable back
+  to the exact GitHub Actions workflow run + commit SHA that built it. Visible
+  as a "Provenance" badge on each package's npm page.
+
+  No behavior change inside the packages themselves — this is a supply-chain
+  hardening release. Consumers can verify with `npm audit signatures`.
+
+- Updated dependencies [b3ad299]
+  - @dualmark/core@0.5.2
+  - @dualmark/converters@0.5.2
+
 ## 0.5.0
 
 ### Patch Changes
