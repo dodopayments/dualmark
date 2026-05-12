@@ -3,6 +3,8 @@ title: Conformance
 description: Basic, Standard, and Advanced conformance levels.
 ---
 
+# AEO Spec — Conformance
+
 This document is normative.
 
 ## Conformance Levels
@@ -46,6 +48,30 @@ The reference test runner is [`@dualmark/cli`](/docs/packages/cli):
 ```bash
 dualmark verify https://example.com/blog/hello
 ```
+
+For machine consumers, `dualmark verify <url> --json` MUST emit this AEO Spec v1.0 JSON shape:
+
+```json
+{
+  "url": "https://example.com/blog/hello",
+  "markdownUrl": "https://example.com/blog/hello.md",
+  "score": 95,
+  "max": 100,
+  "level": "advanced",
+  "durationMs": 123,
+  "checks": [
+    {
+      "id": "md.fetch",
+      "points": 20,
+      "max": 20,
+      "passed": true,
+      "message": "OK"
+    }
+  ]
+}
+```
+
+Where `level` is one of `none`, `basic`, `standard`, `advanced` and `checks[].points` MUST be `0` for failed checks.
 
 The runner produces a weighted score out of 100 (or 80 with `--skip-negotiation`). The score MUST be calculated as:
 
