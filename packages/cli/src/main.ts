@@ -1,9 +1,11 @@
-import { verifyUrl, formatTextReport } from "./verify.js";
+import { verifyUrl, formatTextReport, formatJsonReportV1 } from "./verify.js";
 
 interface ParsedArgs {
   command: "verify" | "help" | "version";
   url?: string;
   json?: boolean;
+  quiet?: boolean;
+  color?: boolean;
   skipNegotiation?: boolean;
   timeoutMs?: number;
 }
@@ -24,12 +26,18 @@ function parseArgs(argv: ReadonlyArray<string>): ParsedArgs {
   }
   let url: string | undefined;
   let json = false;
+  let quiet = false;
+  let color = false;
   let skipNegotiation = false;
   let timeoutMs: number | undefined;
   for (let i = 1; i < args.length; i++) {
     const a = args[i];
     if (a === "--json") {
       json = true;
+    } else if (a === "--quiet") {
+      quiet = true;
+    } else if (a === "--color" || a === "--no-color") {
+      color = true;
     } else if (a === "--skip-negotiation") {
       skipNegotiation = true;
     } else if (a === "--timeout") {
@@ -42,7 +50,7 @@ function parseArgs(argv: ReadonlyArray<string>): ParsedArgs {
       url = a;
     }
   }
-  return { command: "verify", url, json, skipNegotiation, timeoutMs };
+  return { command: "verify", url, json, quiet, color, skipNegotiation, timeoutMs };
 }
 
 function printHelp(): void {
@@ -62,7 +70,7 @@ function printHelp(): void {
       "",
       "Exit codes:",
       "  0  pass (score >= 80% of max)",
-      "  1  fail (score below threshold)",
+      "  1  fail (score below threshold or required check failure)",
       "  2  CLI usage error",
       "",
     ].join("\n"),
@@ -92,17 +100,23 @@ export async function main(argv: ReadonlyArray<string>): Promise<number> {
     return 2;
   }
 
+  if (parsed.json && (parsed.quiet || parsed.color)) {
+    process.stderr.write("error: --json cannot be combined with --quiet or color flags\n");
+    return 2;
+  }
+
   const report = await verifyUrl(parsed.url, {
     skipNegotiation: parsed.skipNegotiation,
     timeoutMs: parsed.timeoutMs,
   });
 
   if (parsed.json) {
-    process.stdout.write(JSON.stringify(report, null, 2) + "\n");
+    process.stdout.write(JSON.stringify(formatJsonReportV1(report), null, 2) + "\n");
   } else {
     process.stdout.write(formatTextReport(report) + "\n");
   }
 
   const ratio = report.maxScore > 0 ? report.score / report.maxScore : 0;
-  return ratio >= 0.8 ? 0 : 1;
+  const hasRequiredFailures = report.failed.some((check) => check.severity === "required");
+  return ratio >= 0.8 && !hasRequiredFailures ? 0 : 1;
 }

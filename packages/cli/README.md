@@ -21,16 +21,45 @@ dualmark verify https://example.com --timeout 5000
 
 ### Flags
 
-| Flag | Effect |
-|---|---|
-| `--json` | Emit machine-readable JSON instead of human-readable text |
+| Flag                 | Effect                                                                                                                                                                 |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--json`             | Emit machine-readable JSON (AEO Spec v1.0) instead of human-readable text; cannot be combined with `--quiet` or color flags                                            |
 | `--skip-negotiation` | Skip Accept-header / Link-header / 406 checks. Use against sites that serve markdown only at `.md` URLs without runtime content negotiation (e.g. static-only deploys) |
-| `--timeout <ms>` | Per-request timeout (default 10000) |
+| `--timeout <ms>`     | Per-request timeout (default 10000)                                                                                                                                    |
+
+### JSON output schema (AEO Spec v1.0)
+
+When `--json` is set, the CLI prints this object:
+
+```json
+{
+  "url": "https://example.com/blog/hello",
+  "markdownUrl": "https://example.com/blog/hello.md",
+  "score": 95,
+  "max": 100,
+  "level": "advanced",
+  "durationMs": 123,
+  "checks": [
+    {
+      "id": "md.fetch",
+      "points": 20,
+      "max": 20,
+      "passed": true,
+      "message": "OK"
+    }
+  ]
+}
+```
+
+Notes:
+
+- `level` is one of `none`, `basic`, `standard`, `advanced`.
+- `checks[].points` is `0` when a check fails, otherwise equal to `checks[].max`.
 
 ### Exit codes
 
 - `0` — pass (score ≥ 80% of max)
-- `1` — fail (below threshold)
+- `1` — fail (below threshold or any required check failed)
 - `2` — CLI usage error
 
 ## Programmatic usage

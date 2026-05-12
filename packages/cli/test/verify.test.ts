@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { verifyUrl, formatTextReport } from "../src/verify.js";
+import { verifyUrl, formatTextReport, formatJsonReportV1 } from "../src/verify.js";
 
 interface MockEntry {
   status?: number;
@@ -36,6 +36,15 @@ const FULL_MD_HEADERS = {
   vary: "Accept",
   "x-aeo-version": "1.0",
 };
+
+function markdownOnlyFetch(body = "# Hello\n\nWorld."): typeof fetch {
+  return makeFetch({
+    "https://acme.test/blog/hello.md": () => ({
+      headers: FULL_MD_HEADERS,
+      body,
+    }),
+  });
+}
 
 describe("verifyUrl — fully conformant site (with negotiation)", () => {
   it("scores 100% of maxScore", async () => {
@@ -74,12 +83,7 @@ describe("verifyUrl — fully conformant site (with negotiation)", () => {
 
 describe("verifyUrl — markdown URL with --skip-negotiation", () => {
   it("scores out of reduced maxScore (no html/negotiation checks)", async () => {
-    const fetchImpl = makeFetch({
-      "https://acme.test/blog/hello.md": () => ({
-        headers: FULL_MD_HEADERS,
-        body: "# Hello\n\nWorld.",
-      }),
-    });
+    const fetchImpl = markdownOnlyFetch();
 
     const report = await verifyUrl("https://acme.test/blog/hello.md", {
       fetchImpl,
@@ -240,5 +244,89 @@ describe("formatTextReport", () => {
     });
     const text = formatTextReport(report);
     expect(text).toContain("Failed:");
+  });
+});
+
+describe("formatJsonReportV1", () => {
+  it("matches the v1.0 JSON schema snapshot for a representative URL", async () => {
+    const fetchImpl = markdownOnlyFetch();
+    const report = await verifyUrl("https://acme.test/blog/hello", {
+      fetchImpl,
+      skipNegotiation: true,
+    });
+
+    const jsonReport = formatJsonReportV1({
+      ...report,
+      durationMs: 12,
+    });
+
+    expect(jsonReport).toMatchInlineSnapshot(`
+      {
+        "checks": [
+          {
+            "id": "md.fetch",
+            "max": 20,
+            "message": "OK",
+            "passed": true,
+            "points": 20,
+          },
+          {
+            "id": "md.contentType",
+            "max": 10,
+            "message": "got text/markdown; charset=utf-8",
+            "passed": true,
+            "points": 10,
+          },
+          {
+            "id": "md.tokensHeader",
+            "max": 10,
+            "message": "got 42",
+            "passed": true,
+            "points": 10,
+          },
+          {
+            "id": "md.noindex",
+            "max": 10,
+            "message": "got noindex",
+            "passed": true,
+            "points": 10,
+          },
+          {
+            "id": "md.vary",
+            "max": 10,
+            "message": "got Accept",
+            "passed": true,
+            "points": 10,
+          },
+          {
+            "id": "md.body",
+            "max": 10,
+            "message": "15 bytes",
+            "passed": true,
+            "points": 10,
+          },
+          {
+            "id": "md.aeoVersion",
+            "max": 5,
+            "message": "got 1.0",
+            "passed": true,
+            "points": 5,
+          },
+          {
+            "id": "md.nosniff",
+            "max": 5,
+            "message": "got nosniff",
+            "passed": true,
+            "points": 5,
+          },
+        ],
+        "durationMs": 12,
+        "level": "advanced",
+        "markdownUrl": "https://acme.test/blog/hello.md",
+        "max": 80,
+        "score": 80,
+        "url": "https://acme.test/blog/hello",
+      }
+    `);
   });
 });
