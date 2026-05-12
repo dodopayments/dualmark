@@ -4,6 +4,8 @@
     "---[Rocket]Get started---",
     "quickstart",
     "concepts",
+    "---[CirclePlay]CI & automation---",
+    "ci",
     "---[Plug]Integrate---",
     "...integrations",
     "---[Package]API reference---",

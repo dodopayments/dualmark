@@ -68,6 +68,8 @@ Notes:
 - `1` — fail (below threshold or any required check failed)
 - `2` — CLI usage error
 
+For GitHub Actions, GitLab CI, and Docker examples, see the [Use in CI guide](https://dualmark.dev/docs/ci).
+
 ## Programmatic usage
 
 ```ts

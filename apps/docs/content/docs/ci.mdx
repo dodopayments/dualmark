@@ -1,0 +1,139 @@
+---
+title: Use in CI
+description: Run dualmark verify in your pipeline to catch AEO regressions before they ship.
+---
+
+`dualmark verify` exits non-zero when a required check fails, making it a natural fit for any CI
+pipeline. Add it to your pull-request workflow and block merges the moment conformance drops.
+
+## GitHub Actions
+
+<Steps>
+
+<Step>
+
+## Add the workflow file
+
+```yaml title=".github/workflows/aeo.yml"
+name: AEO Conformance
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  aeo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify AEO conformance
+        run: bunx @dualmark/cli verify ${{ vars.STAGING_URL }} --timeout 15000
+```
+
+Replace `vars.STAGING_URL` with the URL of your staging deployment, or hard-code a page URL
+directly (e.g. `https://staging.example.com/blog/your-post`).
+
+</Step>
+
+<Step>
+
+## Set a minimum score threshold
+
+Pass `--min-score` to fail the build below a specific score instead of relying only on required
+checks:
+
+```yaml title=".github/workflows/aeo.yml"
+- name: Verify AEO conformance
+  run: bunx @dualmark/cli verify https://staging.example.com/blog/your-post --min-score 95
+```
+
+See [Scoring & levels](/docs/conformance/scoring) for what score maps to Basic / Standard /
+Advanced conformance.
+
+</Step>
+
+<Step>
+
+## Parse results in downstream steps
+
+Use `--json` to get a machine-readable report you can forward to a dashboard or annotation step:
+
+```yaml title=".github/workflows/aeo.yml"
+- name: Verify AEO conformance
+  run: bunx @dualmark/cli verify https://staging.example.com/blog/your-post --json > aeo.json
+
+- name: Upload report
+  uses: actions/upload-artifact@v4
+  with:
+    name: aeo-report
+    path: aeo.json
+```
+
+<Callout type="info">
+  `--json` is mutually exclusive with colored output. Exit codes remain the same — non-zero on
+  required-check failure.
+</Callout>
+
+</Step>
+
+</Steps>
+
+## GitLab CI
+
+```yaml title=".gitlab-ci.yml"
+aeo-conformance:
+  image: oven/bun:latest
+  script:
+    - bunx @dualmark/cli verify https://staging.example.com/blog/your-post --timeout 15000
+  only:
+    - merge_requests
+    - main
+```
+
+For JSON output in GitLab, pipe to a file and expose it as an artifact:
+
+```yaml title=".gitlab-ci.yml"
+aeo-conformance:
+  image: oven/bun:latest
+  script:
+    - bunx @dualmark/cli verify https://staging.example.com/blog/your-post --json > aeo.json
+  artifacts:
+    paths:
+      - aeo.json
+    when: always
+```
+
+## Docker / self-hosted runners
+
+If your runner has Docker available but not Bun, use the official Bun image directly:
+
+```bash
+docker run --rm oven/bun:latest \
+  bunx @dualmark/cli verify https://example.com/blog/your-post
+```
+
+Or in a `docker-compose`-based pipeline:
+
+```yaml
+services:
+  aeo:
+    image: oven/bun:latest
+    command: bunx @dualmark/cli verify https://example.com/blog/your-post
+```
+
+## GitHub Action (coming soon)
+
+A first-class `dodopayments/dualmark-action` is on the roadmap — it will let you drop AEO
+conformance into any workflow with a single `uses:` line and no Bun setup required. Track progress
+in [issue #17](https://github.com/dodopayments/dualmark/issues/17).
+
+## Next steps
+
+<Cards>
+  <Card title="The verify CLI" href="/docs/conformance/cli">
+    Full flag reference, exit codes, and programmatic API.
+  </Card>
+  <Card title="Scoring & levels" href="/docs/conformance/scoring">
+    What each check is worth. Basic / Standard / Advanced thresholds explained.
+  </Card>
+</Cards>
