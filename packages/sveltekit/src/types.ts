@@ -55,6 +55,8 @@ export interface DualmarkSvelteKitConfig {
     injectLinkHeader?: boolean;
     skipPaths?: ReadonlyArray<string>;
   };
+  /** Matches SvelteKit's `kit.appDir` (default `_app`). Used to skip negotiation on internal asset paths. */
+  appDir?: string;
   headers?: {
     cacheControl?: string;
     noindex?: boolean;
@@ -71,5 +73,6 @@ export interface ResolvedDualmarkSvelteKitConfig extends DualmarkSvelteKitConfig
     injectLinkHeader: boolean;
     skipPaths: ReadonlyArray<string>;
   };
+  appDir: string;
   headers: { cacheControl: string; noindex: boolean };
 }

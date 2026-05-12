@@ -20,11 +20,16 @@ type ResolveLike = (event: EventLike) => Response | Promise<Response>;
 
 export type DualmarkHandle = Handle;
 
-function shouldSkip(pathname: string, skipPaths: ReadonlyArray<string>, method: string): boolean {
+function shouldSkip(
+  pathname: string,
+  skipPaths: ReadonlyArray<string>,
+  method: string,
+  appDir: string,
+): boolean {
   if (method !== "GET" && method !== "HEAD") return true;
   if (pathname === "/llms.txt") return true;
   if (pathname.endsWith(".md")) return true;
-  if (pathname === "/favicon.ico" || pathname.startsWith("/_app/")) return true;
+  if (pathname === "/favicon.ico" || pathname.startsWith(`/${appDir}/`)) return true;
   for (const skip of skipPaths) {
     if (pathname === skip || pathname.startsWith(skip.endsWith("/") ? skip : `${skip}/`)) {
       return true;
@@ -57,7 +62,7 @@ export async function handleRequest(
 ): Promise<Response> {
   const { pathname } = event.url;
 
-  if (!shouldSkip(pathname, resolved.middleware.skipPaths, event.request.method)) {
+  if (!shouldSkip(pathname, resolved.middleware.skipPaths, event.request.method, resolved.appDir)) {
     const userAgent = event.request.headers.get("user-agent") ?? "";
     const accept = event.request.headers.get("accept") ?? "";
     const bot = detectAIBot(userAgent);

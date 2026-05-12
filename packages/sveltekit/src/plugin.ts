@@ -169,7 +169,7 @@ function collectGeneratedRouteFiles(dir: string): string[] {
       generated.push(...collectGeneratedRouteFiles(entryPath));
       continue;
     }
-    if (entry.name !== "+server.ts") continue;
+    if (entry.name !== "+server.ts" && entry.name !== "+server.js") continue;
     const current = readFileSync(entryPath, "utf8");
     if (current.startsWith(GENERATED_MARKER)) {
       generated.push(entryPath);

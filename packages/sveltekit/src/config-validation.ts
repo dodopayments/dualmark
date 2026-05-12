@@ -54,10 +54,17 @@ export function resolveConfig(input: DualmarkSvelteKitConfig): ResolvedDualmarkS
         `Dualmark config: collection '${name}' is missing 'getEntries' function`,
       );
     }
-    if (c.route && c.route.startsWith("/")) {
-      throw new DualmarkConfigError(
-        `Dualmark config: collection '${name}' route should not start with '/' (got '${c.route}')`,
-      );
+    if (c.route !== undefined) {
+      if (c.route.startsWith("/")) {
+        throw new DualmarkConfigError(
+          `Dualmark config: collection '${name}' route should not start with '/' (got '${c.route}')`,
+        );
+      }
+      if (c.route.length === 0) {
+        throw new DualmarkConfigError(
+          `Dualmark config: collection '${name}' route must not be empty`,
+        );
+      }
     }
   }
 
@@ -111,6 +118,7 @@ export function resolveConfig(input: DualmarkSvelteKitConfig): ResolvedDualmarkS
       injectLinkHeader: input.middleware?.injectLinkHeader !== false,
       skipPaths: input.middleware?.skipPaths ?? [],
     },
+    appDir: input.appDir ?? "_app",
     headers: {
       cacheControl: input.headers?.cacheControl ?? "public, max-age=3600",
       noindex: input.headers?.noindex !== false,
