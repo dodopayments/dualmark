@@ -69,11 +69,26 @@ Publishing the release fires the **`Release (npm publish)`** workflow which:
 - Checks out the exact tag
 - Builds + tests + typechecks all `@dualmark/*` packages
 - Verifies at least one package version matches the tag
-- Publishes each `packages/*` to npm via `bun publish --access public --tag latest` (which rewrites `workspace:*` deps to the actual pinned version at pack time)
-- Auth via `NPM_CONFIG_TOKEN` env (the only reliable auth path for `bun publish` in CI)
-- Skips packages that are already at that version on the registry (idempotent re-runs)
+- Packs each `packages/*` with `bun pm pack --quiet` (rewrites `workspace:*` deps to concrete versions in the tarball)
+- Publishes each tarball with `npm publish <tarball> --provenance --access public --tag latest`, which:
+  - Uploads the pre-packed tarball
+  - Generates a [Sigstore-backed npm provenance attestation](https://docs.npmjs.com/generating-provenance-statements) tying the published artifact to this exact workflow run + commit SHA (visible as a "Provenance" badge on the package's npm page)
+- Auth via `NODE_AUTH_TOKEN` env (wired into `~/.npmrc` by `actions/setup-node` in the composite setup action)
+- Skips packages already at that version on the registry (idempotent re-runs)
+
+Why `bun pm pack` + `npm publish` instead of just `bun publish`? As of bun 1.3.5, `bun publish` does not yet support `--provenance` (tracked at [oven-sh/bun#15601](https://github.com/oven-sh/bun/issues/15601)). When that ships in a stable bun release, the two-step flow collapses back to a single `bun publish --provenance` call.
 
 If anything fails, the release is on GitHub but nothing is on npm — fix and re-run the workflow via **Actions → Release → Run workflow** with the tag as input.
+
+### Verifying provenance
+
+Consumers (and you) can verify any `@dualmark/*` tarball's provenance attestation with:
+
+```bash
+npm audit signatures
+# or, per-package:
+npm view @dualmark/core --json | grep -A2 attestations
+```
 
 ### Why two workflows
 

@@ -47,11 +47,11 @@ jobs:
         with:
           registry-url: https://registry.npmjs.org
 
-      # Refresh bun.lock workspace metadata so `bun publish` rewrites
-      # `workspace:*` deps to the tag's actual versions. `bun install
-      # --frozen-lockfile` (in setup) does NOT update workspace version
-      # metadata even when packages/*/package.json drifts from bun.lock.
-      # See oven-sh/bun#20477 (open as of bun 1.3.5).
+      # Refresh bun.lock workspace metadata so `bun pm pack` (later step)
+      # rewrites `workspace:*` deps in the tarball to the tag's actual
+      # versions. `bun install --frozen-lockfile` (in setup) does NOT update
+      # workspace version metadata even when packages/*/package.json drifts
+      # from bun.lock. See oven-sh/bun#20477 (open as of bun 1.3.5).
       - name: Refresh lockfile workspace metadata
         run: bun install --lockfile-only
 
@@ -85,20 +85,30 @@ jobs:
             exit 1
           fi
 
-      - name: Publish to npm
-        # Uses `bun publish` per package instead of `changeset publish` because
-        # changesets delegates to `npm publish` (which does NOT rewrite
-        # workspace:* dependencies). bun publish DOES rewrite workspace:* to
-        # the actual version at pack time, producing valid tarballs that
-        # external consumers can install.
+      - name: Publish to npm (with provenance)
+        # Two-step pack-then-publish flow:
         #
-        # Auth: bun publish reads NPM_CONFIG_TOKEN env var (since bun 1.1.33).
-        # This is the only reliable auth method for bun publish in CI —
-        # writing ~/.npmrc does NOT work because bun looks at NPM_CONFIG_USERCONFIG
-        # path, not ~/.npmrc by default.
+        #   1. `bun pm pack` rewrites `workspace:*` deps to concrete versions
+        #      at pack time. `npm publish` alone CANNOT do this — it would
+        #      ship invalid `"workspace:*"` strings to the registry.
+        #   2. `npm publish <tarball> --provenance` uploads the pre-packed
+        #      tarball and generates a Sigstore-backed npm provenance
+        #      attestation (visible as a "Provenance" badge on npmjs.com).
         #
-        # Provenance disabled because the repo is INTERNAL — flip repo public
-        # + add `--provenance` here to re-enable.
+        # Why not `bun publish --provenance`?
+        #   As of bun 1.3.5, `bun publish` does NOT support the --provenance
+        #   flag. See oven-sh/bun#15601 / #21586. When that lands in a stable
+        #   bun release, this whole block can collapse back to
+        #   `bun publish --access public --provenance --tag latest`.
+        #
+        # Why `--provenance` requires `id-token: write`:
+        #   npm provenance uses OIDC to mint a short-lived Sigstore cert from
+        #   the GitHub Actions runner's identity, so the published attestation
+        #   is cryptographically tied to this exact workflow file + commit SHA.
+        #   Permission is granted at the job level above.
+        #
+        # Auth: `actions/setup-node` (in our setup composite action) writes
+        # ~/.npmrc to read $NODE_AUTH_TOKEN, which is what `npm publish` uses.
         run: |
           set -euo pipefail
           published_count=0
@@ -113,12 +123,21 @@ jobs:
               echo "::endgroup::"
               continue
             fi
-            echo "::group::Publishing $pkg_name@$pkg_version"
-            (cd "$pkg_dir" && bun publish --access public --tag latest)
+            echo "::group::Packing $pkg_name@$pkg_version"
+            # `bun pm pack --quiet` prints ONLY the tarball filename (no progress
+            # noise, no summary). Without --quiet, stdout includes "packed <file>"
+            # lines and a "Total files: N" footer that breaks any `tail -n 1`
+            # parsing. The tarball is written to the package dir.
+            tarball=$(cd "$pkg_dir" && bun pm pack --quiet)
+            tarball_abs="$(cd "$pkg_dir" && readlink -f "$tarball")"
+            echo "  tarball: $tarball_abs"
+            echo "::endgroup::"
+            echo "::group::Publishing $pkg_name@$pkg_version (with provenance)"
+            npm publish "$tarball_abs" --access public --tag latest --provenance
             echo "::endgroup::"
             published_count=$((published_count + 1))
           done
           echo ""
-          echo "Published $published_count package(s) to npm at version matching tag."
+          echo "Published $published_count package(s) to npm with provenance attestation."
         env:
-          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
