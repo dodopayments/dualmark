@@ -124,12 +124,20 @@ jobs:
               continue
             fi
             echo "::group::Packing $pkg_name@$pkg_version"
-            # `bun pm pack --quiet` prints ONLY the tarball filename (no progress
-            # noise, no summary). Without --quiet, stdout includes "packed <file>"
-            # lines and a "Total files: N" footer that breaks any `tail -n 1`
-            # parsing. The tarball is written to the package dir.
-            tarball=$(cd "$pkg_dir" && bun pm pack --quiet)
+            # `bun pm pack --quiet` prints the tarball filename, but bun 1.3.5
+            # wraps it in stray whitespace — a leading \n on Linux runners
+            # produces an unsplit `\n<filename>\n` blob that command
+            # substitution turns into a path with a literal newline in the
+            # middle, which `npm publish` then can't open (ENOENT).
+            # `tr -d '[:space:]'` strips all whitespace defensively so the
+            # variable holds only the filename, regardless of bun version.
+            # The tarball is written to the package dir.
+            tarball=$(cd "$pkg_dir" && bun pm pack --quiet | tr -d '[:space:]')
             tarball_abs="$(cd "$pkg_dir" && readlink -f "$tarball")"
+            if [ ! -f "$tarball_abs" ]; then
+              echo "::error::bun pm pack produced no tarball at expected path: $tarball_abs"
+              exit 1
+            fi
             echo "  tarball: $tarball_abs"
             echo "::endgroup::"
             echo "::group::Publishing $pkg_name@$pkg_version (with provenance)"
