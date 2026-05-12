@@ -68,6 +68,24 @@ jobs:
           node ../../packages/cli/dist/cli.js verify http://localhost:3000/posts/hello
           kill $NEXT_PID
 
+  sveltekit-blog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: bunx turbo run build --filter='@dualmark/*'
+      - name: Build sveltekit-blog example
+        run: bun run --filter dualmark-example-sveltekit-blog build
+      - name: Verify sveltekit-blog under vite dev
+        working-directory: examples/sveltekit-blog
+        run: |
+          ./node_modules/.bin/vite dev --host 127.0.0.1 --port 5173 &
+          VITE_PID=$!
+          sleep 10
+          node ../../packages/cli/dist/cli.js verify http://localhost:5173/posts/hello
+          kill $VITE_PID
+
   dualmark-docs-dogfood:
     runs-on: ubuntu-latest
     timeout-minutes: 10

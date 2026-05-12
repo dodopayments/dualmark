@@ -1,0 +1,26 @@
+{
+  "name": "dualmark-example-sveltekit-blog",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev --host 127.0.0.1 --port 5173",
+    "build": "vite build",
+    "prepare": "svelte-kit sync || true",
+    "preview": "vite preview --host 127.0.0.1 --port 5173",
+    "verify": "node ../../packages/cli/dist/cli.js verify http://localhost:5173/posts/hello"
+  },
+  "dependencies": {
+    "@dualmark/core": "workspace:*",
+    "@dualmark/converters": "workspace:*",
+    "@dualmark/sveltekit": "workspace:*"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "^6.1.0",
+    "@sveltejs/kit": "^2.48.0",
+    "@sveltejs/vite-plugin-svelte": "^6.2.2",
+    "svelte": "^5.45.0",
+    "typescript": "^5.7.2",
+    "vite": "^7.2.7"
+  }
+}

@@ -2,6 +2,7 @@ node_modules/
 dist/
 build/
 .next/
+.svelte-kit/
 .turbo/
 .astro/
 .cache/

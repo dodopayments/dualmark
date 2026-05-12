@@ -21,7 +21,7 @@ Your blog ranks #1 on Google. ChatGPT cites your competitor.
 
 That's not a content problem. It's an **infrastructure problem**. AI search engines (ChatGPT, Claude, Perplexity, Gemini, Google AI Overviews) read the web differently from humans — they want clean markdown without nav chrome, JavaScript, or cookie banners. Most marketing sites give them HTML soup and wonder why they get ignored.
 
-**Dualmark gives every page a markdown twin.** Same URL. Two formats. Picked by HTTP content negotiation. Drop it into your Astro/Next.js/Cloudflare stack in 30 seconds. Score it with `dualmark verify`.
+**Dualmark gives every page a markdown twin.** Same URL. Two formats. Picked by HTTP content negotiation. Drop it into your Astro/Next.js/SvelteKit/Cloudflare stack in 30 seconds. Score it with `dualmark verify`.
 
 ```diff
 - npm install @next-seo/some-meta-tag-thing
@@ -51,10 +51,10 @@ export default defineConfig({
     dualmark({
       siteUrl: "https://yourcompany.com",
       collections: {
-        blog: { converter: "blog" },           // /blog/*.md auto-generated
-        glossary: { converter: "glossary" },   // /glossary/*.md auto-generated
+        blog: { converter: "blog" }, // /blog/*.md auto-generated
+        glossary: { converter: "glossary" }, // /glossary/*.md auto-generated
       },
-      llmsTxt: { enabled: true },              // /llms.txt auto-generated
+      llmsTxt: { enabled: true }, // /llms.txt auto-generated
     }),
   ],
 });
@@ -110,6 +110,36 @@ That's it. Bot UAs get markdown, browsers get HTML with a `Link rel="alternate"`
 
 [Full Next.js example →](./examples/nextjs-app-router)
 
+### SvelteKit (60 seconds)
+
+```bash
+bun add @dualmark/sveltekit
+```
+
+```ts
+// vite.config.ts
+import { sveltekit } from "@sveltejs/kit/vite";
+import { defineConfig } from "vite";
+import dualmark from "@dualmark/sveltekit";
+import dualmarkConfig from "./src/dualmark.config";
+
+export default defineConfig({
+  plugins: [dualmark(dualmarkConfig), sveltekit()],
+});
+```
+
+```ts
+// src/hooks.server.ts
+import { createDualmarkHandle } from "@dualmark/sveltekit";
+import dualmarkConfig from "./dualmark.config";
+
+export const handle = createDualmarkHandle(dualmarkConfig);
+```
+
+Full example with `vite dev` → 125/125 conformance score:
+
+[Full SvelteKit example →](./examples/sveltekit-blog)
+
 ### Cloudflare Workers (60 seconds)
 
 Wrap your existing Worker. AI bots get markdown at the edge — single-digit-ms first-byte from 300+ cities.
@@ -155,6 +185,7 @@ yourcompany.com/llms.txt            ← AI agents discover everything
 ```
 
 Same URL. Same content. Different rendering. Picked automatically by:
+
 - `Accept: text/markdown` header → markdown
 - Known AI bot User-Agent (GPTBot, ClaudeBot, PerplexityBot, +21 more) → markdown
 - Direct `.md` URL → markdown
@@ -194,7 +225,7 @@ const convert = compareConverter({
   basePath: "/compare",
 });
 
-const md = convert(yourComparePage);  // → battle-tested markdown layout
+const md = convert(yourComparePage); // → battle-tested markdown layout
 ```
 
 ---
@@ -243,6 +274,7 @@ Three conformance levels — **Basic** (60%), **Standard** (80%), **Advanced** (
 | [`@dualmark/converters`](./packages/converters) | `npm i @dualmark/converters` | 16 KB | 13 production-tested converter factories. |
 | [`@dualmark/astro`](./packages/astro) | `npm i @dualmark/astro` | 22 KB | Astro 5 integration. Auto-generates `.md` endpoints, ships middleware, generates `llms.txt`. |
 | [`@dualmark/nextjs`](./packages/nextjs) | `npm i @dualmark/nextjs` | 15 KB | Next.js App Router adapter. `withDualmark()`, `createDualmarkMiddleware()`, `createDualmarkRouteHandler()`, `createLlmsTxtHandler()`. |
+| [`@dualmark/sveltekit`](./packages/sveltekit) | `npm i @dualmark/sveltekit` | 19 KB | SvelteKit adapter. Vite route generator, `createDualmarkHandle()`, generated `.md` endpoints, and `llms.txt`. |
 | [`@dualmark/cloudflare`](./packages/cloudflare) | `npm i @dualmark/cloudflare` | 9 KB | Workers edge adapter. Wraps any upstream Worker. Hooks for analytics + telemetry. |
 | [`@dualmark/cli`](./packages/cli) | `npm i -g @dualmark/cli` | 16 KB | `dualmark verify <url>`. Programmatic API too. |
 
@@ -251,7 +283,7 @@ Plus:
 - [**`spec/`**](./spec) — the **AEO Specification v1.0**. Public, framework-agnostic, RFC-2119-compliant. Implement it in Go, Rust, PHP, Ruby — your call.
 - [**`apps/docs/`**](./apps/docs) — Fumadocs site at [dualmark.dev](https://dualmark.dev)
 - [**`apps/docs/app/play`**](./apps/docs/app/play) — interactive Accept-header + UA tester. Live at [dualmark.dev/play](https://dualmark.dev/play).
-- [**`examples/`**](./examples) — three end-to-end working examples (Astro, Astro+Cloudflare, Next.js).
+- [**`examples/`**](./examples) — four end-to-end working examples (Astro, Astro+Cloudflare, Next.js, SvelteKit).
 
 ---
 
@@ -265,15 +297,17 @@ Plus:
 | `@dualmark/cli` | 17 tests pass |
 | `@dualmark/astro` | 35 tests pass |
 | `@dualmark/nextjs` | 47 tests pass |
+| `@dualmark/sveltekit` | 17 tests pass |
 | `examples/astro-blog` | **80/80** under `astro dev` (`--skip-negotiation`) |
 | `examples/astro-cloudflare-full` | **125/125 perfect** under `wrangler dev` (full negotiation) |
-| `examples/nextjs-app-router` | **120/125** under `next dev` (now using `@dualmark/nextjs`) |
-| `apps/docs` | 26 routes prerendered, all serve 200 |
-| `/play` route | Live at dualmark.dev/play, integrated into the docs app |
+| `examples/nextjs-app-router`     | **120/125** under `next dev` (now using `@dualmark/nextjs`) |
+| `examples/sveltekit-blog`        | **125/125 perfect** under `vite dev` (full negotiation)     |
+| `apps/docs`                      | 26 routes prerendered, all serve 200                        |
+| `/play` route                    | Live at dualmark.dev/play, integrated into the docs app     |
 
 ```bash
 bun install
-bun run build && bun run test && bun run typecheck   # 324 tests across 6 packages
+bun run build && bun run test && bun run typecheck   # 341 tests across 7 packages
 ```
 
 ---
@@ -282,7 +316,7 @@ bun run build && bun run test && bun run typecheck   # 324 tests across 6 packag
 
 We're building toward Dualmark being **the** AEO infrastructure for marketing sites — the same way Tailwind became the default for marketing CSS or Vercel for marketing hosting. The roadmap:
 
-- **More framework adapters**: SvelteKit, Remix/React Router, Nuxt
+- **More framework adapters**: Remix/React Router, Nuxt
 - **More edge adapters**: Vercel, Netlify, Fastly Compute, Deno Deploy
 - **More converters**: pricing tables, changelog, docs/API reference, status pages, integrations
 - **AEO Analytics**: a hosted dashboard on top of the `onAIRequest` hook, so marketing can see which bot reads which page, when

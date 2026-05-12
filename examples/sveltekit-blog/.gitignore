@@ -1,0 +1,3 @@
+.svelte-kit/
+src/routes/**/*.md/+server.ts
+src/routes/llms.txt/+server.ts

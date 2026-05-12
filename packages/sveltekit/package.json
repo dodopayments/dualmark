@@ -1,0 +1,73 @@
+{
+  "name": "@dualmark/sveltekit",
+  "version": "0.1.0",
+  "description": "SvelteKit adapter for the Dualmark AEO framework. Generates .md endpoints, llms.txt, and a handle hook for bot-aware content negotiation.",
+  "license": "Apache-2.0",
+  "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dodopayments/dualmark.git",
+    "directory": "packages/sveltekit"
+  },
+  "bugs": {
+    "url": "https://github.com/dodopayments/dualmark/issues"
+  },
+  "homepage": "https://github.com/dodopayments/dualmark/tree/main/packages/sveltekit#readme",
+  "funding": "https://github.com/sponsors/dodopayments",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo"
+  },
+  "peerDependencies": {
+    "@sveltejs/kit": ">=2.0.0"
+  },
+  "dependencies": {
+    "@dualmark/core": "workspace:*",
+    "@dualmark/converters": "workspace:*"
+  },
+  "devDependencies": {
+    "@sveltejs/kit": "^2.48.0",
+    "@types/node": "^22.10.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vite": "^7.2.7",
+    "vitest": "^2.1.8"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "keywords": [
+    "aeo",
+    "answer-engine-optimization",
+    "sveltekit",
+    "svelte",
+    "ai-search",
+    "markdown",
+    "llms-txt",
+    "dualmark"
+  ],
+  "engines": {
+    "node": ">=18.18.0"
+  }
+}
