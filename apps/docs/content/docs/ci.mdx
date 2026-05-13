@@ -37,23 +37,6 @@ directly (e.g. `https://staging.example.com/blog/your-post`).
 
 <Step>
 
-## Set a minimum score threshold
-
-Pass `--min-score` to fail the build below a specific score instead of relying only on required
-checks:
-
-```yaml title=".github/workflows/aeo.yml"
-- name: Verify AEO conformance
-  run: bunx @dualmark/cli verify https://staging.example.com/blog/your-post --min-score 95
-```
-
-See [Scoring & levels](/docs/conformance/scoring) for what score maps to Basic / Standard /
-Advanced conformance.
-
-</Step>
-
-<Step>
-
 ## Parse results in downstream steps
 
 Use `--json` to get a machine-readable report you can forward to a dashboard or annotation step:
@@ -70,8 +53,8 @@ Use `--json` to get a machine-readable report you can forward to a dashboard or 
 ```
 
 <Callout type="info">
-  `--json` is mutually exclusive with colored output. Exit codes remain the same — non-zero on
-  required-check failure.
+  Exit codes are the same with `--json` — non-zero on required-check failure. The JSON report can
+  be consumed by dashboards, Slack bots, or custom annotation scripts.
 </Callout>
 
 </Step>
