@@ -161,6 +161,31 @@ describe("CLI argument parsing & exit codes", () => {
     stderr.mockRestore();
   });
 
+  it("accepts --json with --no-color (no-op)", async () => {
+    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    const stderr = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+    try {
+      const code = await withMockedFetch(mockFetchForJsonSuccess(), () =>
+        main([
+          "node",
+          "dualmark",
+          "verify",
+          "https://acme.test/blog/hello",
+          "--skip-negotiation",
+          "--json",
+          "--no-color",
+        ]),
+      );
+      expect(code).toBe(0);
+      expect(stderr).not.toHaveBeenCalled();
+      const parsed = JSON.parse(stdout.mock.calls.flat().join(""));
+      expect(parsed).toHaveProperty("url", "https://acme.test/blog/hello");
+    } finally {
+      stdout.mockRestore();
+      stderr.mockRestore();
+    }
+  });
+
   it("returns non-zero when a required check fails", async () => {
     const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
     try {
@@ -168,6 +193,42 @@ describe("CLI argument parsing & exit codes", () => {
         main(["node", "dualmark", "verify", "https://acme.test/high-score", "--json"]),
       );
       expect(code).toBe(1);
+    } finally {
+      stdout.mockRestore();
+    }
+  });
+
+  it("suppresses stdout with --quiet on success", async () => {
+    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    const stderr = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+    try {
+      const code = await withMockedFetch(mockFetchForJsonSuccess(), () =>
+        main([
+          "node",
+          "dualmark",
+          "verify",
+          "https://acme.test/blog/hello",
+          "--skip-negotiation",
+          "--quiet",
+        ]),
+      );
+      expect(code).toBe(0);
+      expect(stdout).not.toHaveBeenCalled();
+      expect(stderr).not.toHaveBeenCalled();
+    } finally {
+      stdout.mockRestore();
+      stderr.mockRestore();
+    }
+  });
+
+  it("still prints report with --quiet on failure", async () => {
+    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    try {
+      const code = await withMockedFetch(mockFetchForRequiredFailure(), () =>
+        main(["node", "dualmark", "verify", "https://acme.test/high-score", "--quiet"]),
+      );
+      expect(code).toBe(1);
+      expect(stdout).toHaveBeenCalled();
     } finally {
       stdout.mockRestore();
     }

@@ -5,7 +5,7 @@ interface ParsedArgs {
   url?: string;
   json?: boolean;
   quiet?: boolean;
-  color?: boolean;
+  colorMode?: "on" | "off";
   skipNegotiation?: boolean;
   timeoutMs?: number;
 }
@@ -27,7 +27,7 @@ function parseArgs(argv: ReadonlyArray<string>): ParsedArgs {
   let url: string | undefined;
   let json = false;
   let quiet = false;
-  let color = false;
+  let colorMode: "on" | "off" | undefined;
   let skipNegotiation = false;
   let timeoutMs: number | undefined;
   for (let i = 1; i < args.length; i++) {
@@ -36,8 +36,10 @@ function parseArgs(argv: ReadonlyArray<string>): ParsedArgs {
       json = true;
     } else if (a === "--quiet") {
       quiet = true;
-    } else if (a === "--color" || a === "--no-color") {
-      color = true;
+    } else if (a === "--color") {
+      colorMode = "on";
+    } else if (a === "--no-color") {
+      colorMode = "off";
     } else if (a === "--skip-negotiation") {
       skipNegotiation = true;
     } else if (a === "--timeout") {
@@ -50,7 +52,7 @@ function parseArgs(argv: ReadonlyArray<string>): ParsedArgs {
       url = a;
     }
   }
-  return { command: "verify", url, json, quiet, color, skipNegotiation, timeoutMs };
+  return { command: "verify", url, json, quiet, colorMode, skipNegotiation, timeoutMs };
 }
 
 function printHelp(): void {
@@ -59,7 +61,7 @@ function printHelp(): void {
       "dualmark — AEO conformance test runner",
       "",
       "Usage:",
-      "  dualmark verify <url> [--json] [--skip-negotiation] [--timeout <ms>]",
+      "  dualmark verify <url> [--json] [--quiet] [--color|--no-color] [--skip-negotiation] [--timeout <ms>]",
       "  dualmark version",
       "  dualmark help",
       "",
@@ -100,7 +102,7 @@ export async function main(argv: ReadonlyArray<string>): Promise<number> {
     return 2;
   }
 
-  if (parsed.json && (parsed.quiet || parsed.color)) {
+  if (parsed.json && (parsed.quiet || parsed.colorMode === "on")) {
     process.stderr.write("error: --json cannot be combined with --quiet or color flags\n");
     return 2;
   }
@@ -110,13 +112,17 @@ export async function main(argv: ReadonlyArray<string>): Promise<number> {
     timeoutMs: parsed.timeoutMs,
   });
 
-  if (parsed.json) {
-    process.stdout.write(JSON.stringify(formatJsonReportV1(report), null, 2) + "\n");
-  } else {
-    process.stdout.write(formatTextReport(report) + "\n");
-  }
-
   const ratio = report.maxScore > 0 ? report.score / report.maxScore : 0;
   const hasRequiredFailures = report.failed.some((check) => check.severity === "required");
-  return ratio >= 0.8 && !hasRequiredFailures ? 0 : 1;
+  const exitCode = ratio >= 0.8 && !hasRequiredFailures ? 0 : 1;
+
+  if (parsed.json) {
+    process.stdout.write(JSON.stringify(formatJsonReportV1(report), null, 2) + "\n");
+  } else if (!parsed.quiet || exitCode !== 0) {
+    process.stdout.write(formatTextReport(report) + "\n");
+  } else {
+    // Quiet mode suppresses successful reports.
+  }
+
+  return exitCode;
 }
