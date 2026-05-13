@@ -3,10 +3,15 @@ import { describe, expect, it, vi } from "vitest";
 import { resolveConfig } from "../src/config-validation.js";
 import { createDualmarkHandle, handleRequest, type FetchLike } from "../src/handle.js";
 
-function makeEvent(url: string, headers: Record<string, string> = {}, fetchImpl?: FetchLike) {
+function makeEvent(
+  url: string,
+  headers: Record<string, string> = {},
+  fetchImpl?: FetchLike,
+  method = "GET",
+) {
   return {
     url: new URL(url),
-    request: new Request(url, { headers }),
+    request: new Request(url, { method, headers }),
     fetch:
       fetchImpl ??
       (async () =>
@@ -91,6 +96,21 @@ describe("handleRequest", () => {
     expect(fetch).not.toHaveBeenCalled();
     expect(resolve).toHaveBeenCalled();
     expect(await response.text()).toBe("# Direct");
+  });
+
+  it("injects Link alternate on HTML responses for non-GET methods (skips negotiation only)", async () => {
+    const response = await handleRequest(
+      makeEvent("https://example.com/posts/hello", {}, undefined, "POST"),
+      async () =>
+        new Response("<html><form method='post'>ok</form></html>", {
+          headers: { "Content-Type": "text/html; charset=utf-8" },
+        }),
+      resolved,
+    );
+
+    expect(response.headers.get("link")).toContain(
+      '</posts/hello.md>; rel="alternate"; type="text/markdown"',
+    );
   });
 });
 

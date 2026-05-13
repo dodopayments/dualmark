@@ -201,11 +201,16 @@ export function generateDualmarkRoutes(
 }
 
 export function dualmarkSvelteKit(input: DualmarkSvelteKitConfig): DualmarkSvelteKitPlugin {
+  let projectRoot = process.cwd();
+
   return {
     name: "@dualmark/sveltekit",
     enforce: "pre",
     configResolved(config) {
-      generateDualmarkRoutes(input, config.root);
+      projectRoot = config.root;
+    },
+    buildStart() {
+      generateDualmarkRoutes(input, projectRoot);
     },
   };
 }
