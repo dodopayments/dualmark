@@ -1,5 +1,12 @@
 # dualmark-example-astro-blog
 
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies [0cf13c4]
+  - @dualmark/astro@0.6.0
+
 ## 0.0.5
 
 ### Patch Changes
