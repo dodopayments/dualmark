@@ -1,0 +1,10 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-read --allow-net main.ts",
+    "test": "deno test --allow-read --allow-net"
+  },
+  "imports": {
+    "@dualmark/deno": "../../packages/deno/dist/index.js",
+    "@dualmark/core": "../../packages/core/dist/index.js"
+  }
+}

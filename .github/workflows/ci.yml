@@ -42,6 +42,15 @@ jobs:
           node packages/cli/dist/cli.js --help
           node packages/cli/dist/cli.js verify --help
 
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Deno example smoke test
+        working-directory: examples/deno-deploy
+        run: deno task test
+
       - name: Verify spec docs are in sync
         working-directory: apps/docs
         run: |

@@ -160,6 +160,19 @@
         "vitest": "^2.1.8",
       },
     },
+    "packages/deno": {
+      "name": "@dualmark/deno",
+      "version": "0.1.0",
+      "dependencies": {
+        "@dualmark/core": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/node": "^22.10.0",
+        "tsup": "^8.3.5",
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.8",
+      },
+    },
     "packages/nextjs": {
       "name": "@dualmark/nextjs",
       "version": "0.7.0",
@@ -280,6 +293,8 @@
     "@dualmark/converters": ["@dualmark/converters@workspace:packages/converters"],
 
     "@dualmark/core": ["@dualmark/core@workspace:packages/core"],
+
+    "@dualmark/deno": ["@dualmark/deno@workspace:packages/deno"],
 
     "@dualmark/nextjs": ["@dualmark/nextjs@workspace:packages/nextjs"],
 
