@@ -183,3 +183,19 @@ export function WrenchLogo({ size = 24, ...props }: LogoProps) {
     </svg>
   );
 }
+
+export function NetlifyLogo({ size = 24, ...props }: LogoProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      aria-label="Netlify"
+      {...props}
+    >
+      <path d="m7.22 6.1-.95.95v.18l1.44 1.45h1l.14-.14v-1L7.4 6.1zM7.71 15.32l-1.44 1.44v.19l.95.95h.18l1.45-1.45v-.99l-.14-.14zM12.51 9.14H9.42l-.11.11v5.48l.11.11h1.37l.11-.11v-4.15l.07-.07c.43-.02.84-.03 1.19-.02.69.02.91.46.91 1.03v3.21l.11.11h1.37l.11-.11V11.3c0-1.2-.97-2.17-2.17-2.17ZM12.7 7.54l.11-.11V3.32l-.11-.12h-1.38l-.11.12v4.11l.11.11zM7.71 12.69v-1.38l-.11-.11H2.11l-.11.11v1.38l.11.11H7.6zM16.4 11.2l-.11.11v1.38l.11.11h5.49l.11-.11v-1.38l-.11-.11zM11.32 16.46l-.11.11v4.11l.11.12h1.38l.11-.12v-4.11l-.11-.11z"/>
+    </svg>
+  );
+}

@@ -1,0 +1,23 @@
+{
+  "name": "dualmark-example-netlify-edge",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "netlify:dev": "netlify dev"
+  },
+  "dependencies": {
+    "@dualmark/astro": "workspace:*",
+    "@dualmark/netlify": "workspace:*",
+    "@dualmark/core": "workspace:*",
+    "@dualmark/converters": "workspace:*",
+    "astro": "^6.1.10"
+  },
+  "devDependencies": {
+    "@netlify/edge-functions": "^2.19.0",
+    "netlify-cli": "^22.0.0"
+  }
+}

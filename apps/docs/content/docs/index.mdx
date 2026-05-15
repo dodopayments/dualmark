@@ -17,7 +17,7 @@ import {
   ShieldCheck,
   Scale,
 } from "lucide-react";
-import { AstroLogo, NextLogo, CloudflareLogo, NuxtLogo } from "@/components/brand-logos";
+import { AstroLogo, NextLogo, CloudflareLogo, NuxtLogo, NetlifyLogo } from "@/components/brand-logos";
 
 <div className="my-6 aspect-video w-full overflow-hidden rounded-[var(--radius-card)] shadow-lg shadow-black/20">
   <iframe
@@ -50,6 +50,7 @@ Built and battle-tested at [Dodo Payments](https://dodopayments.com).
   <Card icon={<AstroLogo />} title="Astro" href="/docs/integrations/astro" description="Zero-config integration. Auto-generates .md endpoints, middleware, and llms.txt." />
   <Card icon={<NextLogo />} title="Next.js" href="/docs/integrations/nextjs" description="One-line install for Next.js 15 App Router. Auto middleware + route handlers." />
   <Card icon={<NuxtLogo />} title="Nuxt" href="/docs/integrations/nuxt" description="Zero-config integration for Nuxt 3. Auto-generates .md routes, middleware, and llms.txt." />
+  <Card icon={<NetlifyLogo />} title="Netlify" href="/docs/integrations/netlify" description="Edge Functions adapter. Transparently serves markdown twin to AI agents." />
   <Card icon={<CloudflareLogo />} title="Cloudflare Workers" href="/docs/integrations/cloudflare-workers" description="Edge adapter that wraps any upstream Worker. Transparent to your existing site." />
   <Card icon={<Wrench />} title="Any framework" href="/docs/integrations/manual" description="Implement the spec yourself in 50 lines. The contract is public." />
 </Cards>
@@ -62,6 +63,7 @@ Built and battle-tested at [Dodo Payments](https://dodopayments.com).
   <Card icon={<AstroLogo />} title="@dualmark/astro" href="/docs/packages/astro" description="Astro 5 integration with auto-generated routes and llms.txt." />
   <Card icon={<NextLogo />} title="@dualmark/nextjs" href="/docs/packages/nextjs" description="Next.js 15 App Router adapter — withDualmark, middleware factory, route handler factory." />
   <Card icon={<NuxtLogo />} title="@dualmark/nuxt" href="/docs/packages/nuxt" description="Nuxt 3 integration with auto-generated routes, middleware, and llms.txt." />
+  <Card icon={<NetlifyLogo />} title="@dualmark/netlify" href="/docs/packages/netlify" description="Netlify Edge Functions adapter. Transparently serves markdown to AI bots at the edge." />
   <Card icon={<CloudflareLogo />} title="@dualmark/cloudflare" href="/docs/packages/cloudflare" description="Workers edge adapter with hooks for analytics and transformations." />
   <Card icon={<Terminal />} title="@dualmark/cli" href="/docs/packages/cli" description="Conformance test runner. Drop into CI to fail builds below threshold." />
 </Cards>
