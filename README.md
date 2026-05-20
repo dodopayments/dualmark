@@ -280,7 +280,7 @@ bun run build && bun run test && bun run typecheck   # 324 tests across 6 packag
 
 ## Where it goes from here
 
-We're building toward Dualmark being **the** AEO infrastructure for marketing sites — the same way Tailwind became the default for marketing CSS or Vercel for marketing hosting. The roadmap:
+We're building toward Dualmark being **the** AEO infrastructure for marketing sites — the same way Tailwind became the default for marketing CSS or Vercel for marketing hosting. The roadmap is also published at [dualmark.dev/docs/roadmap](https://dualmark.dev/docs/roadmap):
 
 - **More framework adapters**: SvelteKit, Remix/React Router, Nuxt
 - **More edge adapters**: Vercel, Netlify, Fastly Compute, Deno Deploy

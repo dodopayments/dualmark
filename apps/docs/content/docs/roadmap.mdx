@@ -1,0 +1,55 @@
+---
+title: Public roadmap
+description: The current paths to AEO ubiquity, grouped by track and linked to the source GitHub issues.
+---
+
+Public roadmap for Dualmark. The linked GitHub sub-issues are the source of truth for scope, discussion, and prioritization.
+
+If something here matters to your stack and is not moving, add a `+1` or comment on the sub-issue so the maintainers can prioritize it.
+
+## Framework adapters
+
+- [x] [#4 `@dualmark/nextjs`](https://github.com/dodopayments/dualmark/issues/4) — shipped in [v0.5.0](https://github.com/dodopayments/dualmark/releases/tag/v0.5.0)
+- [ ] [#5 `@dualmark/sveltekit`](https://github.com/dodopayments/dualmark/issues/5)
+- [ ] [#6 `@dualmark/remix` / React Router v7](https://github.com/dodopayments/dualmark/issues/6)
+- [ ] [#7 `@dualmark/nuxt`](https://github.com/dodopayments/dualmark/issues/7)
+
+## Edge adapters
+
+- [ ] [#8 `@dualmark/vercel` (Edge Middleware)](https://github.com/dodopayments/dualmark/issues/8)
+- [ ] [#9 `@dualmark/netlify` (Edge Functions)](https://github.com/dodopayments/dualmark/issues/9)
+- [ ] [#10 `@dualmark/fastly` (Compute@Edge)](https://github.com/dodopayments/dualmark/issues/10)
+- [ ] [#11 `@dualmark/deno` (Deno Deploy)](https://github.com/dodopayments/dualmark/issues/11)
+
+## Converters
+
+- [ ] [#12 `status-page` converter](https://github.com/dodopayments/dualmark/issues/12)
+- [ ] [#13 `integration` / app-listing converter](https://github.com/dodopayments/dualmark/issues/13)
+- [ ] [#14 `api-reference` converter (OpenAPI-aware)](https://github.com/dodopayments/dualmark/issues/14)
+
+## Core, CLI, and spec
+
+- [ ] [#15 extend AI-bot detection list](https://github.com/dodopayments/dualmark/issues/15)
+- [ ] [#16 CLI `--json` output](https://github.com/dodopayments/dualmark/issues/16)
+- [ ] [#17 official GitHub Action wrapper](https://github.com/dodopayments/dualmark/issues/17)
+- [ ] [#18 AEO Spec v1.1 draft](https://github.com/dodopayments/dualmark/issues/18)
+- [ ] [#21 pluggable token estimator](https://github.com/dodopayments/dualmark/issues/21)
+
+## Examples and docs
+
+- [ ] [#19 CMS-driven (Sanity/Contentful) example](https://github.com/dodopayments/dualmark/issues/19)
+- [ ] [#20 "Use in CI" docs guide](https://github.com/dodopayments/dualmark/issues/20)
+- [ ] [#22 starter contributions board](https://github.com/dodopayments/dualmark/issues/22)
+
+## How to contribute
+
+1. Pick a sub-issue that matches your stack or interest.
+2. Comment on that issue to claim it or propose a smaller split.
+3. Read the repo [contribution guide](https://github.com/dodopayments/dualmark/blob/main/CONTRIBUTING.md).
+4. Open a PR with tests, typecheck, and any required changeset included.
+
+## Out of scope for now
+
+- New runtime dependencies in `@dualmark/core` — it stays zero-dependency.
+- Breaking changes to AEO Spec v1.0 — those flow through [#18](https://github.com/dodopayments/dualmark/issues/18).
+- Hosted services or dashboards — tracked separately from the OSS roadmap.
