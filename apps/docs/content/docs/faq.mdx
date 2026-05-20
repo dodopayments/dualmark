@@ -1,0 +1,22 @@
+---
+title: FAQ
+description: Common questions about Dualmark and AEO.
+---
+
+## Will this hurt my SEO?
+
+No. Dualmark does not replace your existing HTML pages. It adds markdown representations through content negotiation while preserving the original experience for users and search engines.
+
+Markdown twins also include `X-Robots-Tag: noindex` to avoid duplicate-content indexing issues.
+
+## Do I need llms.txt if I already have sitemap.xml?
+
+A sitemap helps search engines discover URLs. `llms.txt` helps AI systems understand and access content intended for language models.
+
+Dualmark can automatically generate `llms.txt` from the same configuration that drives your routes.
+
+## Why not just serve markdown via a different route?
+
+Dualmark keeps the same canonical URL and negotiates the response format automatically using standard HTTP content negotiation.
+
+This means human visitors continue receiving HTML while AI clients can receive markdown from the same page endpoint.
