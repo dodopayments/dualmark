@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "customConditions": ["fastly"],
+    "types": ["@fastly/js-compute"]
+  },
+  "include": ["src/**/*"]
+}

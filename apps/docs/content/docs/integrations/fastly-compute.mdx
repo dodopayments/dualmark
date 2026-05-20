@@ -1,0 +1,67 @@
+---
+title: Fastly Compute
+description: Wrap an upstream Fastly backend with createAEORequestHandler for edge negotiation.
+---
+
+`@dualmark/fastly` wraps a Fastly backend fetch path. AI bots and `Accept: text/markdown` requests get the markdown twin, while browser traffic keeps flowing to the original HTML backend.
+
+## Install
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/fastly @dualmark/core
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/fastly @dualmark/core
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/fastly @dualmark/core
+```
+</Tab>
+</Tabs>
+
+## Minimal service
+
+```ts title="src/index.ts"
+/// <reference types="@fastly/js-compute" />
+
+import { createAEOFetchEventHandler } from "@dualmark/fastly";
+
+addEventListener(
+  "fetch",
+  createAEOFetchEventHandler({
+    backend: "origin_0",
+    trailingSlash: "never",
+    hooks: {
+      onAIRequest: (info) => console.log(`${info.botName} hit ${info.pathname}`),
+      onMiss: (info) => console.warn(`miss: ${info.pathname}`),
+    },
+  }),
+);
+```
+
+## How markdown resolution works
+
+For a request like `/blog/edge-aeo`:
+
+1. Browser traffic fetches `/blog/edge-aeo` from backend `origin_0`
+2. AI-bot or `Accept: text/markdown` traffic fetches `/blog/edge-aeo.md` from the same backend
+3. HTML responses get `Link: </blog/edge-aeo.md>; rel="alternate"; type="text/markdown"`
+
+If your markdown files live on a different origin, set `markdownBackend` separately.
+
+## Verify
+
+The example at `examples/fastly-compute` is designed to be run with Fastly's local dev server:
+
+```bash
+cd examples/fastly-compute
+fastly compute serve
+# new terminal
+bunx @dualmark/cli verify http://127.0.0.1:7676/blog/edge-aeo
+```

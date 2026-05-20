@@ -1,0 +1,9 @@
+name = "dualmark-fastly-compute"
+main = "src/index.ts"
+
+[setup]
+
+  [setup.backends]
+
+    [setup.backends.origin_0]
+      address = "example.com"

@@ -1,0 +1,14 @@
+{
+  "name": "dualmark-example-fastly-compute",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "fastly compute serve"
+  },
+  "dependencies": {
+    "@dualmark/fastly": "workspace:*",
+    "@dualmark/core": "workspace:*",
+    "@fastly/js-compute": "^3.37.0"
+  }
+}

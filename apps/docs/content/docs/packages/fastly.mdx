@@ -1,0 +1,96 @@
+---
+title: "@dualmark/fastly"
+description: Fastly Compute edge adapter — wraps an upstream backend.
+---
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/fastly @dualmark/core
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/fastly @dualmark/core
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/fastly @dualmark/core
+```
+</Tab>
+</Tabs>
+
+## `createAEORequestHandler(options)`
+
+```ts
+import { createAEORequestHandler } from "@dualmark/fastly";
+
+const handleRequest = createAEORequestHandler({
+  backend: "origin_0",
+  trailingSlash: "never",
+  enableLinkHeader: true,
+
+  redirects: {
+    internal: { "/old": "/new" },
+    external: { "/login": "https://app.example.com" },
+  },
+
+  skip: {
+    prefixes: ["/admin", "/api/"],
+    extensions: [".js", ".css", ".png"],
+  },
+
+  headers: { cacheControl: "public, max-age=3600" },
+
+  hooks: {
+    onAIRequest: (info) => console.log(info.botName, info.pathname),
+    onMiss: (info) => console.warn("miss:", info.pathname),
+  },
+});
+```
+
+## `createAEOFetchEventHandler(options)`
+
+```ts
+/// <reference types="@fastly/js-compute" />
+
+import { createAEOFetchEventHandler } from "@dualmark/fastly";
+
+addEventListener(
+  "fetch",
+  createAEOFetchEventHandler({
+    backend: "origin_0",
+  }),
+);
+```
+
+## Options
+
+| Option | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `backend` | `string` | required | Fastly backend name for HTML/origin fetches |
+| `markdownBackend` | `string` | `backend` | Optional separate backend for `.md` twins |
+| `trailingSlash` | `"never" \| "always" \| "preserve"` | `"never"` | Redirect policy |
+| `enableLinkHeader` | `boolean` | `true` | Inject `Link rel="alternate"` on HTML |
+| `redirects.internal` | `Record<string, string>` | `{}` | Path → path |
+| `redirects.external` | `Record<string, string>` | `{}` | Path → URL |
+| `skip.prefixes` | `string[]` | `["/admin", "/api/", "/_"]` | Skip negotiation entirely |
+| `skip.extensions` | `string[]` | common assets | Skip negotiation for these extensions |
+| `headers.cacheControl` | `string` | `"public, max-age=3600"` | For markdown responses |
+| `hooks.onAIRequest` | `(info) => void` | `undefined` | Called on every AI hit |
+| `hooks.onMiss` | `(info) => void` | `undefined` | Called when no markdown twin is found |
+
+## Fastly TypeScript config
+
+```json
+{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "customConditions": ["fastly"],
+    "types": ["@fastly/js-compute"]
+  }
+}
+```
+
+Fastly publishes runtime globals and `fastly:*` types behind the `fastly` condition, so both fields are needed for accurate editor and `tsc` support.
