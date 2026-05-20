@@ -127,7 +127,7 @@ export function Adapters() {
 
       <div className="mt-10 flex flex-col items-center gap-3 text-center">
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--color-fg-subtle)]">
-          + 12 page-type converters
+          + 13 page-type converters
         </span>
         <div className="flex flex-wrap items-center justify-center gap-1.5">
           {CONVERTERS.map((name) => (

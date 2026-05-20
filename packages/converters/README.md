@@ -12,6 +12,7 @@ bun add @dualmark/converters @dualmark/core
 
 | Factory | Domain |
 |---|---|
+| `apiReferenceConverter` | API endpoint references (manual shape or OpenAPI-derived) |
 | `blogConverter` | Blog posts |
 | `caseStudyConverter` | Case studies (with stats + customer quote) |
 | `changelogConverter` | Release notes (Keep-a-Changelog grouping) |
@@ -26,10 +27,12 @@ bun add @dualmark/converters @dualmark/core
 | `toolConverter` | Standalone tools |
 | `videoConverter` | Video pages |
 
+That includes 14 built-in converters in total.
+
 ## Usage
 
 ```ts
-import { blogConverter } from "@dualmark/converters";
+import { apiReferenceConverter, blogConverter, fromOpenAPI } from "@dualmark/converters";
 
 const convert = blogConverter({
   siteUrl: "https://example.com",
@@ -42,6 +45,12 @@ const md = convert({
   data: { title: "Hello", publishedDate: new Date(), author: "Alice" },
   body: "Long-form content.",
 });
+
+const endpoint = fromOpenAPI(parsedOpenApiDoc, "addPet");
+const endpointMd = apiReferenceConverter({
+  siteUrl: "https://example.com",
+  basePath: "/api-reference",
+})(endpoint);
 ```
 
 Each factory takes a config object and returns a `(entry) => string` converter. Pass them to `@dualmark/astro` collection config or call directly from your own framework.

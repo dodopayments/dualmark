@@ -140,7 +140,7 @@ You already invested in SEO. Now invest in AEO — for **a fraction of the effor
 | **`llms.txt` proposal keeps changing** | Hand-maintained, drifts from sitemap | Auto-generated from the same config that drives your routes |
 | **Every team rebuilds this** | Custom middleware in every repo, none of them quite right | One battle-tested package, conforms to a public spec |
 | **No analytics for AI traffic** | "Was that a bot or a human?" | `onAIRequest` hook + Cloudflare Analytics Engine integration: bot name, vendor, page, tokens, country |
-| **Slow to roll out across pages** | Marketing waits weeks for engineering | Add `converter: "compare"` to a collection — done. 13 converters bundled. |
+| **Slow to roll out across pages** | Marketing waits weeks for engineering | Add `converter: "compare"` to a collection — done. 14 converters bundled. |
 
 **Built and battle-tested at [Dodo Payments](https://dodopayments.com)** for our own marketing site. Now extracted as OSS so you don't have to write the same content negotiation, bot detection, and edge wrapping over and over.
 
@@ -240,7 +240,7 @@ Three conformance levels — **Basic** (60%), **Standard** (80%), **Advanced** (
 | Package | npm | Size | What it does |
 |---|---|---|---|
 | [`@dualmark/core`](./packages/core) | `npm i @dualmark/core` | 14 KB | Framework-agnostic primitives: content negotiation (RFC 7231), AI-bot detection (24 known bots), markdown response builder, token estimation, composition helpers, `llms.txt` rendering. Zero runtime deps. |
-| [`@dualmark/converters`](./packages/converters) | `npm i @dualmark/converters` | 16 KB | 13 production-tested converter factories. |
+| [`@dualmark/converters`](./packages/converters) | `npm i @dualmark/converters` | 16 KB | 14 production-tested converter factories. |
 | [`@dualmark/astro`](./packages/astro) | `npm i @dualmark/astro` | 22 KB | Astro 5 integration. Auto-generates `.md` endpoints, ships middleware, generates `llms.txt`. |
 | [`@dualmark/nextjs`](./packages/nextjs) | `npm i @dualmark/nextjs` | 15 KB | Next.js App Router adapter. `withDualmark()`, `createDualmarkMiddleware()`, `createDualmarkRouteHandler()`, `createLlmsTxtHandler()`. |
 | [`@dualmark/cloudflare`](./packages/cloudflare) | `npm i @dualmark/cloudflare` | 9 KB | Workers edge adapter. Wraps any upstream Worker. Hooks for analytics + telemetry. |
@@ -260,7 +260,7 @@ Plus:
 | Surface | Status |
 |---|---|
 | `@dualmark/core` | 174 tests pass (vitest + fast-check property tests) |
-| `@dualmark/converters` | 28 tests pass |
+| `@dualmark/converters` | 32 tests pass |
 | `@dualmark/cloudflare` | 23 tests pass |
 | `@dualmark/cli` | 17 tests pass |
 | `@dualmark/astro` | 35 tests pass |
@@ -284,7 +284,7 @@ We're building toward Dualmark being **the** AEO infrastructure for marketing si
 
 - **More framework adapters**: SvelteKit, Remix/React Router, Nuxt
 - **More edge adapters**: Vercel, Netlify, Fastly Compute, Deno Deploy
-- **More converters**: pricing tables, changelog, docs/API reference, status pages, integrations
+- **More converters**: status pages, richer integration catalogs, and deeper schema-aware formats
 - **AEO Analytics**: a hosted dashboard on top of the `onAIRequest` hook, so marketing can see which bot reads which page, when
 - **Spec evolution toward AEO 1.1+** with structured data hints, per-section markdown anchors, and sitemap.md
 - **CMS integrations**: Sanity, Contentful, Builder.io plugins so non-engineers can author dual-marked content

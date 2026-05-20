@@ -1,10 +1,13 @@
 import { describe, it, expect } from "vitest";
 import {
+  apiReferenceConverter,
+  type OpenAPIDocument,
   blogConverter,
   caseStudyConverter,
   changelogConverter,
   compareConverter,
   docsConverter,
+  fromOpenAPI,
   featureConverter,
   glossaryConverter,
   integrationConverter,
@@ -16,8 +19,10 @@ import {
   videoConverter,
   BUILT_IN_CONVERTERS,
 } from "../src/index.js";
+import petstoreSpec from "./fixtures/petstore-openapi.js";
 
 const SITE = "https://acme.test";
+const PETSTORE_SPEC: OpenAPIDocument = petstoreSpec;
 
 describe("blogConverter", () => {
   const convert = blogConverter({ siteUrl: SITE });
@@ -610,9 +615,148 @@ describe("docsConverter", () => {
   });
 });
 
+describe("apiReferenceConverter", () => {
+  const convert = apiReferenceConverter({ siteUrl: SITE, basePath: "/api-reference" });
+
+  it("renders method, path, parameters, request body, responses, and code samples", () => {
+    const out = convert({
+      id: "create-pet",
+      data: {
+        title: "Create pet",
+        summary: "Create a new pet.",
+        description: "Creates a resource for a single pet.",
+        method: "POST",
+        path: "/pet",
+        tags: ["pet"],
+        parameters: [
+          {
+            name: "traceId",
+            in: "header",
+            type: "string",
+            required: false,
+            description: "Optional request trace identifier.",
+          },
+        ],
+        requestBody: {
+          description: "JSON payload for the pet.",
+          required: true,
+          contents: [
+            {
+              contentType: "application/json",
+              schema: "object",
+              fields: [
+                { name: "name", type: "string", required: true, description: "Pet name." },
+                { name: "status", type: "string enum(available, pending, sold)" },
+              ],
+            },
+          ],
+        },
+        responses: [
+          {
+            status: "200",
+            description: "Successful operation",
+            contents: [
+              {
+                contentType: "application/json",
+                schema: "object",
+                fields: [{ name: "id", type: "integer(int64)", description: "New pet id." }],
+              },
+            ],
+          },
+        ],
+        codeSamples: [
+          {
+            lang: "curl",
+            source:
+              "curl -X POST https://acme.test/pet -H \"Content-Type: application/json\" -d '{\"name\":\"doggie\"}'",
+          },
+        ],
+      },
+      body: "Use this endpoint when onboarding a new pet.",
+    });
+
+    expect(out).toContain("# Create pet");
+    expect(out).toContain("> Create a new pet.");
+    expect(out).toContain("- **Method**: `POST`");
+    expect(out).toContain("- **Path**: `/pet`");
+    expect(out).toContain("- **URL**: https://acme.test/api-reference/create-pet");
+    expect(out).toContain("| `traceId` | `header` | `string` | no | Optional request trace identifier. |");
+    expect(out).toContain("## Request body");
+    expect(out).toContain("### `application/json`");
+    expect(out).toContain("| `name` | `string` | yes | Pet name. |");
+    expect(out).toContain("## Responses");
+    expect(out).toContain("### `200`");
+    expect(out).toContain("## Code samples");
+    expect(out).toContain("```bash");
+    expect(out).toContain("Use this endpoint when onboarding a new pet.");
+  });
+});
+
+describe("fromOpenAPI", () => {
+  it("projects a Petstore operation with request body, nested schema fields, and code samples", () => {
+    const entry = fromOpenAPI(PETSTORE_SPEC, "addPet");
+    expect(entry.id).toBe("addPet");
+    expect(entry.data.title).toBe("Add a new pet to the store");
+    expect(entry.data.method).toBe("POST");
+    expect(entry.data.path).toBe("/pet");
+    expect(entry.data.tags).toEqual(["pet"]);
+    expect(entry.data.requestBody?.required).toBe(true);
+    expect(entry.data.requestBody?.contents[0]?.contentType).toBe("application/json");
+    expect(entry.data.requestBody?.contents[0]?.schema).toBe("object");
+    expect(entry.data.requestBody?.contents[0]?.fields).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "name", type: "string", required: true }),
+        expect.objectContaining({
+          name: "status",
+          type: "string enum(available, pending, sold)",
+        }),
+        expect.objectContaining({ name: "category", type: "object" }),
+        expect.objectContaining({ name: "category.id", type: "integer(int64)" }),
+        expect.objectContaining({ name: "tags", type: "array<object>" }),
+        expect.objectContaining({ name: "tags[].name", type: "string" }),
+      ]),
+    );
+    expect(entry.data.responses[0]?.contents?.[0]?.fields).toEqual(
+      expect.arrayContaining([expect.objectContaining({ name: "photoUrls", type: "array<string>" })]),
+    );
+    expect(entry.data.codeSamples).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ lang: "curl" }),
+        expect.objectContaining({ lang: "javascript", label: "JavaScript" }),
+      ]),
+    );
+  });
+
+  it("projects path parameters from a Petstore endpoint", () => {
+    const entry = fromOpenAPI(PETSTORE_SPEC, "getPetById");
+    expect(entry.data.parameters).toEqual([
+      {
+        name: "petId",
+        in: "path",
+        type: "integer(int64)",
+        required: true,
+        description: "ID of pet to return",
+      },
+    ]);
+    expect(entry.data.responses[1]).toEqual(
+      expect.objectContaining({
+        status: "404",
+        description: "Pet not found",
+      }),
+    );
+  });
+
+  it("throws when the requested operation is missing", () => {
+    expect(() => fromOpenAPI(PETSTORE_SPEC, "missingOperation")).toThrow(
+      "OpenAPI operation not found: missingOperation",
+    );
+  });
+});
+
 describe("BUILT_IN_CONVERTERS export", () => {
-  it("lists all 13 generic built-in names in alphabetical order", () => {
+  it("lists all 14 generic built-in names in alphabetical order", () => {
     expect(BUILT_IN_CONVERTERS).toEqual([
+      "api-reference",
       "blog",
       "case-study",
       "changelog",

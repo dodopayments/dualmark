@@ -1,6 +1,6 @@
 ---
 title: "@dualmark/converters"
-description: 13 production-tested markdown converter factories.
+description: 14 production-tested markdown converter factories.
 ---
 
 <Tabs items={["bun", "npm", "yarn"]}>
@@ -27,6 +27,7 @@ Each factory takes a config object and returns `(entry: CollectionEntry<Data>) =
 
 | Factory | Domain |
 | --- | --- |
+| `apiReferenceConverter` | API endpoint references (manual shape or OpenAPI-derived) |
 | `blogConverter` | Blog posts |
 | `caseStudyConverter` | Case studies (with stats + customer quote) |
 | `changelogConverter` | Release notes (Keep-a-Changelog grouping) |
@@ -40,6 +41,8 @@ Each factory takes a config object and returns `(entry: CollectionEntry<Data>) =
 | `pseoConverter` | Programmatic SEO pages with facts + related-link groups |
 | `toolConverter` | Standalone tools |
 | `videoConverter` | Video pages |
+
+The package now ships 14 built-in converters.
 
 ## Common shape
 
