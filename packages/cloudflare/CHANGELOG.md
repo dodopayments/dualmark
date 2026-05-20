@@ -1,5 +1,12 @@
 # @dualmark/cloudflare
 
+## 0.7.0
+
+### Patch Changes
+
+- Updated dependencies [6155878]
+  - @dualmark/core@0.7.0
+
 ## 0.5.2
 
 ### Patch Changes

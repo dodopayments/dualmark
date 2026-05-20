@@ -1,5 +1,14 @@
 # @dualmark/nextjs
 
+## 0.7.0
+
+### Patch Changes
+
+- Updated dependencies [dbd8ef4]
+- Updated dependencies [6155878]
+  - @dualmark/converters@0.7.0
+  - @dualmark/core@0.7.0
+
 ## 0.5.2
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@dualmark/nextjs",
-  "version": "0.5.2",
+  "version": "0.7.0",
   "description": "Next.js App Router adapter for the Dualmark AEO framework. Drop-in proxy/middleware + route-handler factory + withDualmark() config wrapper. Same API surface as @dualmark/astro.",
   "license": "Apache-2.0",
   "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",

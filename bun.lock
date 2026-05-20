@@ -17,7 +17,7 @@
     },
     "apps/docs": {
       "name": "dualmark-docs",
-      "version": "0.0.3",
+      "version": "0.0.4",
       "dependencies": {
         "@dualmark/cli": "workspace:^",
         "@dualmark/core": "workspace:^",
@@ -46,7 +46,7 @@
     },
     "examples/astro-blog": {
       "name": "dualmark-example-astro-blog",
-      "version": "0.0.6",
+      "version": "0.0.7",
       "dependencies": {
         "@dualmark/astro": "workspace:*",
         "@dualmark/converters": "workspace:*",
@@ -56,7 +56,7 @@
     },
     "examples/astro-cloudflare-full": {
       "name": "dualmark-example-astro-cloudflare-full",
-      "version": "0.0.6",
+      "version": "0.0.7",
       "dependencies": {
         "@dualmark/astro": "workspace:*",
         "@dualmark/cloudflare": "workspace:*",
@@ -71,7 +71,7 @@
     },
     "examples/nextjs-app-router": {
       "name": "dualmark-example-nextjs-app-router",
-      "version": "0.0.6",
+      "version": "0.0.7",
       "dependencies": {
         "@dualmark/converters": "workspace:*",
         "@dualmark/core": "workspace:*",
@@ -89,7 +89,7 @@
     },
     "packages/astro": {
       "name": "@dualmark/astro",
-      "version": "0.6.0",
+      "version": "0.7.0",
       "dependencies": {
         "@dualmark/converters": "workspace:*",
         "@dualmark/core": "workspace:*",
@@ -107,7 +107,7 @@
     },
     "packages/cli": {
       "name": "@dualmark/cli",
-      "version": "0.5.2",
+      "version": "0.7.0",
       "bin": {
         "dualmark": "./dist/cli.js",
       },
@@ -123,7 +123,7 @@
     },
     "packages/cloudflare": {
       "name": "@dualmark/cloudflare",
-      "version": "0.5.2",
+      "version": "0.7.0",
       "dependencies": {
         "@dualmark/core": "workspace:*",
       },
@@ -137,7 +137,7 @@
     },
     "packages/converters": {
       "name": "@dualmark/converters",
-      "version": "0.5.2",
+      "version": "0.7.0",
       "dependencies": {
         "@dualmark/core": "workspace:*",
       },
@@ -150,7 +150,7 @@
     },
     "packages/core": {
       "name": "@dualmark/core",
-      "version": "0.5.2",
+      "version": "0.7.0",
       "devDependencies": {
         "@types/node": "^22.10.0",
         "@vitest/coverage-v8": "^2.1.8",
@@ -162,7 +162,7 @@
     },
     "packages/nextjs": {
       "name": "@dualmark/nextjs",
-      "version": "0.5.2",
+      "version": "0.7.0",
       "dependencies": {
         "@dualmark/converters": "workspace:*",
         "@dualmark/core": "workspace:*",

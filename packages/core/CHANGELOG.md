@@ -1,5 +1,11 @@
 # @dualmark/core
 
+## 0.7.0
+
+### Patch Changes
+
+- 6155878: Extend the AI crawler registry with DeepSeekBot, Claude-SearchBot, Claude-User, Meta-ExternalFetcher, and Perplexity-User. Sync the AEO spec AI Agent Registry table.
+
 ## 0.5.2
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@dualmark/cli",
-  "version": "0.5.2",
+  "version": "0.7.0",
   "description": "Conformance test runner for the AEO spec. `dualmark verify <url>` scores any site against the AEO Specification.",
   "license": "Apache-2.0",
   "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",
