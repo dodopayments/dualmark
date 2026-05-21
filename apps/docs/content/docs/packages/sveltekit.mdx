@@ -1,0 +1,199 @@
+---
+title: "@dualmark/sveltekit"
+description: SvelteKit adapter — Vite route generator, handle hook, llms.txt.
+---
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/sveltekit @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/sveltekit @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/sveltekit @dualmark/core @dualmark/converters
+```
+</Tab>
+</Tabs>
+
+## `dualmark(config)`
+
+The default export is a Vite plugin factory. Add it **before** `@sveltejs/kit/vite` in your plugin list.
+
+```ts title="vite.config.ts"
+import { sveltekit } from "@sveltejs/kit/vite";
+import { defineConfig } from "vite";
+import dualmark from "@dualmark/sveltekit";
+import dualmarkConfig from "./src/dualmark.config";
+
+export default defineConfig({
+  plugins: [dualmark(dualmarkConfig), sveltekit()],
+});
+```
+
+During Vite's `buildStart` (dev and production builds), the plugin writes generated `+server.ts` files into `src/routes`. Generated files start with a fixed header comment — **do not copy that header into hand-written routes**, or Dualmark may delete them when your config changes.
+
+## `createDualmarkHandle(config)`
+
+Returns a SvelteKit `Handle` function for `hooks.server.ts`.
+
+```ts title="src/hooks.server.ts"
+import { createDualmarkHandle } from "@dualmark/sveltekit";
+import dualmarkConfig from "./dualmark.config";
+
+export const handle = createDualmarkHandle(dualmarkConfig);
+```
+
+The handle:
+
+- Passes through direct `.md` and `/llms.txt` requests to generated route handlers
+- Detects 24 known AI bot User-Agents and serves the markdown twin via internal fetch
+- Honors `Accept: text/markdown` per RFC 7231
+- Returns `406 Not Acceptable` when the request explicitly excludes both `text/html` and `text/markdown`
+- Adds `Link: <…>; rel="alternate"; type="text/markdown"` and `Vary: Accept` to HTML responses
+
+Compose with existing hooks via SvelteKit's `sequence` helper.
+
+## Config
+
+```ts
+interface DualmarkSvelteKitConfig {
+  siteUrl: string;
+
+  /** Path from project root for generated routes to import. Default: src/dualmark.config.ts */
+  configPath?: string;
+
+  /** SvelteKit routes directory from project root. Default: src/routes */
+  routesDir?: string;
+
+  collections?: Record<string, CollectionConfig>;
+
+  staticPages?: StaticPageConfig[];
+
+  parameterizedRoutes?: ParameterizedRouteConfig[];
+
+  llmsTxt?: {
+    enabled?: boolean;
+    brandName?: string;
+    description?: string;
+    sections?: LlmsTxtSection[];
+  };
+
+  middleware?: {
+    injectLinkHeader?: boolean;
+    skipPaths?: ReadonlyArray<string>;
+  };
+
+  /** Matches SvelteKit kit.appDir (default _app). Skips negotiation on internal asset paths. */
+  appDir?: string;
+
+  headers?: {
+    cacheControl?: string;
+    noindex?: boolean;
+  };
+}
+```
+
+## Collections
+
+```ts
+collections: {
+  posts: {
+    converter: "blog" | "case-study" | "changelog" | "compare" | "docs"
+              | "feature" | "glossary" | "integration" | "legal" | "pricing" | "pseo"
+              | "tool" | "video"
+              | ((entry) => string),
+
+    route?: string,              // URL prefix; defaults to collection key
+    slugStrategy?: "single" | "catch-all",
+
+    getEntries: () => Entry[] | Promise<Entry[]>,
+
+    filter?: (entry) => boolean,
+    sort?: (a, b) => number,
+
+    listingMetadata?: { title: string; description: string },
+    emitListing?: boolean,
+  },
+}
+```
+
+For each collection, the plugin generates:
+
+- `/<route>/<slug>.md/+server.ts` for every entry
+- `/<route>.md/+server.ts` for the listing (when enabled)
+
+## Static pages
+
+```ts
+staticPages: [
+  { pattern: "/", render: () => "# Home\n\nWelcome." },
+  { pattern: "/about", render: () => "# About" },
+],
+```
+
+Generates route handlers for `/index.md` and `/about.md`.
+
+## Parameterized routes
+
+```ts
+parameterizedRoutes: [
+  {
+    pattern: "/tax/[country]",
+    getStaticPaths: async () => [
+      { params: { country: "us" } },
+      { params: { country: "uk" } },
+    ],
+    render: ({ country }) => `# Tax in ${country.toUpperCase()}\n\n...`,
+  },
+],
+```
+
+Generates `/tax/us.md` and `/tax/uk.md`. Supported param syntax: `[name]` and `[...name]` (SvelteKit matchers like `[slug=string]` and optional `[[slug]]` are not supported).
+
+## llms.txt
+
+When `llmsTxt.enabled` is `true`, generates `/llms.txt/+server.ts`.
+
+```ts
+llmsTxt: {
+  enabled: true,
+  brandName: "Acme",
+  description: "Acme's docs and blog.",
+  sections: [
+    {
+      title: "Pages",
+      links: [
+        { title: "Home", href: "https://example.com/" },
+        { title: "Posts", href: "https://example.com/posts" },
+      ],
+    },
+  ],
+}
+```
+
+## Programmatic API
+
+```ts
+import {
+  dualmarkSvelteKit,
+  createDualmarkHandle,
+  createDualmarkRouteHandler,
+  createLlmsTxtHandler,
+  resolveConfig,
+  resolveBuiltInConverter,
+  DualmarkConfigError,
+} from "@dualmark/sveltekit";
+```
+
+- `dualmarkSvelteKit(config)` — Vite plugin (also exported as `dualmark` and default)
+- `createDualmarkHandle(config)` — SvelteKit handle hook
+- `createDualmarkRouteHandler(config)` — markdown twin handler (used by generated routes)
+- `createLlmsTxtHandler(config)` — llms.txt handler (used by generated routes)
+- `resolveConfig(input)` — validate + normalize config (throws `DualmarkConfigError` on invalid input)
+- `resolveBuiltInConverter({ name, collectionName, baseConfig, basePath? })` — get a converter by name

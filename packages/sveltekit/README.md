@@ -89,7 +89,7 @@ Existing user-authored route files without that header are never overwritten, an
 
 ## Built-in Converter Names
 
-`blog`, `case-study`, `changelog`, `compare`, `docs`, `feature`, `glossary`, `legal`, `pricing`, `pseo`, `tool`, `video`
+`blog`, `case-study`, `changelog`, `compare`, `docs`, `feature`, `glossary`, `integration`, `legal`, `pricing`, `pseo`, `tool`, `video`
 
 Pass any string from this list as `converter`, or pass a function `(entry) => string` for custom output.
 

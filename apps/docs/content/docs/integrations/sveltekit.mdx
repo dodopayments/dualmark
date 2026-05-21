@@ -1,0 +1,188 @@
+---
+title: SvelteKit
+description: Add Dualmark to a SvelteKit site with a Vite plugin and server handle hook.
+---
+
+`@dualmark/sveltekit` is a first-class adapter for SvelteKit — same install pattern as `@dualmark/astro` and `@dualmark/nextjs`. It ships:
+
+- `dualmark(config)` Vite plugin — generates `.md` route handlers and `/llms.txt` at build time
+- `createDualmarkHandle(config)` — SvelteKit `handle` hook for bot detection and content negotiation
+- `createDualmarkRouteHandler(config)` and `createLlmsTxtHandler(config)` — used by the generated routes
+
+The reference example at `examples/sveltekit-blog` scores **125/125** under `vite dev`.
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ vite.config.ts (dualmark plugin)                            │
+│   buildStart → generates src/routes/**/+server.ts           │
+│   - /posts/[slug].md/+server.ts                             │
+│   - /posts.md/+server.ts (listing)                          │
+│   - /llms.txt/+server.ts                                    │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ hooks.server.ts (createDualmarkHandle)                      │
+│   - if path ends in .md     → pass through to route handler │
+│   - if AI bot UA OR Accept: text/markdown                   │
+│       → internal fetch to .md twin                            │
+│   - if Accept rules out html+md → 406                       │
+│   - else (HTML) → resolve + Link rel=alternate + Vary: Accept │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Install
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/sveltekit @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/sveltekit @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/sveltekit @dualmark/core @dualmark/converters
+```
+</Tab>
+</Tabs>
+
+## Minimal config
+
+Create a Dualmark config that generated routes import:
+
+```ts title="src/dualmark.config.ts"
+import type { DualmarkSvelteKitConfig } from "@dualmark/sveltekit";
+
+const config: DualmarkSvelteKitConfig = {
+  siteUrl: "https://example.com",
+  collections: {
+    posts: {
+      converter: "blog",
+      getEntries: () => yourPosts,
+    },
+  },
+  llmsTxt: { enabled: true },
+};
+
+export default config;
+```
+
+Add the generator before SvelteKit in `vite.config.ts`:
+
+```ts title="vite.config.ts"
+import { sveltekit } from "@sveltejs/kit/vite";
+import { defineConfig } from "vite";
+import dualmark from "@dualmark/sveltekit";
+import dualmarkConfig from "./src/dualmark.config";
+
+export default defineConfig({
+  plugins: [dualmark(dualmarkConfig), sveltekit()],
+});
+```
+
+Add the server hook:
+
+```ts title="src/hooks.server.ts"
+import { createDualmarkHandle } from "@dualmark/sveltekit";
+import dualmarkConfig from "./dualmark.config";
+
+export const handle = createDualmarkHandle(dualmarkConfig);
+```
+
+If you already have server hooks, compose with SvelteKit's `sequence` helper:
+
+```ts title="src/hooks.server.ts"
+import { sequence } from "@sveltejs/kit/hooks";
+import { createDualmarkHandle } from "@dualmark/sveltekit";
+import dualmarkConfig from "./dualmark.config";
+import { handle as authHandle } from "./auth.server";
+
+export const handle = sequence(authHandle, createDualmarkHandle(dualmarkConfig));
+```
+
+## Full config
+
+```ts title="src/dualmark.config.ts"
+const config: DualmarkSvelteKitConfig = {
+  siteUrl: "https://example.com",
+
+  collections: {
+    posts: {
+      converter: "blog",
+      route: "posts",
+      slugStrategy: "single",
+      getEntries: () => yourPosts,
+      listingMetadata: {
+        title: "Posts",
+        description: "All posts.",
+      },
+    },
+    glossary: { converter: "glossary", getEntries: () => yourTerms },
+    docs: {
+      converter: (entry) => `# ${entry.data.title}\n\n${entry.body}`,
+      getEntries: () => yourDocs,
+    },
+  },
+
+  staticPages: [
+    { pattern: "/", render: () => "# Home\n\nWelcome." },
+    { pattern: "/about", render: () => "# About" },
+  ],
+
+  parameterizedRoutes: [
+    {
+      pattern: "/tax/[country]",
+      getStaticPaths: async () => [{ params: { country: "us" } }, { params: { country: "uk" } }],
+      render: ({ country }) => `# Tax: ${country.toUpperCase()}\n\n...`,
+    },
+  ],
+
+  llmsTxt: {
+    enabled: true,
+    brandName: "Acme",
+    description: "Acme's docs and blog.",
+    sections: [
+      {
+        title: "Pages",
+        links: [
+          { title: "Home", href: "https://example.com/" },
+          { title: "Posts", href: "https://example.com/posts" },
+        ],
+      },
+    ],
+  },
+
+  middleware: { injectLinkHeader: true },
+
+  headers: {
+    cacheControl: "public, max-age=3600",
+    noindex: true,
+  },
+};
+```
+
+## Collection URLs and slugs
+
+With `slugStrategy: "catch-all"` (default when omitted), the detail route uses `[...slug]`. **Each entry's `id` must match the full path after the collection prefix**, including `/` characters (for example, `id: "2024/01/post"` if the markdown URL is `/posts/2024/01/post.md`). With `slugStrategy: "single"`, `id` is one segment (for example `hello` → `/posts/hello.md`).
+
+## Available converters
+
+`converter: "blog" | "case-study" | "changelog" | "compare" | "docs" | "feature" | "glossary" | "integration" | "legal" | "pricing" | "pseo" | "tool" | "video"` — see [@dualmark/converters](/docs/packages/converters).
+
+You can also pass a custom function: `converter: (entry) => string`.
+
+## Verify
+
+```bash
+bun run dev
+# new terminal:
+bunx @dualmark/cli verify http://localhost:5173/posts/your-post
+```
+
+The example at `examples/sveltekit-blog` scores **125/125** under `vite dev` (full Advanced conformance).
