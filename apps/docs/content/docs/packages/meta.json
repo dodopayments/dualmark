@@ -1,4 +1,4 @@
 {
   "title": "Packages",
-  "pages": ["core", "converters", "astro", "nextjs", "cloudflare", "cli"]
+  "pages": ["core", "converters", "astro", "nextjs", "cloudflare", "deno", "cli"]
 }

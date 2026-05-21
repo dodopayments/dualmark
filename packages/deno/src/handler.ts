@@ -170,6 +170,10 @@ export function createAEOHandler(options: CreateAEOHandlerOptions): AEODenoHandl
 
       if (serveMarkdown) {
         const mdPath = toMarkdownPath(pathname);
+        // Reconstruct the request with headers only (no method/body). This branch is gated
+        // by `isSafeMethod` above, so the original request is GET/HEAD and has no body to
+        // preserve. Avoiding the full request copy also prevents stream-consumption issues
+        // if a refactor ever lets a body-bearing method reach this point.
         const mdRequest = new Request(new URL(mdPath + url.search, url.origin), {
           headers: request.headers,
         });
@@ -261,6 +265,9 @@ export function createAEOHandler(options: CreateAEOHandlerOptions): AEODenoHandl
       }
     }
 
+    // Bot/markdown miss falls through here so upstream renders HTML for the original URL.
+    // This intentionally calls upstream a second time on the markdown-miss path
+    // the first call (with the synthetic .md request) is gated to GET/HEAD and discarded above.
     const upstreamResponse = await options.upstream(request, info);
 
     if (

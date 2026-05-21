@@ -245,6 +245,7 @@ Three conformance levels — **Basic** (60%), **Standard** (80%), **Advanced** (
 | [`@dualmark/astro`](./packages/astro) | `npm i @dualmark/astro` | 22 KB | Astro 5 integration. Auto-generates `.md` endpoints, ships middleware, generates `llms.txt`. |
 | [`@dualmark/nextjs`](./packages/nextjs) | `npm i @dualmark/nextjs` | 15 KB | Next.js App Router adapter. `withDualmark()`, `createDualmarkMiddleware()`, `createDualmarkRouteHandler()`, `createLlmsTxtHandler()`. |
 | [`@dualmark/cloudflare`](./packages/cloudflare) | `npm i @dualmark/cloudflare` | 9 KB | Workers edge adapter. Wraps any upstream Worker. Hooks for analytics + telemetry. |
+| [`@dualmark/deno`](./packages/deno) | `npm i @dualmark/deno` | 8 KB | Deno Deploy edge adapter. Wraps any Deno fetch handler. Lifecycle hooks scheduled on `info.completed`. |
 | [`@dualmark/cli`](./packages/cli) | `npm i -g @dualmark/cli` | 16 KB | `dualmark verify <url>`. Programmatic API too. |
 
 Plus:
@@ -263,12 +264,14 @@ Plus:
 | `@dualmark/core` | 174 tests pass (vitest + fast-check property tests) |
 | `@dualmark/converters` | 31 tests pass |
 | `@dualmark/cloudflare` | 23 tests pass |
+| `@dualmark/deno` | 23 tests pass |
 | `@dualmark/cli` | 17 tests pass |
 | `@dualmark/astro` | 36 tests pass |
 | `@dualmark/nextjs` | 47 tests pass |
 | `examples/astro-blog` | **80/80** under `astro dev` (`--skip-negotiation`) |
 | `examples/astro-cloudflare-full` | **125/125 perfect** under `wrangler dev` (full negotiation) |
 | `examples/nextjs-app-router` | **120/125** under `next dev` (now using `@dualmark/nextjs`) |
+| `examples/deno-deploy` | **125/125 perfect** under `deno run` (full negotiation) |
 | `apps/docs` | 26 routes prerendered, all serve 200 |
 | `/play` route | Live at dualmark.dev/play, integrated into the docs app |
 
