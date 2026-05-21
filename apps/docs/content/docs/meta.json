@@ -4,7 +4,6 @@
     "---[Rocket]Get started---",
     "quickstart",
     "concepts",
-    "roadmap",
     "---[Plug]Integrate---",
     "...integrations",
     "---[Package]API reference---",
@@ -12,6 +11,8 @@
     "---[ShieldCheck]Conformance---",
     "...conformance",
     "---[BookText]Spec---",
-    "...spec"
+    "...spec",
+    "---[Map]Project---",
+    "roadmap"
   ]
 }
