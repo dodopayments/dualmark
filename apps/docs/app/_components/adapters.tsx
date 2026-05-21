@@ -1,4 +1,9 @@
-import { AstroLogo, CloudflareLogo, NextLogo } from "@/components/brand-logos";
+import {
+  AstroLogo,
+  CloudflareLogo,
+  FastlyLogo,
+  NextLogo,
+} from "@/components/brand-logos";
 import Link from "next/link";
 import type { ComponentType, SVGProps } from "react";
 import { Section, SectionHeader } from "./section";
@@ -60,6 +65,16 @@ const adapters: Adapter[] = [
     accent: "oklch(0.82 0.16 70)",
     Logo: CloudflareLogo,
   },
+  {
+    name: "Fastly",
+    pkg: "@dualmark/fastly",
+    desc: "Fastly Compute edge adapter. Request and FetchEvent handlers with negotiation, redirects, and Link-header injection.",
+    install: "bun add @dualmark/fastly",
+    score: "125/125",
+    status: "Stable",
+    accent: "oklch(0.72 0.18 20)",
+    Logo: FastlyLogo,
+  },
 ];
 
 export function Adapters() {
@@ -73,10 +88,10 @@ export function Adapters() {
             <span className="text-[var(--color-accent)]">your stack.</span>
           </>
         }
-        description="Three first-class integrations today. SvelteKit, Remix, Nuxt, Vercel, Netlify on the roadmap."
+        description="Four first-class integrations today. SvelteKit, Remix, Nuxt, Vercel, and Netlify remain on the roadmap."
       />
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
         {adapters.map((a) => (
           <div
             key={a.name}

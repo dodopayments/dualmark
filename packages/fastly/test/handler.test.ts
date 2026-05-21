@@ -27,6 +27,18 @@ function makeFetcher(routes: Record<string, string>): { fetcher: FastlyFetch; ca
   return { fetcher, calls };
 }
 
+function makeCustomFetcher(
+  handler: (request: Request, init?: RequestInit) => Response | Promise<Response>,
+): { fetcher: FastlyFetch; calls: FetchCall[] } {
+  const calls: FetchCall[] = [];
+  const fetcher: FastlyFetch = async (request, init) => {
+    const url = new URL(request.url);
+    calls.push({ pathname: url.pathname, backend: init?.backend });
+    return handler(request, init);
+  };
+  return { fetcher, calls };
+}
+
 describe("createAEORequestHandler", () => {
   let routes: Record<string, string>;
 
@@ -131,6 +143,25 @@ describe("createAEORequestHandler", () => {
     expect(response.headers.get("x-aeo-version")).toBe("1.0");
   });
 
+  it("preserves upstream error responses for direct markdown requests", async () => {
+    const { fetcher } = makeCustomFetcher(() =>
+      new Response("<html><body>Failure</body></html>", {
+        status: 500,
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      }),
+    );
+    const handle = createAEORequestHandler({
+      backend: "origin_0",
+      fetcher,
+    });
+
+    const response = await handle(new Request("https://example.test/blog/post-1.md"));
+
+    expect(response.status).toBe(500);
+    expect(response.headers.get("content-type")).toBe("text/html; charset=utf-8");
+    expect(response.headers.get("x-aeo-version")).toBeNull();
+  });
+
   it("preserves default trailing-slash redirect behavior", async () => {
     const { fetcher } = makeFetcher(routes);
     const handle = createAEORequestHandler({
@@ -207,6 +238,24 @@ describe("createAEORequestHandler", () => {
     });
 
     await handle(new Request("https://example.test/blog/post-1", { method: "POST" }));
+    expect(calls).toEqual([{ pathname: "/blog/post-1", backend: "origin_0" }]);
+  });
+
+  it("passes through HEAD requests without fetching the markdown twin", async () => {
+    const { fetcher, calls } = makeFetcher(routes);
+    const handle = createAEORequestHandler({
+      backend: "origin_0",
+      fetcher,
+    });
+
+    const response = await handle(
+      new Request("https://example.test/blog/post-1", {
+        method: "HEAD",
+        headers: { "user-agent": "GPTBot/1.0", accept: "text/markdown" },
+      }),
+    );
+
+    expect(response.status).toBe(200);
     expect(calls).toEqual([{ pathname: "/blog/post-1", backend: "origin_0" }]);
   });
 

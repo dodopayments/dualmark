@@ -95,6 +95,25 @@ export function CloudflareLogo({ size = 24, ...props }: LogoProps) {
   );
 }
 
+export function FastlyLogo({ size = 24, ...props }: LogoProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="Fastly"
+      {...props}
+    >
+      <path
+        d="M12 16h40v8H33.5L28 32l5.5 8H52v8H12v-8h12.5l-5.5-8 5.5-8H12z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 export function WrenchLogo({ size = 24, ...props }: LogoProps) {
   return (
     <svg

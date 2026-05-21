@@ -130,7 +130,7 @@ export function createAEORequestHandler(
     const url = new URL(request.url);
     const pathname = url.pathname;
 
-    if (request.method !== "GET" && request.method !== "HEAD") {
+    if (request.method !== "GET") {
       const [upstreamRequest, upstreamInit] = withBackend(request, options.backend);
       return fetcher(upstreamRequest, upstreamInit);
     }

@@ -278,6 +278,7 @@ Three conformance levels — **Basic** (60%), **Standard** (80%), **Advanced** (
 | [`@dualmark/sveltekit`](./packages/sveltekit) | `npm i @dualmark/sveltekit` | 19 KB | SvelteKit adapter. Vite route generator, `createDualmarkHandle()`, generated `.md` endpoints, and `llms.txt`. |
 | [`@dualmark/cloudflare`](./packages/cloudflare) | `npm i @dualmark/cloudflare` | 9 KB | Workers edge adapter. Wraps any upstream Worker. Hooks for analytics + telemetry. |
 | [`@dualmark/deno`](./packages/deno) | `npm i @dualmark/deno` | 8 KB | Deno Deploy edge adapter. Wraps any Deno fetch handler. Lifecycle hooks scheduled on `info.completed`. |
+| [`@dualmark/fastly`](./packages/fastly) | `npm i @dualmark/fastly` | 9 KB | Fastly Compute edge adapter. `createAEORequestHandler()` and `createAEOFetchEventHandler()` for markdown negotiation at the edge. |
 | [`@dualmark/cli`](./packages/cli) | `npm i -g @dualmark/cli` | 16 KB | `dualmark verify <url>`. Programmatic API too. |
 
 Plus:
@@ -321,7 +322,7 @@ bun run build && bun run test && bun run typecheck   # 368 tests across 8 packag
 We're building toward Dualmark being **the** AEO infrastructure for marketing sites — the same way Tailwind became the default for marketing CSS or Vercel for marketing hosting. The roadmap:
 
 - **More framework adapters**: Remix/React Router, Nuxt
-- **More edge adapters**: Vercel, Netlify, Fastly Compute, Deno Deploy
+- **More edge adapters**: Vercel, Netlify
 - **More converters**: pricing tables, changelog, docs/API reference, status pages, integrations
 - **AEO Analytics**: a hosted dashboard on top of the `onAIRequest` hook, so marketing can see which bot reads which page, when
 - **Spec evolution toward AEO 1.1+** with structured data hints, per-section markdown anchors, and sitemap.md
