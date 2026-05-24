@@ -1,0 +1,78 @@
+{
+  "name": "@dualmark/vercel",
+  "version": "0.1.0",
+  "description": "Vercel Edge Middleware adapter for the Dualmark AEO framework. Wraps any upstream handler and transparently serves markdown to AI bots at the edge.",
+  "license": "Apache-2.0",
+  "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dodopayments/dualmark.git",
+    "directory": "packages/vercel"
+  },
+  "bugs": {
+    "url": "https://github.com/dodopayments/dualmark/issues"
+  },
+  "homepage": "https://github.com/dodopayments/dualmark/tree/main/packages/vercel#readme",
+  "funding": "https://github.com/sponsors/dodopayments",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo"
+  },
+  "peerDependencies": {
+    "next": ">=14.0.0"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@dualmark/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "next": "^16.2.6",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "keywords": [
+    "aeo",
+    "answer-engine-optimization",
+    "vercel",
+    "vercel-edge",
+    "edge-middleware",
+    "edge",
+    "ai-agents",
+    "ai-search",
+    "markdown",
+    "dualmark"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
