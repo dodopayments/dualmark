@@ -78,23 +78,23 @@ function buildMarkdownHeaders(
   return headers;
 }
 
-function appendLinkHeader(response: Response, mdPath: string): void {
+function appendLinkHeader(headers: Headers, mdPath: string): void {
   const link = `<${mdPath}>; rel="alternate"; type="text/markdown"`;
-  const existing = response.headers.get("Link");
-  response.headers.set("Link", existing ? `${existing}, ${link}` : link);
+  const existing = headers.get("Link");
+  headers.set("Link", existing ? `${existing}, ${link}` : link);
 }
 
-function appendVaryAccept(response: Response): void {
-  const vary = response.headers.get("Vary");
+function appendVaryAccept(headers: Headers): void {
+  const vary = headers.get("Vary");
   if (!vary) {
-    response.headers.set("Vary", "Accept");
+    headers.set("Vary", "Accept");
   } else if (
     !vary
       .split(",")
       .map((s) => s.trim().toLowerCase())
       .includes("accept")
   ) {
-    response.headers.set("Vary", `${vary}, Accept`);
+    headers.set("Vary", `${vary}, Accept`);
   }
 }
 
@@ -308,25 +308,13 @@ export function createAEOMiddleware(
         try {
           // Fast path: mutate headers in-place (works for NextResponse.next() and
           // freshly constructed Response objects).
-          appendLinkHeader(upstreamResponse, mdPath);
-          appendVaryAccept(upstreamResponse);
+          appendLinkHeader(upstreamResponse.headers, mdPath);
+          appendVaryAccept(upstreamResponse.headers);
         } catch {
           // Immutable headers (e.g. from fetch()) — clone into new Response.
           const newHeaders = new Headers(upstreamResponse.headers);
-          const link = `<${mdPath}>; rel="alternate"; type="text/markdown"`;
-          const existing = newHeaders.get("Link");
-          newHeaders.set("Link", existing ? `${existing}, ${link}` : link);
-          const vary = newHeaders.get("Vary");
-          if (!vary) {
-            newHeaders.set("Vary", "Accept");
-          } else if (
-            !vary
-              .split(",")
-              .map((s) => s.trim().toLowerCase())
-              .includes("accept")
-          ) {
-            newHeaders.set("Vary", `${vary}, Accept`);
-          }
+          appendLinkHeader(newHeaders, mdPath);
+          appendVaryAccept(newHeaders);
           return new Response(upstreamResponse.body, {
             status: upstreamResponse.status,
             statusText: upstreamResponse.statusText,
