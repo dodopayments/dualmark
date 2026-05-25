@@ -52,19 +52,21 @@ function rel(from: string, to: string): string {
 }
 
 export function createDualmarkIntegration(input: DualmarkAstroConfig): AstroIntegrationLike {
-  let resolved: ResolvedDualmarkConfig;
-  try {
-    resolved = resolveConfig(input);
-  } catch (e) {
-    if (e instanceof DualmarkConfigError) throw e;
-    throw e;
-  }
-
   return {
     name: "@dualmark/astro",
     hooks: {
       "astro:config:setup"(opts) {
         const root = fileURLToPath(opts.config.root);
+        const configPath = join(root, "astro.config.mjs");
+
+        let resolved: ResolvedDualmarkConfig;
+        try {
+          resolved = resolveConfig(input, configPath);
+        } catch (e) {
+          if (e instanceof DualmarkConfigError) throw e;
+          throw e;
+        }
+
         const generatedDir = join(root, "node_modules", GENERATED_DIR_NAME);
         if (!existsSync(generatedDir)) mkdirSync(generatedDir, { recursive: true });
 

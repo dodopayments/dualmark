@@ -79,4 +79,10 @@ describe("resolveConfig", () => {
     expect(out.headers.cacheControl).toBe("no-cache");
     expect(out.headers.noindex).toBe(false);
   });
+
+  it("appends the file path to the error message when provided", () => {
+    expect(() => resolveConfig({} as never, "/abs/astro.config.mjs")).toThrow(
+      /\[\/abs\/astro\.config\.mjs\]/
+    );
+  });
 });
