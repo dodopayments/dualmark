@@ -23,7 +23,10 @@ dualmark verify https://example.com --timeout 5000
 
 | Flag                 | Effect                                                                                                                                                                 |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--json`             | Emit machine-readable JSON (AEO Spec v1.0) instead of human-readable text; cannot be combined with `--quiet` or color flags                                            |
+| `--json`             | Emit machine-readable JSON (AEO Spec v1.0) instead of human-readable text; cannot be combined with `--quiet` or `--color`                                              |
+| `--quiet`            | Suppress successful text output (failures still print report)                                                                                                          |
+| `--color`            | Enable color mode for text output (reserved; currently no-op)                                                                                                          |
+| `--no-color`         | Disable color mode for text output (reserved; currently no-op)                                                                                                         |
 | `--skip-negotiation` | Skip Accept-header / Link-header / 406 checks. Use against sites that serve markdown only at `.md` URLs without runtime content negotiation (e.g. static-only deploys) |
 | `--timeout <ms>`     | Per-request timeout (default 10000)                                                                                                                                    |
 
@@ -55,6 +58,7 @@ Notes:
 
 - `level` is one of `none`, `basic`, `standard`, `advanced`.
 - `checks[].points` is `0` when a check fails, otherwise equal to `checks[].max`.
+- `checks` preserve the canonical check evaluation order from the conformance runner.
 
 ### Exit codes
 

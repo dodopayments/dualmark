@@ -44,7 +44,7 @@ The reference test runner is [`@dualmark/cli`](../packages/cli):
 dualmark verify https://example.com/blog/hello
 ```
 
-For machine consumers, `dualmark verify <url> --json` MUST emit this AEO Spec v1.0 JSON shape:
+For machine consumers, `dualmark verify <url> --json` SHOULD emit the following AEO Spec v1.0 reference JSON shape:
 
 ```json
 {
@@ -66,7 +66,7 @@ For machine consumers, `dualmark verify <url> --json` MUST emit this AEO Spec v1
 }
 ```
 
-Where `level` is one of `none`, `basic`, `standard`, `advanced` and `checks[].points` MUST be `0` for failed checks.
+Where `level` is one of `none`, `basic`, `standard`, `advanced` and `checks[].points` SHOULD be `0` for failed checks.
 
 The runner produces a weighted score out of 100 (or 80 with `--skip-negotiation`). The score MUST be calculated as:
 

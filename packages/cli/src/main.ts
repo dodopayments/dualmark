@@ -103,7 +103,10 @@ export async function main(argv: ReadonlyArray<string>): Promise<number> {
   }
 
   if (parsed.json && (parsed.quiet || parsed.colorMode === "on")) {
-    process.stderr.write("error: --json cannot be combined with --quiet or color flags\n");
+    const conflictingFlags: string[] = [];
+    if (parsed.quiet) conflictingFlags.push("--quiet");
+    if (parsed.colorMode === "on") conflictingFlags.push("--color");
+    process.stderr.write(`error: --json cannot be combined with ${conflictingFlags.join(" and ")}\n`);
     return 2;
   }
 

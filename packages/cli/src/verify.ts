@@ -16,6 +16,7 @@ export interface VerifyReport {
   mdUrl: string;
   score: number;
   maxScore: number;
+  checks: CheckResult[];
   passed: CheckResult[];
   failed: CheckResult[];
   skippedNegotiation: boolean;
@@ -375,6 +376,7 @@ function finalizeReport(args: {
     mdUrl: args.mdUrl,
     score,
     maxScore,
+    checks: args.checks,
     passed,
     failed,
     skippedNegotiation: args.skippedNegotiation,
@@ -420,7 +422,6 @@ function levelFromScore(score: number, maxScore: number): ConformanceLevel {
 }
 
 export function formatJsonReportV1(report: VerifyReport): VerifyJsonReportV1 {
-  const checks = [...report.passed, ...report.failed];
   return {
     url: report.url,
     markdownUrl: report.mdUrl,
@@ -428,7 +429,7 @@ export function formatJsonReportV1(report: VerifyReport): VerifyJsonReportV1 {
     max: report.maxScore,
     level: levelFromScore(report.score, report.maxScore),
     durationMs: report.durationMs,
-    checks: checks.map((check) => ({
+    checks: report.checks.map((check) => ({
       id: check.id,
       points: check.passed ? check.weight : 0,
       max: check.weight,
