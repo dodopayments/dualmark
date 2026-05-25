@@ -68,6 +68,22 @@ jobs:
           node ../../packages/cli/dist/cli.js verify http://localhost:3000/posts/hello
           kill $NEXT_PID
 
+  vercel-edge-full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: bunx turbo run build --filter='@dualmark/*'
+      - name: Run vercel-edge-full under next dev
+        working-directory: examples/vercel-edge-full
+        run: |
+          ./node_modules/.bin/next dev --port 3001 &
+          NEXT_PID=$!
+          sleep 15
+          node ../../packages/cli/dist/cli.js verify http://localhost:3001/posts/hello
+          kill $NEXT_PID
+
   sveltekit-blog:
     runs-on: ubuntu-latest
     timeout-minutes: 10
