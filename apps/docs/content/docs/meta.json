@@ -1,6 +1,7 @@
 {
   "pages": [
     "index",
+    "faq",
     "---[Rocket]Get started---",
     "quickstart",
     "concepts",
@@ -11,7 +12,6 @@
     "---[ShieldCheck]Conformance---",
     "...conformance",
     "---[BookText]Spec---",
-    "faq",
     "...spec"
     
   ]
