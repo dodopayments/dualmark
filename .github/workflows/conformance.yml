@@ -68,6 +68,21 @@ jobs:
           node ../../packages/cli/dist/cli.js verify http://localhost:3000/posts/hello
           kill $NEXT_PID
 
+  deno-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: bunx turbo run build --filter='@dualmark/*'
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Run Deno example tests
+        working-directory: examples/deno-deploy
+        run: deno task test
+
   dualmark-docs-dogfood:
     runs-on: ubuntu-latest
     timeout-minutes: 10

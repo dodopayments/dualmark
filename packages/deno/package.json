@@ -1,6 +1,6 @@
 {
   "name": "@dualmark/deno",
-  "version": "0.7.0",
+  "version": "0.0.0",
   "description": "Deno Deploy edge adapter for the Dualmark AEO framework. Wraps any upstream Deno fetch handler and transparently serves markdown to AI bots.",
   "license": "Apache-2.0",
   "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",

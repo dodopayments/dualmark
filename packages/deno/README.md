@@ -2,6 +2,8 @@
 
 Deno Deploy edge adapter for the Dualmark AEO framework. Wraps any upstream Deno fetch handler and transparently serves markdown to AI bots — no changes to your existing site.
 
+> **Adapter naming**: This package is called `@dualmark/deno` (not `@dualmark/deno-deploy`) because it runs under both local `Deno.serve()` and Deno Deploy. The same `createAEOHandler()` call works in both environments only the deployment command changes.
+
 ## Install
 
 ### Deno (recommended)
@@ -11,7 +13,7 @@ Deno Deploy edge adapter for the Dualmark AEO framework. Wraps any upstream Deno
 ```jsonc
 {
   "imports": {
-    "@dualmark/deno": "npm:@dualmark/deno@^0.7.0",
+    "@dualmark/deno": "npm:@dualmark/deno@^0.1.0",
     "@dualmark/core": "npm:@dualmark/core@^0.7.0"
   }
 }
@@ -73,6 +75,20 @@ Run with:
 deno run --allow-read --allow-net main.ts
 ```
 
+## Deploy to Deno Deploy
+
+Deploy to Deno Deploy using the `deployctl` CLI:
+
+```bash
+# Install deployctl
+deno install -gArf jsr:@deno/deployctl
+
+# Deploy
+deployctl deploy --project=<your-project> main.ts
+```
+
+The same `createAEOHandler()` setup works under Deno Deploy's runtime without changes. The `info.completed` promise (used for hook scheduling) is natively supported by the Deno Deploy runtime.
+
 ## Options
 
 | Option | Type | Default | Notes |
@@ -100,6 +116,17 @@ deno run --allow-read --allow-net main.ts
 8. `Link: <…>; rel="alternate"; type="text/markdown"` injection on HTML responses
 9. Only `GET` and `HEAD` are intercepted; other methods pass through unchanged
 10. Falls through to `upstream` for skip-prefixed paths, asset extensions, and everything else
+
+## Performance
+
+The adapter calls your `upstream` handler differently depending on whether the request produces a cache hit or a miss.
+
+- **Cache hit** (the pathname's `.md` twin exists and is served): `upstream()` is called **once** to fetch the `.md` content for the AI bot.
+- **Cache miss** (the pathname has no `.md` twin, so the response falls through): `upstream()` is called **twice** to probe for the `.md` twin (which returns a 404 or error), and again to serve the fallback HTML response.
+
+This double-upstream call on a miss is an inherent cost of the probe-before-serve pattern. For most sites the `.md` twin exists for most paths (the intended use case), so misses are uncommon and the cost is negligible.
+
+> **Subrequest loop warning**: Because `upstream()` is called a second time on a miss, your upstream handler **must not** re-enter the AEO adapter. If you chain `createAEOHandler(upstream)` where `upstream` is itself the AEO adapter, every miss will produce an infinite subrequest loop. Always pass your **origin fetch handler** (the one that reads from disk or forwards to your framework) as `upstream`.
 
 ## Hook scheduling
 
