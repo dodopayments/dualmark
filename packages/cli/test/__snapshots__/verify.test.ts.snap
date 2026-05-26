@@ -65,6 +65,7 @@ exports[`formatJsonReportV1 > matches the v1.0 JSON schema snapshot for a repres
   "markdownUrl": "https://acme.test/blog/hello.md",
   "max": 80,
   "score": 80,
+  "skippedNegotiation": true,
   "url": "https://acme.test/blog/hello",
 }
 `;

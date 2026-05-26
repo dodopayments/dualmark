@@ -39,6 +39,7 @@ export interface VerifyJsonReportV1 {
   score: number;
   max: number;
   level: ConformanceLevel;
+  skippedNegotiation: boolean;
   durationMs: number;
   checks: VerifyJsonCheck[];
 }
@@ -428,6 +429,7 @@ export function formatJsonReportV1(report: VerifyReport): VerifyJsonReportV1 {
     score: report.score,
     max: report.maxScore,
     level: levelFromScore(report.score, report.maxScore),
+    skippedNegotiation: report.skippedNegotiation,
     durationMs: report.durationMs,
     checks: report.checks.map((check) => ({
       id: check.id,

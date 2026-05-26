@@ -53,6 +53,7 @@ For machine consumers, `dualmark verify <url> --json` SHOULD emit the following 
   "score": 95,
   "max": 100,
   "level": "advanced",
+  "skippedNegotiation": false,
   "durationMs": 123,
   "checks": [
     {
@@ -66,7 +67,7 @@ For machine consumers, `dualmark verify <url> --json` SHOULD emit the following 
 }
 ```
 
-Where `level` is one of `none`, `basic`, `standard`, `advanced` and `checks[].points` SHOULD be `0` for failed checks.
+Where `level` is one of `none`, `basic`, `standard`, `advanced`, `skippedNegotiation` indicates whether negotiation checks were skipped, and `checks[].points` SHOULD be `0` for failed checks.
 
 The runner produces a weighted score out of 100 (or 80 with `--skip-negotiation`). The score MUST be calculated as:
 

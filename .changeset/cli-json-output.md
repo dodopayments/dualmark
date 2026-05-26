@@ -2,6 +2,6 @@
 "@dualmark/cli": minor
 ---
 
-Add `verify --json` output for CI/dashboard consumers with the AEO Spec v1.0 schema, enforce `--json` mutual exclusivity with quiet/color flags, and keep failure exit behavior non-zero when required checks fail.
+Stabilize `dualmark verify --json` around an AEO Spec v1.0 JSON contract and enforce `--json` mutual exclusivity with `--quiet`/`--color`, while keeping required-check failures as non-zero exits.
 
-Note: the JSON output shape now uses the spec-pinned v1 schema (`{ url, markdownUrl, score, max, level, durationMs, checks[] }`) instead of the previous raw internal report shape. Consumers parsing `--json` should update field mappings accordingly.
+Migration note: `--json` previously emitted the internal `VerifyReport` shape (`mdUrl`, `maxScore`, `passed[]`, `failed[]`, `skippedNegotiation`). It now emits the v1.0 public schema (`url`, `markdownUrl`, `score`, `max`, `level`, `skippedNegotiation`, `durationMs`, `checks[]`) with checks in canonical evaluation order.

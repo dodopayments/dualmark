@@ -41,6 +41,7 @@ When `--json` is set, the CLI prints this object:
   "score": 95,
   "max": 100,
   "level": "advanced",
+  "skippedNegotiation": false,
   "durationMs": 123,
   "checks": [
     {
@@ -57,6 +58,7 @@ When `--json` is set, the CLI prints this object:
 Notes:
 
 - `level` is one of `none`, `basic`, `standard`, `advanced`.
+- `skippedNegotiation` indicates whether `--skip-negotiation` was used.
 - `checks[].points` is `0` when a check fails, otherwise equal to `checks[].max`.
 - `checks` preserve the canonical check evaluation order from the conformance runner.
 

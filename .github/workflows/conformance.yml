@@ -31,7 +31,7 @@ jobs:
           ./node_modules/.bin/astro dev --port 4321 &
           DEV_PID=$!
           sleep 10
-          node ../../packages/cli/dist/cli.js verify http://localhost:4321/blog/hello-world --skip-negotiation
+          node ../../packages/cli/dist/cli.js verify http://localhost:4321/blog/hello-world
           kill $DEV_PID
 
   astro-cloudflare-full:
