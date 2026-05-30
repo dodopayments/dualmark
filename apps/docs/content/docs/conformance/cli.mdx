@@ -13,11 +13,16 @@ bunx @dualmark/cli verify https://example.com/blog/your-post
 dualmark verify <url> [options]
 
 Options:
-  --json                Output a machine-readable JSON report
+  --json                Output a machine-readable JSON report (AEO Spec v1.0)
+  --quiet               Suppress success output (failures still print)
+  --color               Force color output (text mode only)
+  --no-color            Disable color output
   --skip-negotiation    Skip negotiation checks (use for static-only sites)
   --timeout <ms>        Per-request timeout (default: 10000)
   --help, -h            Show help
 ```
+
+`--json` cannot be combined with `--quiet` or `--color`; doing so exits with code `2`.
 
 ## Exit codes
 
@@ -32,10 +37,12 @@ Options:
 ```ts
 import { verifyUrl, formatTextReport } from "@dualmark/cli";
 
-const result = await verifyUrl("https://example.com/blog/post");
-console.log(formatTextReport(result));
-console.log("score:", result.score, "/", result.maxScore);
+const report = await verifyUrl("https://example.com/blog/post");
+console.log(formatTextReport(report));
+console.log("score:", report.score, "/", report.maxScore);
 ```
+
+See [@dualmark/cli](/docs/packages/cli) for the full `VerifyReport` shape.
 
 ## Sample output
 
@@ -62,3 +69,32 @@ Passed:
   [+10] negotiation.acceptHeader — Accept: text/markdown receives text/markdown response
   [+ 5] negotiation.notAcceptable — Accept that excludes html+markdown returns 406
 ```
+
+## JSON output
+
+With `--json`, the CLI emits the AEO Spec v1.0 contract instead of the text report:
+
+```json
+{
+  "url": "https://example.com/blog/hello",
+  "markdownUrl": "https://example.com/blog/hello.md",
+  "score": 95,
+  "max": 100,
+  "level": "advanced",
+  "skippedNegotiation": false,
+  "durationMs": 123,
+  "checks": [
+    {
+      "id": "md.fetch",
+      "points": 20,
+      "max": 20,
+      "passed": true,
+      "message": "OK"
+    }
+  ]
+}
+```
+
+- `level` is one of `none`, `basic`, `standard`, `advanced`.
+- `checks[].points` is `0` when a check fails, otherwise equal to `checks[].max`.
+- `checks` preserve the canonical evaluation order from the conformance runner.

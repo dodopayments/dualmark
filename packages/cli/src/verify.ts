@@ -16,10 +16,32 @@ export interface VerifyReport {
   mdUrl: string;
   score: number;
   maxScore: number;
+  checks: CheckResult[];
   passed: CheckResult[];
   failed: CheckResult[];
   skippedNegotiation: boolean;
   durationMs: number;
+}
+
+export type ConformanceLevel = "none" | "basic" | "standard" | "advanced";
+
+export interface VerifyJsonCheck {
+  id: string;
+  points: number;
+  max: number;
+  passed: boolean;
+  message: string;
+}
+
+export interface VerifyJsonReportV1 {
+  url: string;
+  markdownUrl: string;
+  score: number;
+  max: number;
+  level: ConformanceLevel;
+  skippedNegotiation: boolean;
+  durationMs: number;
+  checks: VerifyJsonCheck[];
 }
 
 export interface VerifyOptions {
@@ -355,6 +377,7 @@ function finalizeReport(args: {
     mdUrl: args.mdUrl,
     score,
     maxScore,
+    checks: args.checks,
     passed,
     failed,
     skippedNegotiation: args.skippedNegotiation,
@@ -388,4 +411,32 @@ export function formatTextReport(report: VerifyReport): string {
     }
   }
   return lines.join("\n");
+}
+
+function levelFromScore(score: number, maxScore: number): ConformanceLevel {
+  if (maxScore <= 0) return "none";
+  const ratio = score / maxScore;
+  if (ratio >= 0.95) return "advanced";
+  if (ratio >= 0.8) return "standard";
+  if (ratio >= 0.6) return "basic";
+  return "none";
+}
+
+export function formatJsonReportV1(report: VerifyReport): VerifyJsonReportV1 {
+  return {
+    url: report.url,
+    markdownUrl: report.mdUrl,
+    score: report.score,
+    max: report.maxScore,
+    level: levelFromScore(report.score, report.maxScore),
+    skippedNegotiation: report.skippedNegotiation,
+    durationMs: report.durationMs,
+    checks: report.checks.map((check) => ({
+      id: check.id,
+      points: check.passed ? check.weight : 0,
+      max: check.weight,
+      passed: check.passed,
+      message: check.message,
+    })),
+  };
 }

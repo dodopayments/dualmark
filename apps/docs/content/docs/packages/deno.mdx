@@ -1,0 +1,133 @@
+---
+title: "@dualmark/deno"
+description: Deno Deploy edge adapter — wraps any upstream Deno fetch handler.
+---
+
+Deno-native edge adapter. Published to npm with the `"deno"` export condition first, so it works under `Deno.serve()` via `npm:` specifiers in `deno.json`.
+
+## Install
+
+### Deno (Deno Deploy and local `deno run`)
+
+```jsonc title="deno.json"
+{
+  "imports": {
+    "@dualmark/deno": "npm:@dualmark/deno@^0.1.0",
+    "@dualmark/core": "npm:@dualmark/core@^0.7.0"
+  }
+}
+```
+
+<Callout type="info">
+  The `"deno"` export condition is only consulted by Deno when you pass `--conditions=deno`. For everyday use, the `npm:` specifier above is what you want — Deno resolves it through npm and uses the ESM build.
+</Callout>
+
+### Node / Bun (for tooling and tests)
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/deno @dualmark/core
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/deno @dualmark/core
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/deno @dualmark/core
+```
+</Tab>
+</Tabs>
+
+## `createAEOHandler(options)`
+
+```ts
+import { createAEOHandler } from "@dualmark/deno";
+
+const handler = createAEOHandler({
+  upstream: existingHandler,
+  trailingSlash: "never",
+  enableLinkHeader: true,
+
+  redirects: {
+    internal: { "/old": "/new" },
+    external: { "/login": "https://app.example.com" },
+  },
+
+  skip: {
+    prefixes: ["/admin", "/api/"],
+    extensions: [".js", ".css", ".png"],
+  },
+
+  headers: { cacheControl: "public, max-age=3600" },
+
+  hooks: {
+    onAIRequest: (info) => console.log(info.botName, info.pathname),
+    onMiss: (info) => console.warn("miss:", info.pathname),
+  },
+});
+
+Deno.serve(handler);
+```
+
+## Options
+
+| Option | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `upstream` | `(req: Request, info: DenoServeHandlerInfo) => Response \| Promise<Response>` | required | Serves both your HTML and the underlying `.md` twins |
+| `trailingSlash` | `"never" \| "always" \| "preserve"` | `"never"` | Redirect policy |
+| `enableLinkHeader` | `boolean` | `true` | Inject `Link rel="alternate"` on HTML responses |
+| `redirects.internal` | `Record<string, string>` | `{}` | Path → path |
+| `redirects.external` | `Record<string, string>` | `{}` | Path → URL |
+| `skip.prefixes` | `readonly string[]` | `["/admin", "/api/", "/_"]` | Skip negotiation entirely; matched as exact segments |
+| `skip.extensions` | `readonly string[]` | common assets | Skip negotiation for these extensions |
+| `headers.cacheControl` | `string` | `"public, max-age=3600"` | For markdown responses |
+| `hooks.onAIRequest` | `(info: AIRequestInfo) => void \| Promise<void>` | `undefined` | Scheduled on `info.completed` |
+| `hooks.onMiss` | `(info: MissInfo) => void \| Promise<void>` | `undefined` | Scheduled on `info.completed` |
+
+## Types
+
+```ts
+interface AIRequestInfo {
+  url: URL;
+  botName: string | null;
+  botVendor: string | null;
+  acceptHeader: string;
+  pathname: string;
+  cacheStatus: "hit" | "miss";
+  tokens: number;
+}
+
+interface MissInfo {
+  url: URL;
+  botName: string | null;
+  pathname: string;
+  acceptHeader: string;
+}
+
+interface DenoServeHandlerInfo {
+  remoteAddr: { transport: "tcp" | "udp" | "unix" | "unixpacket"; hostname: string; port: number };
+  completed: Promise<void>;
+}
+```
+
+## Hook scheduling
+
+Hooks are scheduled on `info.completed` so they never block the response but are guaranteed to flush before the runtime suspends the isolate (on Deno Deploy). When `info.completed` is not present — for example in a custom mock or non-Deploy `Deno.serve` setup — the adapter falls back to scheduling the hook on a resolved microtask (`Promise.resolve().then(...)`), which is fire-and-forget. Hook errors are caught and logged via `console.error` so a throwing hook never takes down the request pipeline.
+
+## Safe-method semantics
+
+Only `GET` and `HEAD` requests are intercepted for negotiation, trailing-slash normalization, and `.md` lookups. `POST`, `PUT`, `PATCH`, `DELETE`, and `OPTIONS` flow through to `upstream` unchanged so request bodies and methods are preserved end-to-end.
+
+## Skip rules
+
+The `skip.prefixes` array uses exact-or-segment matching:
+
+- `"/api"` matches `/api` and `/api/foo` — but **not** `/api-docs`
+- `"/admin/"` matches anything under `/admin/`
+- `"/_"` matches anything starting with `/_` (Astro-style internal routes)
+
+This is stricter than a raw `startsWith` and avoids over-matching neighboring paths.

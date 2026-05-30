@@ -33,53 +33,95 @@ yarn dlx @dualmark/cli verify https://example.com
 dualmark verify <url> [options]
 
 Options:
-  --json                Output a machine-readable JSON report
+  --json                Output a machine-readable JSON report (AEO Spec v1.0)
+  --quiet               Suppress success output (failures still print)
+  --color               Force color output (text mode only)
+  --no-color            Disable color output
   --skip-negotiation    Skip negotiation checks (use for static-only sites)
   --timeout <ms>        Per-request timeout (default: 10000)
   --help, -h            Show help
 ```
+
+`--json` cannot be combined with `--quiet` or `--color`; doing so exits with code `2`.
 
 See [conformance/cli](/docs/conformance/cli) for sample output.
 
 ## Programmatic API
 
 ```ts
-import { verifyUrl, formatTextReport } from "@dualmark/cli";
+import { verifyUrl, formatTextReport, formatJsonReportV1 } from "@dualmark/cli";
 
-const result = await verifyUrl("https://example.com/blog/post", {
+const report = await verifyUrl("https://example.com/blog/post", {
   skipNegotiation: false,
   timeoutMs: 10_000,
 });
 
-console.log(formatTextReport(result));
+console.log(formatTextReport(report));
 
-if (result.failed.some((c) => c.required)) {
+// Emit the public AEO Spec v1.0 JSON contract (same shape as `--json`):
+console.log(JSON.stringify(formatJsonReportV1(report), null, 2));
+
+if (report.failed.some((c) => c.severity === "required")) {
   process.exit(1);
 }
 ```
 
-## `VerifyResult` shape
+## `VerifyReport` shape
+
+`verifyUrl()` returns the full internal report:
 
 ```ts
-interface VerifyResult {
+interface VerifyReport {
   url: string;          // input URL (HTML)
   mdUrl: string;        // derived markdown URL
   score: number;        // points earned
   maxScore: number;     // total possible
+  skippedNegotiation: boolean;
   durationMs: number;
-  passed: CheckResult[];
-  failed: CheckResult[];
-  skipped: CheckResult[];
+  checks: CheckResult[]; // every check, in evaluation order
+  passed: CheckResult[]; // subset where passed === true
+  failed: CheckResult[]; // subset where passed === false
 }
 
 interface CheckResult {
   id: string;           // e.g. "md.fetch"
-  weight: number;
-  required: boolean;
-  description: string;
-  reason?: string;      // present on failures
+  description: string;  // human-readable check description
+  severity: "required" | "recommended";
+  passed: boolean;
+  message: string;      // status / failure reason
+  weight: number;       // points this check contributes
 }
 ```
+
+## `--json` output (AEO Spec v1.0)
+
+The `--json` flag emits the **public** v1.0 contract — a stable, renamed
+projection of `VerifyReport` (`mdUrl` → `markdownUrl`, `maxScore` → `max`),
+adds a derived `level`, and flattens each check to `points`/`max`. Build it
+programmatically with `formatJsonReportV1(report)`.
+
+```ts
+interface VerifyJsonReportV1 {
+  url: string;
+  markdownUrl: string;  // VerifyReport.mdUrl
+  score: number;
+  max: number;          // VerifyReport.maxScore
+  level: "none" | "basic" | "standard" | "advanced";
+  skippedNegotiation: boolean;
+  durationMs: number;
+  checks: VerifyJsonCheck[];
+}
+
+interface VerifyJsonCheck {
+  id: string;
+  points: number;       // 0 when the check fails, else equal to `max`
+  max: number;          // CheckResult.weight
+  passed: boolean;
+  message: string;
+}
+```
+
+See [conformance/cli](/docs/conformance/cli) for a sample `--json` payload.
 
 ## Exit codes
 

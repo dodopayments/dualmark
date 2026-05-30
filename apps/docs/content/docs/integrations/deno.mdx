@@ -1,0 +1,127 @@
+---
+title: Deno Deploy
+description: Wrap any Deno fetch handler with createAEOHandler for edge negotiation.
+---
+
+`@dualmark/deno` is a higher-order Deno handler. Pass it your existing `Deno.serve` fetch handler (or a thin static-file reader), and it adds AI bot detection, markdown serving, header injection, and lifecycle hooks for telemetry — all using standard WHATWG Fetch primitives.
+
+## Install
+
+`@dualmark/deno` is published to npm but exports the `"deno"` condition first, so you can pull it in via npm specifiers in `deno.json`:
+
+```jsonc title="deno.json"
+{
+  "imports": {
+    "@dualmark/deno": "npm:@dualmark/deno@^0.1.0",
+    "@dualmark/core": "npm:@dualmark/core@^0.7.0"
+  }
+}
+```
+
+For local tooling and tests under Node or Bun, install from npm directly:
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/deno @dualmark/core
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/deno @dualmark/core
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/deno @dualmark/core
+```
+</Tab>
+</Tabs>
+
+## Static site (file-based content)
+
+```ts title="main.ts"
+import { createAEOHandler } from "@dualmark/deno";
+
+const upstream = async (req: Request): Promise<Response> => {
+  const url = new URL(req.url);
+  let pathname = url.pathname === "/" ? "/index" : url.pathname;
+
+  if (pathname.includes("..")) {
+    return new Response("Forbidden", { status: 403 });
+  }
+
+  const hasExtension = /\.[a-z0-9]+$/i.test(pathname);
+  const filePath = hasExtension ? `./content${pathname}` : `./content${pathname}.html`;
+
+  try {
+    const body = await Deno.readTextFile(filePath);
+    const contentType = filePath.endsWith(".md")
+      ? "text/markdown; charset=utf-8"
+      : "text/html; charset=utf-8";
+    return new Response(body, { headers: { "content-type": contentType } });
+  } catch {
+    return new Response("Not Found", { status: 404 });
+  }
+};
+
+Deno.serve(createAEOHandler({ upstream }));
+```
+
+Run with:
+
+```bash
+deno run --allow-read --allow-net main.ts
+```
+
+## Wrapping an existing fetch handler
+
+```ts title="main.ts"
+import { createAEOHandler } from "@dualmark/deno";
+import myApp from "./app.ts";
+
+Deno.serve(createAEOHandler({
+  upstream: myApp.fetch,
+  redirects: {
+    internal: { "/old-path": "/new-path" },
+    external: { "/login": "https://app.example.com" },
+  },
+  hooks: {
+    onAIRequest: (info) => console.log(`${info.botName} hit ${info.pathname}`),
+    onMiss: (info) => console.warn(`miss: ${info.pathname}`),
+  },
+}));
+```
+
+## Verify
+
+The example at `examples/deno-deploy` scores a perfect **125/125** under `deno run`:
+
+```bash
+deno task dev
+# new terminal:
+bunx @dualmark/cli verify http://localhost:8000/pricing
+```
+
+## What it does
+
+1. **Trailing slash enforcement** — configurable: `never` (default), `always`, `preserve`
+2. **AI bot detection** — via UA, against the registry of [known crawlers](/docs/spec/ai-bot-detection)
+3. **Content negotiation** — via Accept header, RFC 7231 §5.3.2 compliant
+4. **Markdown serving** — delegates to your `upstream` for the `.md` twin, decorates with full AEO headers
+5. **Internal redirects** — routes to target's `.md` with `X-Redirect-From` / `X-Redirect-To`
+6. **External redirects** — returns markdown notice with target link
+7. **406 fallback** — when neither HTML nor markdown is acceptable
+8. **Link header injection** — `<…>; rel="alternate"; type="text/markdown"` on HTML responses
+9. **Lifecycle hooks** — `onAIRequest` and `onMiss` scheduled on `info.completed` (Deno Deploy's equivalent of `ctx.waitUntil`)
+10. **Safe-method gating** — only `GET` and `HEAD` are intercepted; `POST`/`PUT`/`DELETE` pass through unchanged
+11. **Pass-through** — falls through to upstream for skip-prefixed paths, static assets, and everything else
+
+## Differences from `@dualmark/cloudflare`
+
+| Concept | Cloudflare Workers | Deno Deploy |
+| --- | --- | --- |
+| Static assets | `env.ASSETS.fetch()` binding | User-provided `upstream(req, info)` callback |
+| Background work | `ctx.waitUntil(promise)` | `info.completed.then(promise)` |
+| Built-in analytics | `AnalyticsEngineDataset` | **Not provided** — use the `onAIRequest` hook with the telemetry of your choice |
+| Geo data | `cf-ipcountry` header | Standard `x-forwarded-for` / `info.remoteAddr.hostname` |

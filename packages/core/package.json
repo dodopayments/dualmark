@@ -1,6 +1,6 @@
 {
   "name": "@dualmark/core",
-  "version": "0.5.2",
+  "version": "0.7.0",
   "description": "Framework-agnostic primitives for AEO infrastructure: content negotiation, AI-bot detection, markdown response, token estimation, composition helpers.",
   "license": "Apache-2.0",
   "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",

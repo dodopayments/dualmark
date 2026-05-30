@@ -15,11 +15,7 @@ export {
   type IntegrationEntryData,
 } from "./integration.js";
 export { legalConverter, type LegalConverterConfig, type LegalEntryData } from "./legal.js";
-export {
-  compareConverter,
-  type CompareConverterConfig,
-  type CompareEntryData,
-} from "./compare.js";
+export { compareConverter, type CompareConverterConfig, type CompareEntryData } from "./compare.js";
 export { toolConverter, type ToolConverterConfig, type ToolEntryData } from "./tool.js";
 export { videoConverter, type VideoConverterConfig, type VideoEntryData } from "./video.js";
 export {
@@ -43,6 +39,14 @@ export {
   type ChangelogChange,
   type ChangelogChangeType,
 } from "./changelog.js";
+export {
+  statusPageConverter,
+  type StatusPageConverterConfig,
+  type StatusPageEntryData,
+  type StatusPageComponent,
+  type StatusPageIncident,
+  type StatusPageOverallStatus,
+} from "./status-page.js";
 export {
   pricingConverter,
   type PricingConverterConfig,
@@ -71,6 +75,7 @@ export const BUILT_IN_CONVERTERS = [
   "legal",
   "pricing",
   "pseo",
+  "status-page",
   "tool",
   "video",
 ] as const;

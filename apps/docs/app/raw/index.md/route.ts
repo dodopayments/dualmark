@@ -24,7 +24,7 @@ See https://dualmark.dev/docs/quickstart for the full integration guide.
 - \`@dualmark/astro\` — Astro 5 integration
 - \`@dualmark/cloudflare\` — Workers edge adapter
 - \`@dualmark/cli\` — \`dualmark verify\` conformance test runner
-- \`@dualmark/converters\` — 13 production-tested page-type converters
+- \`@dualmark/converters\` — production-tested page-type converters
 
 ## Links
 

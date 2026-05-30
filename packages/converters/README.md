@@ -23,6 +23,7 @@ bun add @dualmark/converters @dualmark/core
 | `legalConverter` | Legal pages |
 | `pricingConverter` | Pricing tables with tier highlights and CTAs |
 | `pseoConverter` | Programmatic SEO pages with facts + related-link groups |
+| `statusPageConverter` | Public status / uptime pages (components + incidents) |
 | `toolConverter` | Standalone tools |
 | `videoConverter` | Video pages |
 

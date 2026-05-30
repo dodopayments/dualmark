@@ -1,5 +1,22 @@
 # @dualmark/converters
 
+## 0.8.0
+
+### Minor Changes
+
+- 8e8f315: Add status page converter for uptime/status pages
+
+## 0.7.0
+
+### Minor Changes
+
+- dbd8ef4: Add `integrationConverter` for marketplace-style integration pages (vendor, categories, capabilities, optional setup, pricing, requirements). Register as built-in `integration` in Astro and Next.js resolvers.
+
+### Patch Changes
+
+- Updated dependencies [6155878]
+  - @dualmark/core@0.7.0
+
 ## 0.5.2
 
 ### Patch Changes

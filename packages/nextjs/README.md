@@ -108,7 +108,7 @@ different name.
 ## Built-in converter names
 
 `blog`, `case-study`, `changelog`, `compare`, `docs`, `feature`, `glossary`,
-`legal`, `pricing`, `pseo`, `tool`, `video`. Pass any of them as `converter`,
+`legal`, `pricing`, `pseo`, `status-page`, `tool`, `video`. Pass any of them as `converter`,
 or pass a function `(entry) => string` for custom output.
 
 ## Why Next.js needs `getEntries`

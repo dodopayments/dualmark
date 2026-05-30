@@ -15,6 +15,7 @@ import {
   legalConverter,
   pricingConverter,
   pseoConverter,
+  statusPageConverter,
   toolConverter,
   videoConverter,
   type BaseConverterConfig,
@@ -34,6 +35,7 @@ export type BuiltInConverterName =
   | "legal"
   | "pricing"
   | "pseo"
+  | "status-page"
   | "tool"
   | "video";
 
@@ -73,13 +75,15 @@ export function resolveBuiltInConverter(
       return pricingConverter(cfg) as Converter<CollectionEntry<unknown>>;
     case "pseo":
       return pseoConverter(cfg) as Converter<CollectionEntry<unknown>>;
+    case "status-page":
+      return statusPageConverter(cfg) as Converter<CollectionEntry<unknown>>;
     case "tool":
       return toolConverter(cfg) as Converter<CollectionEntry<unknown>>;
     case "video":
       return videoConverter(cfg) as Converter<CollectionEntry<unknown>>;
     default:
       throw new Error(
-        `Dualmark: unknown built-in converter '${args.name}'. Valid names: blog, case-study, changelog, compare, docs, feature, glossary, integration, legal, pricing, pseo, tool, video. Or pass a function.`,
+        `Dualmark: unknown built-in converter '${args.name}'. Valid names: blog, case-study, changelog, compare, docs, feature, glossary, integration, legal, pricing, pseo, status-page, tool, video. Or pass a function.`,
       );
   }
 }

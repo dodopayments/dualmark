@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { verifyUrl, formatTextReport } from "../src/verify.js";
+import { verifyUrl, formatTextReport, formatJsonReportV1 } from "../src/verify.js";
 
 interface MockEntry {
   status?: number;
@@ -36,6 +36,15 @@ const FULL_MD_HEADERS = {
   vary: "Accept",
   "x-aeo-version": "1.0",
 };
+
+function markdownOnlyFetch(body = "# Hello\n\nWorld."): typeof fetch {
+  return makeFetch({
+    "https://acme.test/blog/hello.md": () => ({
+      headers: FULL_MD_HEADERS,
+      body,
+    }),
+  });
+}
 
 describe("verifyUrl — fully conformant site (with negotiation)", () => {
   it("scores 100% of maxScore", async () => {
@@ -74,12 +83,7 @@ describe("verifyUrl — fully conformant site (with negotiation)", () => {
 
 describe("verifyUrl — markdown URL with --skip-negotiation", () => {
   it("scores out of reduced maxScore (no html/negotiation checks)", async () => {
-    const fetchImpl = makeFetch({
-      "https://acme.test/blog/hello.md": () => ({
-        headers: FULL_MD_HEADERS,
-        body: "# Hello\n\nWorld.",
-      }),
-    });
+    const fetchImpl = markdownOnlyFetch();
 
     const report = await verifyUrl("https://acme.test/blog/hello.md", {
       fetchImpl,
@@ -240,5 +244,22 @@ describe("formatTextReport", () => {
     });
     const text = formatTextReport(report);
     expect(text).toContain("Failed:");
+  });
+});
+
+describe("formatJsonReportV1", () => {
+  it("matches the v1.0 JSON schema snapshot for a representative URL", async () => {
+    const fetchImpl = markdownOnlyFetch();
+    const report = await verifyUrl("https://acme.test/blog/hello", {
+      fetchImpl,
+      skipNegotiation: true,
+    });
+
+    const jsonReport = formatJsonReportV1({
+      ...report,
+      durationMs: 12,
+    });
+
+    expect(jsonReport).toMatchSnapshot();
   });
 });

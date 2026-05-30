@@ -197,4 +197,24 @@ describe("converter-registry resolveBuiltInConverter", () => {
     });
     expect(out).toContain("# X");
   });
+
+  it("returns a callable converter for 'status-page'", async () => {
+    const { resolveBuiltInConverter } = await import("../src/converter-registry.js");
+    const conv = resolveBuiltInConverter({
+      name: "status-page",
+      collectionName: "status",
+      baseConfig: { siteUrl: "https://example.com" },
+    });
+    const out = conv({
+      id: "main",
+      data: {
+        title: "System Status",
+        url: "https://status.example.com",
+        overall: "operational",
+        components: [],
+      },
+    } as never);
+    expect(out).toContain("# System Status");
+    expect(out).toContain("No incidents reported.");
+  });
 });

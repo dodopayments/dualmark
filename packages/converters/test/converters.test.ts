@@ -611,7 +611,7 @@ describe("docsConverter", () => {
 });
 
 describe("BUILT_IN_CONVERTERS export", () => {
-  it("lists all 13 generic built-in names in alphabetical order", () => {
+  it("lists all built-in names in alphabetical order", () => {
     expect(BUILT_IN_CONVERTERS).toEqual([
       "blog",
       "case-study",
@@ -624,6 +624,7 @@ describe("BUILT_IN_CONVERTERS export", () => {
       "legal",
       "pricing",
       "pseo",
+      "status-page",
       "tool",
       "video",
     ]);
