@@ -1,4 +1,4 @@
-import type { AIRequestInfo, MissInfo, TrailingSlashMode } from "@dualmark/core";
+import type { AIRequestInfo, MissInfo, TrailingSlashMode, TokenEstimator } from "@dualmark/core";
 
 /**
  * Minimal Deno.ServeHandlerInfo interface. Declared locally so this package
@@ -94,6 +94,9 @@ export interface CreateAEOHandlerOptions {
    * discover the markdown twin.
    */
   enableLinkHeader?: boolean;
+
+  /** Custom token estimator. Overrides the default whitespace-word counter. */
+  tokenizer?: TokenEstimator;
 }
 
-export type { AIRequestInfo, MissInfo, TrailingSlashMode };
+export type { AIRequestInfo, MissInfo, TrailingSlashMode, TokenEstimator };

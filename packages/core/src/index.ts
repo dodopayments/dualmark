@@ -5,7 +5,13 @@ export {
   type ParsedMediaType,
 } from "./negotiation.js";
 
-export { estimateTokens } from "./tokens.js";
+export {
+  estimateTokens,
+  setTokenEstimator,
+  resetTokenEstimator,
+  type TokenEstimator,
+  type EstimateTokensOptions,
+} from "./tokens.js";
 
 export {
   normalizeUnicode,

@@ -142,6 +142,7 @@ export function createDualmarkRouteHandler(
   const responseOptions: MarkdownResponseOptions = {
     cacheControl: resolved.headers.cacheControl,
     noindex: resolved.headers.noindex,
+    tokenizer: resolved.tokenizer,
   };
 
   async function dispatch(joined: string): Promise<Response> {

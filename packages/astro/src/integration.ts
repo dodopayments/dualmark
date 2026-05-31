@@ -79,6 +79,19 @@ export function createDualmarkIntegration(input: DualmarkAstroConfig): AstroInte
         const generatedDir = join(root, "node_modules", GENERATED_DIR_NAME);
         if (!existsSync(generatedDir)) mkdirSync(generatedDir, { recursive: true });
 
+        const hasTokenizer = !!resolved.tokenizer;
+        if (hasTokenizer) {
+          writeFileSync(
+            join(generatedDir, "tokenizer.mjs"),
+            `export default ${resolved.tokenizer!.toString()};\n`,
+            "utf8",
+          );
+        }
+        const tokenizerImport = hasTokenizer ? `import tokenizer from "./tokenizer.mjs";\n` : "";
+        const responseOpts = hasTokenizer
+          ? `{ cacheControl: dualmarkConfig.cacheControl, noindex: dualmarkConfig.noindex, tokenizer }`
+          : `{ cacheControl: dualmarkConfig.cacheControl, noindex: dualmarkConfig.noindex }`;
+
         writeFileSync(
           join(generatedDir, "config.mjs"),
           `export default ${JSON.stringify(
@@ -111,7 +124,7 @@ export function createDualmarkIntegration(input: DualmarkAstroConfig): AstroInte
 import { makeCollectionDetailEndpoint } from "@dualmark/astro/endpoints/collection";
 import { getCollection } from "astro:content";
 import dualmarkConfig from "./config.mjs";
-
+${tokenizerImport}
 const converter = resolveBuiltInConverter({
   name: ${JSON.stringify(c.converter)},
   collectionName: ${JSON.stringify(collectionName)},
@@ -122,7 +135,7 @@ const endpoint = makeCollectionDetailEndpoint({
   collectionName: ${JSON.stringify(collectionName)},
   converter,
   getCollection: (name, filter) => getCollection(name, filter),
-  responseOptions: { cacheControl: dualmarkConfig.cacheControl, noindex: dualmarkConfig.noindex },
+  responseOptions: ${responseOpts},
 });
 
 export const getStaticPaths = endpoint.getStaticPaths;
@@ -132,7 +145,7 @@ export const GET = endpoint.GET;
           const listingSource = `import { makeListingEndpoint } from "@dualmark/astro/endpoints/listing";
 import { getCollection } from "astro:content";
 import dualmarkConfig from "./config.mjs";
-
+${tokenizerImport}
 const endpoint = makeListingEndpoint({
   collectionName: ${JSON.stringify(collectionName)},
   siteUrl: dualmarkConfig.siteUrl,
@@ -140,7 +153,7 @@ const endpoint = makeListingEndpoint({
   title: ${JSON.stringify(c.listingMetadata?.title ?? collectionName)},
   description: ${JSON.stringify(c.listingMetadata?.description ?? `All ${collectionName} entries.`)},
   getCollection: (name, filter) => getCollection(name, filter),
-  responseOptions: { cacheControl: dualmarkConfig.cacheControl, noindex: dualmarkConfig.noindex },
+  responseOptions: ${responseOpts},
 });
 
 export const GET = endpoint.GET;
@@ -170,10 +183,10 @@ export const GET = endpoint.GET;
           const source = `import { makeStaticEndpoint } from "@dualmark/astro/endpoints/static";
 import dualmarkConfig from "./config.mjs";
 import render from "./${rel(generatedDir, renderModulePath)}";
-
+${tokenizerImport}
 const endpoint = makeStaticEndpoint({
   render,
-  responseOptions: { cacheControl: dualmarkConfig.cacheControl, noindex: dualmarkConfig.noindex },
+  responseOptions: ${responseOpts},
 });
 
 export const GET = endpoint.GET;
@@ -199,11 +212,11 @@ export const GET = endpoint.GET;
 import dualmarkConfig from "./config.mjs";
 import render from "./${rel(generatedDir, renderModulePath)}";
 import getStaticPaths from "./${rel(generatedDir, pathsModulePath)}";
-
+${tokenizerImport}
 const endpoint = makeParameterizedEndpoint({
   getStaticPaths: () => getStaticPaths(),
   render,
-  responseOptions: { cacheControl: dualmarkConfig.cacheControl, noindex: dualmarkConfig.noindex },
+  responseOptions: ${responseOpts},
 });
 
 export const getStaticPaths = endpoint.getStaticPaths;

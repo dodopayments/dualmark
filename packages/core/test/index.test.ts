@@ -10,6 +10,8 @@ describe("@dualmark/core public surface", () => {
 
   it("exports token API", () => {
     expect(typeof core.estimateTokens).toBe("function");
+    expect(typeof core.setTokenEstimator).toBe("function");
+    expect(typeof core.resetTokenEstimator).toBe("function");
   });
 
   it("exports text API", () => {

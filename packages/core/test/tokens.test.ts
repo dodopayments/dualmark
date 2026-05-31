@@ -36,3 +36,31 @@ describe("setTokenEstimator / resetTokenEstimator", () => {
     expect(estimateTokens("hi")).toBe(1);
   });
 });
+
+describe("estimateTokens with inline tokenizer option", () => {
+  afterEach(() => resetTokenEstimator());
+
+  it("uses inline tokenizer when provided", () => {
+    const charCounter = (t: string) => t.length;
+    expect(estimateTokens("hello", { tokenizer: charCounter })).toBe(5);
+  });
+
+  it("inline tokenizer takes precedence over global setTokenEstimator", () => {
+    setTokenEstimator(() => 999);
+    const charCounter = (t: string) => t.length;
+    expect(estimateTokens("hi", { tokenizer: charCounter })).toBe(2);
+  });
+
+  it("falls back to global estimator when inline tokenizer is omitted", () => {
+    setTokenEstimator(() => 42);
+    expect(estimateTokens("anything")).toBe(42);
+  });
+
+  it("falls back to default when no inline tokenizer and no global override", () => {
+    expect(estimateTokens("one two three")).toBe(3);
+  });
+
+  it("handles empty options object", () => {
+    expect(estimateTokens("a b c", {})).toBe(3);
+  });
+});

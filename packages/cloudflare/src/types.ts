@@ -34,9 +34,10 @@ export type {
   AIRequestInfo,
   MissInfo,
   TrailingSlashMode,
+  TokenEstimator,
 } from "@dualmark/core";
 
-import type { AIRequestInfo, MissInfo, TrailingSlashMode } from "@dualmark/core";
+import type { AIRequestInfo, MissInfo, TrailingSlashMode, TokenEstimator } from "@dualmark/core";
 
 export interface CreateAEOWorkerOptions<Env extends MinimalEnv = MinimalEnv> {
   upstream: UpstreamWorker<Env>;
@@ -60,4 +61,5 @@ export interface CreateAEOWorkerOptions<Env extends MinimalEnv = MinimalEnv> {
     onMiss?: (info: MissInfo) => void | Promise<void>;
   };
   enableLinkHeader?: boolean;
+  tokenizer?: TokenEstimator;
 }

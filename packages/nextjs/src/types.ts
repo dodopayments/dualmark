@@ -1,5 +1,5 @@
 import type { Converter, CollectionEntry } from "@dualmark/converters";
-import type { LlmsTxtSection } from "@dualmark/core";
+import type { LlmsTxtSection, TokenEstimator } from "@dualmark/core";
 
 export type SlugStrategy = "catch-all" | "single";
 
@@ -80,6 +80,8 @@ export interface DualmarkNextConfig {
     cacheControl?: string;
     noindex?: boolean;
   };
+  /** Custom token estimator. Overrides the default whitespace-word counter. */
+  tokenizer?: TokenEstimator;
 }
 
 export interface ResolvedDualmarkNextConfig extends DualmarkNextConfig {

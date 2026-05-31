@@ -94,6 +94,7 @@ export function createAEOHandler(options: CreateAEOHandlerOptions): AEODenoHandl
   const trailingSlash = options.trailingSlash ?? "never";
   const cacheControl = options.headers?.cacheControl ?? DEFAULT_CACHE_CONTROL;
   const enableLinkHeader = options.enableLinkHeader !== false;
+  const tokenizer = options.tokenizer;
 
   const onAIRequest = options.hooks?.onAIRequest;
   const onMiss = options.hooks?.onMiss;
@@ -138,7 +139,7 @@ export function createAEOHandler(options: CreateAEOHandlerOptions): AEODenoHandl
       }
       if (assetResponse && assetResponse.ok) {
         const body = await assetResponse.text();
-        const tokens = estimateTokens(body);
+        const tokens = estimateTokens(body, { tokenizer });
         return new Response(body, {
           status: 200,
           headers: buildMarkdownHeaders(tokens, cacheControl),
@@ -186,7 +187,7 @@ export function createAEOHandler(options: CreateAEOHandlerOptions): AEODenoHandl
 
         if (assetResponse && assetResponse.ok) {
           const body = await assetResponse.text();
-          const tokens = estimateTokens(body);
+          const tokens = estimateTokens(body, { tokenizer });
           const aiInfo: AIRequestInfo = {
             url,
             botName: bot.name,
@@ -214,7 +215,7 @@ export function createAEOHandler(options: CreateAEOHandlerOptions): AEODenoHandl
             const targetResp = await options.upstream(targetReq, info);
             if (targetResp.ok) {
               const body = await targetResp.text();
-              const tokens = estimateTokens(body);
+              const tokens = estimateTokens(body, { tokenizer });
               const aiInfo: AIRequestInfo = {
                 url,
                 botName: bot.name,
@@ -238,7 +239,7 @@ export function createAEOHandler(options: CreateAEOHandlerOptions): AEODenoHandl
         const externalTarget = externalRedirects[cleanPath];
         if (externalTarget) {
           const body = `# Redirect\n\nThis page has moved to an external location.\n\n- **Redirect**: [${externalTarget}](${externalTarget})\n`;
-          const tokens = estimateTokens(body);
+          const tokens = estimateTokens(body, { tokenizer });
           const aiInfo: AIRequestInfo = {
             url,
             botName: bot.name,

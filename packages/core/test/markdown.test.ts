@@ -78,6 +78,12 @@ describe("markdownResponse", () => {
     const r = markdownResponse("# x", { status: 404 });
     expect(r.status).toBe(404);
   });
+
+  it("uses custom tokenizer for X-Markdown-Tokens when provided", () => {
+    const charCounter = (text: string) => text.length;
+    const r = markdownResponse("hello world", { tokenizer: charCounter });
+    expect(r.headers.get("x-markdown-tokens")).toBe("11");
+  });
 });
 
 describe("renderLinkAlternateHeader", () => {

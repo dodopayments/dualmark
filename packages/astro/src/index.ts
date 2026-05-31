@@ -12,5 +12,6 @@ export type {
   StaticPageConfig,
   ParameterizedRouteConfig,
   SlugStrategy,
+  TokenEstimator,
 } from "./types.js";
 export { resolveBuiltInConverter, type BuiltInConverterName } from "./converter-registry.js";

@@ -1,5 +1,5 @@
 import { normalizeUnicode } from "./text.js";
-import { estimateTokens } from "./tokens.js";
+import { estimateTokens, type TokenEstimator } from "./tokens.js";
 
 export interface MarkdownResponseOptions {
   cacheControl?: string;
@@ -8,6 +8,7 @@ export interface MarkdownResponseOptions {
   redirectTo?: string;
   extraHeaders?: HeadersInit;
   status?: number;
+  tokenizer?: TokenEstimator;
 }
 
 const DEFAULT_CACHE_CONTROL = "public, max-age=3600";
@@ -17,7 +18,7 @@ export function markdownResponse(
   options: MarkdownResponseOptions = {},
 ): Response {
   const normalized = normalizeUnicode(body);
-  const tokens = estimateTokens(normalized);
+  const tokens = estimateTokens(normalized, { tokenizer: options.tokenizer });
 
   const headers = new Headers({
     "Content-Type": "text/markdown; charset=utf-8",
