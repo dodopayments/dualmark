@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { resolveConfig, DualmarkConfigError } from "../src/config-validation.js";
 
-
 describe("resolveConfig", () => {
   it("requires siteUrl", () => {
     expect(() => resolveConfig({} as never)).toThrow(DualmarkConfigError);
@@ -99,7 +98,7 @@ describe("resolveConfig", () => {
   });
 
   it("produces the exact error format: [filePath] Dualmark config error: <msg>", () => {
-    expect(() => resolveConfig({} as never, "/abs/astro.config.mjs")).toThrow(
+    expect(() => resolveConfig(null as never, "/abs/astro.config.mjs")).toThrow(
       /^\[\/abs\/astro\.config\.mjs\] Dualmark config error: Config must be an object$/
     );
   });

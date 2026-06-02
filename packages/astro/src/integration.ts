@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { join, relative, resolve, sep } from "node:path";
+import { join, relative,  sep } from "node:path";
 import { resolveConfig, DualmarkConfigError } from "./config-validation.js";
 import type { DualmarkAstroConfig, ResolvedDualmarkConfig } from "./types.js";
 
@@ -244,7 +244,7 @@ export const GET = endpoint.GET;
           } middleware`,
         );
 
-        void resolve;
+        
       },
     },
   };
