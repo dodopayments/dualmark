@@ -52,19 +52,23 @@ function rel(from: string, to: string): string {
 }
 
 export function createDualmarkIntegration(input: DualmarkAstroConfig): AstroIntegrationLike {
-  let resolved: ResolvedDualmarkConfig;
-  try {
-    resolved = resolveConfig(input);
-  } catch (e) {
-    if (e instanceof DualmarkConfigError) throw e;
-    throw e;
-  }
-
   return {
     name: "@dualmark/astro",
     hooks: {
       "astro:config:setup"(opts) {
         const root = fileURLToPath(opts.config.root);
+
+        const candidates = ["astro.config.ts", "astro.config.mjs", "astro.config.js", "astro.config.mts", "astro.config.cjs"];
+        const configPath = candidates.map(f => join(root, f)).find(existsSync) ?? join(root, "astro.config.mjs");
+
+        let resolved: ResolvedDualmarkConfig;
+        try {
+          resolved = resolveConfig(input, configPath);
+        } catch (e) {
+          opts.logger.error(`[@dualmark/astro] ${e instanceof Error ? e.message : String(e)}`);
+          throw e;
+        }
+
         const generatedDir = join(root, "node_modules", GENERATED_DIR_NAME);
         if (!existsSync(generatedDir)) mkdirSync(generatedDir, { recursive: true });
 
@@ -236,8 +240,7 @@ export const GET = endpoint.GET;
         }
 
         opts.logger.info(
-          `[@dualmark/astro] Injected ${routes.length} route(s) and ${
-            resolved.middleware.injectLinkHeader ? "1" : "0"
+          `[@dualmark/astro] Injected ${routes.length} route(s) and ${resolved.middleware.injectLinkHeader ? "1" : "0"
           } middleware`,
         );
 
