@@ -77,4 +77,5 @@ export function resolveConfig(
       noindex: input.headers?.noindex !== false,
     },
   };
+
 }
