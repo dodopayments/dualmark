@@ -240,7 +240,8 @@ export const GET = endpoint.GET;
         }
 
         opts.logger.info(
-          `[@dualmark/astro] Injected ${routes.length} route(s) and ${resolved.middleware.injectLinkHeader ? "1" : "0"
+          `[@dualmark/astro] Injected ${routes.length} route(s) and ${
+            resolved.middleware.injectLinkHeader ? "1" : "0"
           } middleware`,
         );
 
