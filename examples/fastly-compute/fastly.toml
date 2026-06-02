@@ -1,4 +1,7 @@
 name = "dualmark-fastly-compute"
+description = "Dualmark Fastly Compute example"
+language = "javascript"
+manifest_version = 3
 main = "src/index.ts"
 
 [setup]

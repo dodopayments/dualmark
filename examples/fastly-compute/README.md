@@ -4,7 +4,7 @@ Minimal Fastly Compute example for `@dualmark/fastly`.
 
 ## Run
 
-1. Configure a backend named `origin_0` in `fastly.toml`
+1. Edit `fastly.toml` so the `origin_0.address` backend points at your origin host
 2. Ensure your origin serves both HTML pages and their `.md` twins
 3. Start the local dev server:
 
