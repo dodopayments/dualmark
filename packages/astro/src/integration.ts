@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { join, relative,  sep } from "node:path";
+import { join, relative, sep } from "node:path";
 import { resolveConfig, DualmarkConfigError } from "./config-validation.js";
 import type { DualmarkAstroConfig, ResolvedDualmarkConfig } from "./types.js";
 
@@ -58,8 +58,15 @@ export function createDualmarkIntegration(input: DualmarkAstroConfig): AstroInte
       "astro:config:setup"(opts) {
         const root = fileURLToPath(opts.config.root);
 
-        const candidates = ["astro.config.ts", "astro.config.mjs", "astro.config.js", "astro.config.mts", "astro.config.cjs"];
-        const configPath = candidates.map(f => join(root, f)).find(existsSync) ?? join(root, "astro.config.mjs");
+        const candidates = [
+          "astro.config.ts",
+          "astro.config.mjs",
+          "astro.config.js",
+          "astro.config.mts",
+          "astro.config.cjs",
+        ];
+        const configPath =
+          candidates.map((f) => join(root, f)).find(existsSync) ?? join(root, "astro.config.mjs");
 
         let resolved: ResolvedDualmarkConfig;
         try {
@@ -139,9 +146,11 @@ const endpoint = makeListingEndpoint({
 export const GET = endpoint.GET;
 `;
 
-          routes.push(
-            { pattern: detailPattern, fileName: `collection-${collectionName}-detail.mjs`, source: detailSource },
-          );
+          routes.push({
+            pattern: detailPattern,
+            fileName: `collection-${collectionName}-detail.mjs`,
+            source: detailSource,
+          });
           if (c.emitListing !== false) {
             routes.push({
               pattern: listingPattern,
@@ -157,11 +166,7 @@ export const GET = endpoint.GET;
           const safe = sp.pattern.replace(/[^a-z0-9]/gi, "_");
           const fileName = `static-${i}-${safe}.mjs`;
           const renderModulePath = join(generatedDir, `static-${i}-${safe}-render.mjs`);
-          writeFileSync(
-            renderModulePath,
-            `export default ${sp.render.toString()};\n`,
-            "utf8",
-          );
+          writeFileSync(renderModulePath, `export default ${sp.render.toString()};\n`, "utf8");
           const source = `import { makeStaticEndpoint } from "@dualmark/astro/endpoints/static";
 import dualmarkConfig from "./config.mjs";
 import render from "./${rel(generatedDir, renderModulePath)}";
@@ -173,7 +178,8 @@ const endpoint = makeStaticEndpoint({
 
 export const GET = endpoint.GET;
 `;
-          const mdPattern = sp.pattern === "/" ? "/index.md" : sp.pattern.replace(/\/$/, "") + ".md";
+          const mdPattern =
+            sp.pattern === "/" ? "/index.md" : sp.pattern.replace(/\/$/, "") + ".md";
           routes.push({ pattern: mdPattern, fileName, source });
         }
 
@@ -184,7 +190,11 @@ export const GET = endpoint.GET;
           const renderModulePath = join(generatedDir, `param-${i}-${safe}-render.mjs`);
           const pathsModulePath = join(generatedDir, `param-${i}-${safe}-paths.mjs`);
           writeFileSync(renderModulePath, `export default ${pr.render.toString()};\n`, "utf8");
-          writeFileSync(pathsModulePath, `export default ${pr.getStaticPaths.toString()};\n`, "utf8");
+          writeFileSync(
+            pathsModulePath,
+            `export default ${pr.getStaticPaths.toString()};\n`,
+            "utf8",
+          );
           const source = `import { makeParameterizedEndpoint } from "@dualmark/astro/endpoints/parameterized";
 import dualmarkConfig from "./config.mjs";
 import render from "./${rel(generatedDir, renderModulePath)}";
@@ -240,11 +250,10 @@ export const GET = endpoint.GET;
         }
 
         opts.logger.info(
-          `[@dualmark/astro] Injected ${routes.length} route(s) and ${resolved.middleware.injectLinkHeader ? "1" : "0"
+          `[@dualmark/astro] Injected ${routes.length} route(s) and ${
+            resolved.middleware.injectLinkHeader ? "1" : "0"
           } middleware`,
         );
-
-        
       },
     },
   };

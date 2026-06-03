@@ -56,9 +56,7 @@ describe("resolveConfig", () => {
     expect(() =>
       resolveConfig({
         siteUrl: "https://example.com",
-        parameterizedRoutes: [
-          { pattern: "blog/all", getStaticPaths: () => [], render: () => "" },
-        ],
+        parameterizedRoutes: [{ pattern: "blog/all", getStaticPaths: () => [], render: () => "" }],
       }),
     ).toThrow(/must contain at least one/);
   });
@@ -82,7 +80,7 @@ describe("resolveConfig", () => {
 
   it("appends the file path to the error message when provided", () => {
     expect(() => resolveConfig({} as never, "/abs/astro.config.mjs")).toThrow(
-      /\[\/abs\/astro\.config\.mjs\]/
+      /\[\/abs\/astro\.config\.mjs\]/,
     );
   });
 
@@ -99,7 +97,7 @@ describe("resolveConfig", () => {
 
   it("produces the exact error format: [filePath] Dualmark config error: <msg>", () => {
     expect(() => resolveConfig(null as never, "/abs/astro.config.mjs")).toThrow(
-      /^\[\/abs\/astro\.config\.mjs\] Dualmark config error: Config must be an object$/
+      /^\[\/abs\/astro\.config\.mjs\] Dualmark config error: Config must be an object$/,
     );
   });
 });
