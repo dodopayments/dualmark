@@ -109,8 +109,8 @@ export function createAEOMiddleware(
   const cacheControl = options.headers?.cacheControl ?? DEFAULT_CACHE_CONTROL;
   const enableLinkHeader = options.enableLinkHeader !== false;
 
-  const onAIRequest = options.analytics?.onAIRequest;
-  const onMiss = options.analytics?.onMiss;
+  const onAIRequest = options.hooks?.onAIRequest;
+  const onMiss = options.hooks?.onMiss;
 
   async function middleware(request: Request, context?: VercelEdgeContext): Promise<Response> {
     // Subrequest passthrough — prevents infinite loops when fetchAsset
@@ -118,7 +118,7 @@ export function createAEOMiddleware(
     if (request.headers.get(SUBREQUEST_HEADER)) {
       const NextResponse = await getNextResponse();
       if (NextResponse) return NextResponse.next();
-      return new Response(null, { status: 204 });
+      return new Response(null, { status: 200 });
     }
 
     const url = new URL(request.url);

@@ -20,7 +20,7 @@ const middleware = createAEOMiddleware({
   fetchAsset: async (url, init) => fetch(url.toString(), init),
   trailingSlash: "never",
   enableLinkHeader: true,
-  analytics: {
+  hooks: {
     onAIRequest: (info) => console.log(`${info.botName} hit ${info.pathname}`),
     onMiss: (info) => console.warn(`miss: ${info.pathname}`),
   },
@@ -53,7 +53,7 @@ Vercel Edge Middleware re-triggers for same-origin `fetch()` calls. To prevent i
 | `fetchAsset`       | `(url, init?) => Response`          | —         | Fetch a `.md` file by URL (forward `init` to `fetch`)       |
 | `trailingSlash`    | `"never" \| "always" \| "preserve"` | `"never"` | Trailing slash mode                                         |
 | `enableLinkHeader` | `boolean`                           | `true`    | Inject `Link rel=alternate` on HTML responses               |
-| `analytics`        | `{ onAIRequest?, onMiss? }`         | —         | Vercel Analytics / OTel hooks                               |
+| `hooks`            | `{ onAIRequest?, onMiss? }`         | —         | Lifecycle callbacks for AI request events                   |
 | `redirects`        | `{ internal?, external? }`          | —         | Redirect rules for AI bots                                  |
 | `skip`             | `{ prefixes?, extensions? }`        | —         | Paths to skip entirely                                      |
 | `headers`          | `{ cacheControl? }`                 | —         | Custom response headers                                     |

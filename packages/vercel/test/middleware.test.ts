@@ -293,14 +293,14 @@ describe("createAEOMiddleware — skip rules", () => {
   });
 });
 
-describe("createAEOMiddleware — analytics", () => {
+describe("createAEOMiddleware — hooks", () => {
   it("calls onAIRequest on hit", async () => {
     const onAIRequest = vi.fn();
     const fetchAsset = makeAssets({ "/p.md": "# p" });
     const middleware = createAEOMiddleware({
       upstream: makeUpstream(() => new Response("html")),
       fetchAsset,
-      analytics: { onAIRequest },
+      hooks: { onAIRequest },
     });
     await middleware(
       new Request("https://acme.test/p", { headers: { "user-agent": "GPTBot/1.0" } }),
@@ -318,7 +318,7 @@ describe("createAEOMiddleware — analytics", () => {
     const middleware = createAEOMiddleware({
       upstream: makeUpstream(() => new Response("404", { status: 404 })),
       fetchAsset,
-      analytics: { onMiss },
+      hooks: { onMiss },
     });
     await middleware(
       new Request("https://acme.test/q", { headers: { "user-agent": "GPTBot/1.0" } }),
@@ -333,7 +333,7 @@ describe("createAEOMiddleware — analytics", () => {
     const middleware = createAEOMiddleware({
       upstream: makeUpstream(() => new Response("html")),
       fetchAsset,
-      analytics: { onAIRequest },
+      hooks: { onAIRequest },
     });
     await middleware(
       new Request("https://acme.test/p", { headers: { "user-agent": "GPTBot/1.0" } }),

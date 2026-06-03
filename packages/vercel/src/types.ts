@@ -25,9 +25,7 @@ export interface CreateAEOMiddlewareOptions {
   headers?: {
     cacheControl?: string;
   };
-  // Named `analytics` per issue #8 spec — replaces Cloudflare's binding-based
-  // `analytics` + generic `hooks` with a unified hook for Vercel Analytics/OTel.
-  analytics?: {
+  hooks?: {
     onAIRequest?: (info: AIRequestInfo) => void | Promise<void>;
     onMiss?: (info: MissInfo) => void | Promise<void>;
   };

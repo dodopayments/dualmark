@@ -6,7 +6,7 @@ const middleware = createAEOMiddleware({
   fetchAsset: async (url, init) => fetch(url.toString(), init),
   trailingSlash: "never",
   enableLinkHeader: true,
-  analytics: {
+  hooks: {
     onAIRequest: (info) => {
       console.log(
         `[dualmark] ai-hit bot=${info.botName ?? "?"} path=${info.pathname} cache=${info.cacheStatus} tokens=${info.tokens}`,
