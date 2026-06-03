@@ -26,6 +26,10 @@ jobs:
   aeo:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       - name: Verify AEO conformance
         run: bunx @dualmark/cli verify ${{ vars.STAGING_URL }} --timeout 15000
 ```
