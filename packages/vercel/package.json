@@ -1,6 +1,6 @@
 {
   "name": "@dualmark/vercel",
-  "version": "0.1.0",
+  "version": "0.9.0",
   "description": "Vercel Edge Middleware adapter for the Dualmark AEO framework. Wraps any upstream handler and transparently serves markdown to AI bots at the edge.",
   "license": "Apache-2.0",
   "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",

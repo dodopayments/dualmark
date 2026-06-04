@@ -1,6 +1,6 @@
 {
   "name": "@dualmark/astro",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Astro integration for the Dualmark AEO framework. Auto-generates .md endpoints from collection config + injects Link rel=alternate middleware + generates llms.txt.",
   "license": "Apache-2.0",
   "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",

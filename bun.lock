@@ -46,7 +46,7 @@
     },
     "examples/astro-blog": {
       "name": "dualmark-example-astro-blog",
-      "version": "0.0.8",
+      "version": "0.0.9",
       "dependencies": {
         "@dualmark/astro": "workspace:*",
         "@dualmark/converters": "workspace:*",
@@ -56,7 +56,7 @@
     },
     "examples/astro-cloudflare-full": {
       "name": "dualmark-example-astro-cloudflare-full",
-      "version": "0.0.8",
+      "version": "0.0.9",
       "dependencies": {
         "@dualmark/astro": "workspace:*",
         "@dualmark/cloudflare": "workspace:*",
@@ -89,7 +89,7 @@
     },
     "examples/sveltekit-blog": {
       "name": "dualmark-example-sveltekit-blog",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@dualmark/converters": "workspace:*",
         "@dualmark/core": "workspace:*",
@@ -106,7 +106,7 @@
     },
     "examples/vercel-edge-full": {
       "name": "dualmark-example-vercel-edge-full",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@dualmark/core": "workspace:*",
         "@dualmark/vercel": "workspace:*",
@@ -123,7 +123,7 @@
     },
     "packages/astro": {
       "name": "@dualmark/astro",
-      "version": "0.8.0",
+      "version": "0.9.0",
       "dependencies": {
         "@dualmark/converters": "workspace:*",
         "@dualmark/core": "workspace:*",
@@ -227,7 +227,7 @@
     },
     "packages/sveltekit": {
       "name": "@dualmark/sveltekit",
-      "version": "0.8.0",
+      "version": "0.9.0",
       "dependencies": {
         "@dualmark/converters": "workspace:*",
         "@dualmark/core": "workspace:*",
@@ -247,7 +247,7 @@
     },
     "packages/vercel": {
       "name": "@dualmark/vercel",
-      "version": "0.1.0",
+      "version": "0.9.0",
       "dependencies": {
         "@dualmark/core": "workspace:*",
       },

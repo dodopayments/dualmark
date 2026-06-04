@@ -1,6 +1,6 @@
 {
   "name": "@dualmark/sveltekit",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "SvelteKit adapter for the Dualmark AEO framework. Generates .md endpoints, llms.txt, and a handle hook for bot-aware content negotiation.",
   "license": "Apache-2.0",
   "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",
