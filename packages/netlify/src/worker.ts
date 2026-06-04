@@ -55,12 +55,11 @@ function normalizePath(pathname: string): string {
 }
 
 function buildMarkdownHeaders(
-  body: string,
+  tokens: number,
   cacheControl: string,
   redirectFrom?: string,
   redirectTo?: string,
 ): Headers {
-  const tokens = estimateTokens(body);
   const headers = new Headers({
     "Content-Type": "text/markdown; charset=utf-8",
     "X-Content-Type-Options": "nosniff",
@@ -73,10 +72,6 @@ function buildMarkdownHeaders(
   if (redirectFrom) headers.set("X-Redirect-From", redirectFrom);
   if (redirectTo) headers.set("X-Redirect-To", redirectTo);
   return headers;
-}
-
-function countryFromContext(context: NetlifyContext): string {
-  return context.geo?.country?.code ?? "unknown";
 }
 
 async function fetchMd(
@@ -160,9 +155,10 @@ export function createAEOWorker(
         return new Response("Not Found", { status: 404 });
       }
       const body = await originRes.text();
+      const tokens = estimateTokens(body);
       return new Response(body, {
         status: 200,
-        headers: buildMarkdownHeaders(body, cacheControl),
+        headers: buildMarkdownHeaders(tokens, cacheControl),
       });
     }
 
@@ -204,7 +200,7 @@ export function createAEOWorker(
           if (onAIRequest) context.waitUntil(Promise.resolve(onAIRequest(info)));
           return new Response(body, {
             status: 200,
-            headers: buildMarkdownHeaders(body, cacheControl),
+            headers: buildMarkdownHeaders(tokens, cacheControl),
           });
         }
 
@@ -227,7 +223,7 @@ export function createAEOWorker(
             if (onAIRequest) context.waitUntil(Promise.resolve(onAIRequest(info)));
             return new Response(body, {
               status: 200,
-              headers: buildMarkdownHeaders(body, cacheControl, cleanPath, internalTarget)
+              headers: buildMarkdownHeaders(tokens, cacheControl, cleanPath, internalTarget)
             });
           }
         }
@@ -248,7 +244,7 @@ export function createAEOWorker(
           if (onAIRequest) context.waitUntil(Promise.resolve(onAIRequest(info)));
           return new Response(body, {
             status: 200,
-            headers: buildMarkdownHeaders(body, cacheControl, cleanPath, externalTarget),
+            headers: buildMarkdownHeaders(tokens, cacheControl, cleanPath, externalTarget),
           });
         }
 

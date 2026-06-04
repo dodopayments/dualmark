@@ -1,6 +1,6 @@
 {
   "name": "@dualmark/netlify",
-  "version": "0.1.0",
+  "version": "0.8.0",
   "description": "Netlify Edge Functions adapter for the Dualmark AEO framework. Wraps context.next() and transparently serves markdown to AI bots.",
   "license": "Apache-2.0",
   "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",
