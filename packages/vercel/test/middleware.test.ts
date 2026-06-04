@@ -327,6 +327,23 @@ describe("createAEOMiddleware — hooks", () => {
     expect(onMiss).toHaveBeenCalledOnce();
   });
 
+  it("does not call onAIRequest on a cache miss", async () => {
+    const onAIRequest = vi.fn();
+    const onMiss = vi.fn();
+    const fetchAsset = makeAssets({});
+    const middleware = createAEOMiddleware({
+      upstream: makeUpstream(() => new Response("404", { status: 404 })),
+      fetchAsset,
+      hooks: { onAIRequest, onMiss },
+    });
+    await middleware(
+      new Request("https://acme.test/q", { headers: { "user-agent": "GPTBot/1.0" } }),
+      makeCtx(),
+    );
+    expect(onMiss).toHaveBeenCalledOnce();
+    expect(onAIRequest).not.toHaveBeenCalled();
+  });
+
   it("calls onAIRequest without context (no waitUntil)", async () => {
     const onAIRequest = vi.fn();
     const fetchAsset = makeAssets({ "/p.md": "# p" });

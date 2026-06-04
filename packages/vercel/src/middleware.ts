@@ -277,17 +277,6 @@ export function createAEOMiddleware(
           pathname,
           acceptHeader: accept,
         };
-        const missAnalytics: AIRequestInfo = {
-          url,
-          botName: bot.name,
-          botVendor: bot.vendor,
-          acceptHeader: accept,
-          pathname,
-          cacheStatus: "miss",
-          tokens: 0,
-        };
-        if (onAIRequest && context) context.waitUntil(Promise.resolve(onAIRequest(missAnalytics)));
-        else if (onAIRequest) onAIRequest(missAnalytics);
         if (onMiss && context) context.waitUntil(Promise.resolve(onMiss(missInfo)));
         else if (onMiss) onMiss(missInfo);
       }
