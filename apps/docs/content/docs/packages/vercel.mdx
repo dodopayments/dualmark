@@ -1,0 +1,102 @@
+---
+title: "@dualmark/vercel"
+description: Vercel Edge Middleware adapter — wraps any upstream handler.
+---
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/vercel @dualmark/core
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/vercel @dualmark/core
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/vercel @dualmark/core
+```
+</Tab>
+</Tabs>
+
+## `createAEOMiddleware(options)`
+
+Returns `(request: Request, context?: VercelEdgeContext) => Promise<Response>` — export it from `proxy.ts` / `middleware.ts`.
+
+```ts
+import { NextResponse } from "next/server";
+import { createAEOMiddleware } from "@dualmark/vercel";
+
+export default createAEOMiddleware({
+  upstream: async () => NextResponse.next(),
+  fetchAsset: async (url, init) => fetch(url.toString(), init),
+  trailingSlash: "never",
+  enableLinkHeader: true,
+
+  redirects: {
+    internal: { "/old": "/new" },
+    external: { "/login": "https://app.example.com" },
+  },
+
+  skip: {
+    prefixes: ["/admin", "/api/"],
+    extensions: [".js", ".css", ".png"],
+  },
+
+  headers: { cacheControl: "public, max-age=3600" },
+
+  hooks: {
+    onAIRequest: (info) => console.log(info.botName, info.pathname),
+    onMiss: (info) => console.warn("miss:", info.pathname),
+  },
+});
+```
+
+## Options
+
+| Option | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `upstream` | `(request) => Response \| Promise<Response>` | required | Your upstream handler, typically `() => NextResponse.next()` |
+| `fetchAsset` | `(url, init?) => Promise<Response>` | required | Fetches pre-built `.md` assets. **Must forward `init`** so the subrequest header propagates |
+| `trailingSlash` | `"never" \| "always" \| "preserve"` | `"never"` | Redirect policy |
+| `enableLinkHeader` | `boolean` | `true` | Inject `Link rel="alternate"` on HTML |
+| `redirects.internal` | `Record<string, string>` | `{}` | Path → path |
+| `redirects.external` | `Record<string, string>` | `{}` | Path → URL |
+| `skip.prefixes` | `string[]` | `["/admin", "/api/", "/_"]` | Skip negotiation entirely |
+| `skip.extensions` | `string[]` | common assets | Skip negotiation for these extensions |
+| `headers.cacheControl` | `string` | `"public, max-age=3600"` | For markdown responses |
+| `hooks.onAIRequest` | `(info) => void \| Promise<void>` | `undefined` | Called on every AI hit |
+| `hooks.onMiss` | `(info) => void \| Promise<void>` | `undefined` | Called when no markdown is found |
+
+Pass the edge `context` (`middleware(request, context)`) to run async hooks via `context.waitUntil`; without it they are fire-and-forget.
+
+## Types
+
+```ts
+interface AIRequestInfo {
+  url: URL;
+  botName: string | null;
+  botVendor: string | null;
+  acceptHeader: string;
+  pathname: string;
+  cacheStatus: "hit" | "miss";
+  tokens: number;
+}
+
+interface MissInfo {
+  url: URL;
+  botName: string | null;
+  pathname: string;
+  acceptHeader: string;
+}
+
+interface VercelEdgeContext {
+  waitUntil: (promise: Promise<unknown>) => void;
+}
+```
+
+## Peer dependencies
+
+`next` is an **optional** peer dependency (`>=14`). The adapter dynamically imports `next/server` for passthrough and degrades gracefully if it isn't present, so the package also works outside Next.js as long as you supply your own `upstream` handler.

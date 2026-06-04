@@ -1,4 +1,4 @@
 {
   "title": "Integrations",
-  "pages": ["astro", "nextjs", "sveltekit", "cloudflare-workers", "deno", "manual"]
+  "pages": ["astro", "nextjs", "sveltekit", "cloudflare-workers", "vercel", "deno", "manual"]
 }

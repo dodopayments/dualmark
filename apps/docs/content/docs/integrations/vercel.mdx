@@ -1,0 +1,126 @@
+---
+title: Vercel Edge
+description: Wrap any upstream handler with createAEOMiddleware for edge negotiation on Vercel.
+---
+
+`@dualmark/vercel` is a Vercel Edge Middleware adapter. Drop it into `proxy.ts` (or `middleware.ts`), give it your upstream handler and a `fetchAsset` function, and it adds AI bot detection, markdown serving, header injection, and lifecycle hooks at the edge. It serves pre-built `.md` files — bring your own (a static export, a build step, or a framework that emits them), and the middleware negotiates which representation each visitor gets.
+
+## Install
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/vercel @dualmark/core
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/vercel @dualmark/core
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/vercel @dualmark/core
+```
+</Tab>
+</Tabs>
+
+## Next.js (App Router)
+
+```ts title="proxy.ts"
+import { NextResponse } from "next/server";
+import { createAEOMiddleware } from "@dualmark/vercel";
+
+const middleware = createAEOMiddleware({
+  upstream: async () => NextResponse.next(),
+  fetchAsset: async (url, init) => fetch(url.toString(), init),
+  trailingSlash: "never",
+  enableLinkHeader: true,
+});
+
+export default middleware;
+
+export const config = {
+  matcher: ["/((?!_next/|favicon.ico).*)"],
+};
+```
+
+<Callout type="warn">
+  Your `fetchAsset` **must forward the `init` argument** (`fetch(url.toString(), init)`). The middleware sets an `x-dualmark-subrequest` header on its internal `.md` fetches; forwarding `init` lets the middleware short-circuit that re-entry and avoid an infinite loop.
+</Callout>
+
+Your `.md` twins live in `public/` (e.g. `public/posts/hello.md` for `/posts/hello`). The middleware fetches them via `fetchAsset` and serves them with the full AEO header set; everything else falls through to `upstream` (`NextResponse.next()`).
+
+## Static sites & other frameworks
+
+The adapter isn't Next-specific — Vercel runs a root `middleware.ts` for any project. For a static site (or any non-Next framework on Vercel), supply an `upstream` that continues to the origin instead of `NextResponse.next()`:
+
+```ts title="middleware.src.ts"
+import { createAEOMiddleware } from "@dualmark/vercel";
+
+export default createAEOMiddleware({
+  // Tell Vercel to continue to the static origin (the `NextResponse.next()` signal, without Next):
+  upstream: () => new Response(null, { headers: { "x-middleware-next": "1" } }),
+  fetchAsset: async (url, init) => fetch(url.toString(), init),
+  trailingSlash: "never",
+  enableLinkHeader: true,
+});
+
+export const config = { matcher: ["/((?!_next/|favicon.ico).*)"] };
+```
+
+<Callout type="warn">
+  **Bundle your middleware.** Unlike Next.js, Vercel does not bundle dependencies for a bare middleware file — deploying one that imports `@dualmark/vercel` fails with `Edge Function "middleware" is referencing unsupported modules`. Author your middleware in a source file (e.g. `middleware.src.ts`) and bundle it into a single self-contained `middleware.js` — the only file Vercel should pick up as the entry — before deploying:
+
+  ```bash
+  esbuild middleware.src.ts --bundle --format=esm --target=es2022 --outfile=middleware.js
+  ```
+
+  (Any bundler works — tsup, rollup, etc. Run `npm install @dualmark/vercel @dualmark/core` first so the bundler can resolve them.)
+</Callout>
+
+A static deployment hits a clean **125/125** — with no Next.js `base-server` in the way, the `Vary: Accept` header survives on the HTML page too.
+
+## Redirects and hooks
+
+```ts title="proxy.ts"
+export default createAEOMiddleware({
+  upstream: async () => NextResponse.next(),
+  fetchAsset: async (url, init) => fetch(url.toString(), init),
+  redirects: {
+    internal: { "/old-path": "/new-path" },
+    external: { "/login": "https://app.example.com" },
+  },
+  hooks: {
+    onAIRequest: (info) => console.log(`${info.botName} hit ${info.pathname} (${info.tokens} tokens)`),
+    onMiss: (info) => console.warn(`miss: ${info.pathname}`),
+  },
+});
+```
+
+## Verify
+
+The example at `examples/vercel-edge-full` scores **120/125** under `next dev`:
+
+```bash
+next dev --port 3001
+# new terminal:
+bunx @dualmark/cli verify http://localhost:3001/posts/hello
+```
+
+<Callout type="info">
+  The only missed check is `html.vary` (recommended, −5). Next.js's `base-server` overwrites the HTML response's `Vary` header with its own internal RSC value, so `Vary: Accept` doesn't survive on the HTML page. This is a known Next.js limitation, not an adapter bug — the markdown twin still carries `Vary: Accept` correctly. 120/125 is **Standard+** conformance, well above the 80% threshold.
+</Callout>
+
+## What it does
+
+1. **Trailing slash enforcement** — configurable: `never` (default), `always`, `preserve`
+2. **AI bot detection** — via UA, against the registry of [24 known crawlers](/docs/spec/ai-bot-detection)
+3. **Content negotiation** — via Accept header, RFC 7231 §5.3.2 compliant
+4. **Markdown serving** — pre-built `.md` via `fetchAsset` with full AEO headers
+5. **Internal redirects** — routes to target's `.md` with `X-Redirect-From` / `X-Redirect-To`
+6. **External redirects** — returns a markdown notice with the target link
+7. **406 fallback** — when neither HTML nor markdown is acceptable
+8. **Link header injection** — `<…>; rel="alternate"; type="text/markdown"` on HTML responses
+9. **Lifecycle hooks** — `onAIRequest` / `onMiss`, optionally scheduled via `context.waitUntil`
+10. **Pass-through** — falls through to the upstream handler for everything else
