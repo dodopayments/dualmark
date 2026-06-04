@@ -286,7 +286,7 @@ Plus:
 - [**`spec/`**](./spec) — the **AEO Specification v1.0**. Public, framework-agnostic, RFC-2119-compliant. Implement it in Go, Rust, PHP, Ruby — your call.
 - [**`apps/docs/`**](./apps/docs) — Fumadocs site at [dualmark.dev](https://dualmark.dev)
 - [**`apps/docs/app/play`**](./apps/docs/app/play) — interactive Accept-header + UA tester. Live at [dualmark.dev/play](https://dualmark.dev/play).
-- [**`examples/`**](./examples) — five end-to-end working examples (Astro, Astro+Cloudflare, Next.js, SvelteKit, Deno).
+- [**`examples/`**](./examples) — six end-to-end working examples (Astro, Astro+Cloudflare, Next.js, SvelteKit, Deno, Vercel).
 
 ---
 
@@ -298,21 +298,23 @@ Plus:
 | `@dualmark/converters` | 31 tests pass |
 | `@dualmark/cloudflare` | 23 tests pass |
 | `@dualmark/deno` | 23 tests pass |
-| `@dualmark/cli` | 17 tests pass |
-| `@dualmark/astro` | 36 tests pass |
+| `@dualmark/cli` | 25 tests pass |
+| `@dualmark/astro` | 39 tests pass |
 | `@dualmark/nextjs` | 47 tests pass |
 | `@dualmark/sveltekit` | 17 tests pass |
+| `@dualmark/vercel` | 28 tests pass |
 | `examples/astro-blog` | **80/80** under `astro dev` (`--skip-negotiation`) |
 | `examples/astro-cloudflare-full` | **125/125 perfect** under `wrangler dev` (full negotiation) |
 | `examples/nextjs-app-router` | **120/125** under `next dev` (now using `@dualmark/nextjs`) |
 | `examples/sveltekit-blog` | **125/125 perfect** under `vite dev` (full negotiation) |
 | `examples/deno-deploy` | **125/125 perfect** under `deno run` (full negotiation) |
+| `examples/vercel-edge-full` | **120/125** under `next dev` (`@dualmark/vercel`) |
 | `apps/docs` | 26 routes prerendered, all serve 200 |
 | `/play` route | Live at dualmark.dev/play, integrated into the docs app |
 
 ```bash
 bun install
-bun run build && bun run test && bun run typecheck   # 368 tests across 8 packages
+bun run build && bun run test && bun run typecheck   # 407 tests across 9 packages
 ```
 
 ---

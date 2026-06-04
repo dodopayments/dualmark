@@ -73,7 +73,7 @@ export function Adapters() {
             <span className="text-[var(--color-accent)]">your stack.</span>
           </>
         }
-        description="Three first-class integrations today. SvelteKit, Remix, Nuxt, Vercel, Netlify on the roadmap."
+        description="First-class adapters for Astro, Next.js, Cloudflare, SvelteKit, Deno, and Vercel — with Nuxt, Remix, Netlify, and Fastly on the roadmap."
       />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
