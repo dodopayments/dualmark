@@ -157,6 +157,39 @@ export default createAEOWorker({
 
 [Full example with `wrangler dev` → 125/125 conformance score →](./examples/astro-cloudflare-full)
 
+### Deno Deploy (60 seconds)
+
+Wrap any Deno fetch handler — a static-file reader or an existing app.
+
+```ts
+// main.ts
+import { createAEOHandler } from "@dualmark/deno";
+import myApp from "./app.ts";
+
+Deno.serve(createAEOHandler({ upstream: myApp.fetch }));
+```
+
+[Full example with `deno run` → 125/125 conformance score →](./examples/deno-deploy)
+
+### Vercel Edge (60 seconds)
+
+Drop a middleware that serves your pre-built `.md` twins to AI bots at the edge.
+
+```ts
+// proxy.ts
+import { NextResponse } from "next/server";
+import { createAEOMiddleware } from "@dualmark/vercel";
+
+export default createAEOMiddleware({
+  upstream: async () => NextResponse.next(),
+  fetchAsset: async (url, init) => fetch(url.toString(), init),
+});
+
+export const config = { matcher: ["/((?!_next/|favicon.ico).*)"] };
+```
+
+[Full Next.js + Vercel example → 120/125 →](./examples/vercel-edge-full)
+
 ---
 
 ## Why marketing teams need this

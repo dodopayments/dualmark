@@ -3,11 +3,11 @@ title: Quickstart
 description: Get a fully dual-marked site running in under 2 minutes — pick your framework.
 ---
 
-Dualmark works in any framework that speaks `Request` / `Response`. First-class adapters ship for Astro, Next.js, and Cloudflare Workers; everything else uses `@dualmark/core` directly.
+Dualmark works in any framework that speaks `Request` / `Response`. First-class adapters ship for Astro, Next.js, SvelteKit, Cloudflare Workers, Deno, and Vercel; everything else uses `@dualmark/core` directly.
 
 Pick your stack below — every tab is a complete, self-contained install.
 
-<Tabs items={["Astro", "Next.js", "Cloudflare Workers", "Any framework"]}>
+<Tabs items={["Astro", "Next.js", "SvelteKit", "Cloudflare Workers", "Deno", "Vercel", "Any framework"]}>
 
 <Tab value="Astro">
 
@@ -191,6 +191,84 @@ Expect **120/125** under `next dev` (Standard conformance).
 
 </Tab>
 
+<Tab value="SvelteKit">
+
+<Steps>
+
+<Step>
+
+## Install
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/sveltekit @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/sveltekit @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/sveltekit @dualmark/core @dualmark/converters
+```
+</Tab>
+</Tabs>
+
+</Step>
+
+<Step>
+
+## Add the Vite plugin
+
+```ts title="vite.config.ts"
+import { sveltekit } from "@sveltejs/kit/vite";
+import { defineConfig } from "vite";
+import dualmark from "@dualmark/sveltekit";
+import dualmarkConfig from "./src/dualmark.config";
+
+export default defineConfig({
+  plugins: [dualmark(dualmarkConfig), sveltekit()],
+});
+```
+
+</Step>
+
+<Step>
+
+## Add the handle hook
+
+```ts title="src/hooks.server.ts"
+import { createDualmarkHandle } from "@dualmark/sveltekit";
+import dualmarkConfig from "./dualmark.config";
+
+export const handle = createDualmarkHandle(dualmarkConfig);
+```
+
+</Step>
+
+<Step>
+
+## Build & verify
+
+```bash
+bun run dev
+# new terminal:
+bunx @dualmark/cli verify http://localhost:5173/your-post
+```
+
+Expect **125/125** under `vite dev` — full negotiation.
+
+</Step>
+
+</Steps>
+
+→ [Full SvelteKit reference](/docs/integrations/sveltekit)
+
+</Tab>
+
 <Tab value="Cloudflare Workers">
 
 <Steps>
@@ -279,9 +357,129 @@ Expect **125/125** — full Advanced conformance, with edge bot detection at sin
 
 </Tab>
 
+<Tab value="Deno">
+
+<Steps>
+
+<Step>
+
+## Install
+
+```jsonc title="deno.json"
+{
+  "imports": {
+    "@dualmark/deno": "npm:@dualmark/deno",
+    "@dualmark/core": "npm:@dualmark/core"
+  }
+}
+```
+
+</Step>
+
+<Step>
+
+## Wrap your handler
+
+```ts title="main.ts"
+import { createAEOHandler } from "@dualmark/deno";
+import myApp from "./app.ts";
+
+Deno.serve(createAEOHandler({ upstream: myApp.fetch }));
+```
+
+</Step>
+
+<Step>
+
+## Run & verify
+
+```bash
+deno run -A main.ts
+# new terminal:
+bunx @dualmark/cli verify http://localhost:8000/your-page
+```
+
+Expect **125/125** under `deno run` — full negotiation.
+
+</Step>
+
+</Steps>
+
+→ [Full Deno reference](/docs/integrations/deno)
+
+</Tab>
+
+<Tab value="Vercel">
+
+<Steps>
+
+<Step>
+
+## Install
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/vercel @dualmark/core
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/vercel @dualmark/core
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/vercel @dualmark/core
+```
+</Tab>
+</Tabs>
+
+</Step>
+
+<Step>
+
+## Add the edge middleware
+
+Serve your pre-built `.md` twins (e.g. `public/posts/hello.md`) to AI bots at the edge.
+
+```ts title="proxy.ts"
+import { NextResponse } from "next/server";
+import { createAEOMiddleware } from "@dualmark/vercel";
+
+export default createAEOMiddleware({
+  upstream: async () => NextResponse.next(),
+  fetchAsset: async (url, init) => fetch(url.toString(), init),
+});
+
+export const config = { matcher: ["/((?!_next/|favicon.ico).*)"] };
+```
+
+</Step>
+
+<Step>
+
+## Build & verify
+
+```bash
+bun run dev
+# new terminal:
+bunx @dualmark/cli verify http://localhost:3000/posts/your-post
+```
+
+Expect **120/125** under `next dev` (`html.vary` is a known Next.js limitation).
+
+</Step>
+
+</Steps>
+
+→ [Full Vercel reference](/docs/integrations/vercel)
+
+</Tab>
+
 <Tab value="Any framework">
 
-For SvelteKit, Remix, Nuxt, Hono, Express, raw Node, Bun, Deno — anything with the Fetch API — use `@dualmark/core` directly.
+For Remix, Nuxt, Hono, Express, raw Node, Bun — anything with the Fetch API — use `@dualmark/core` directly.
 
 <Steps>
 

@@ -1,4 +1,11 @@
-import { AstroLogo, CloudflareLogo, NextLogo } from "@/components/brand-logos";
+import {
+  AstroLogo,
+  CloudflareLogo,
+  DenoLogo,
+  NextLogo,
+  SvelteLogo,
+  VercelLogo,
+} from "@/components/brand-logos";
 import Link from "next/link";
 import type { ComponentType, SVGProps } from "react";
 import { Section, SectionHeader } from "./section";
@@ -11,9 +18,11 @@ const CONVERTERS = [
   "docs",
   "feature",
   "glossary",
+  "integration",
   "legal",
   "pricing",
   "pseo",
+  "status-page",
   "tool",
   "video",
 ];
@@ -60,6 +69,36 @@ const adapters: Adapter[] = [
     accent: "oklch(0.82 0.16 70)",
     Logo: CloudflareLogo,
   },
+  {
+    name: "SvelteKit",
+    pkg: "@dualmark/sveltekit",
+    desc: "SvelteKit adapter. Vite route generator, createDualmarkHandle(), generated .md endpoints, and llms.txt.",
+    install: "bun add @dualmark/sveltekit",
+    score: "125/125",
+    status: "Stable",
+    accent: "oklch(0.68 0.21 32)",
+    Logo: SvelteLogo,
+  },
+  {
+    name: "Deno",
+    pkg: "@dualmark/deno",
+    desc: "Deno Deploy edge adapter. Wraps any Deno fetch handler. Lifecycle hooks scheduled on info.completed.",
+    install: "bun add @dualmark/deno",
+    score: "125/125",
+    status: "Stable",
+    accent: "oklch(0.72 0.12 230)",
+    Logo: DenoLogo,
+  },
+  {
+    name: "Vercel",
+    pkg: "@dualmark/vercel",
+    desc: "Vercel Edge Middleware adapter. Wraps any upstream handler; serves pre-built .md with lifecycle hooks.",
+    install: "bun add @dualmark/vercel",
+    score: "120/125",
+    status: "Stable",
+    accent: "oklch(0.985 0 0)",
+    Logo: VercelLogo,
+  },
 ];
 
 export function Adapters() {
@@ -73,7 +112,7 @@ export function Adapters() {
             <span className="text-[var(--color-accent)]">your stack.</span>
           </>
         }
-        description="First-class adapters for Astro, Next.js, Cloudflare, SvelteKit, Deno, and Vercel — with Nuxt, Remix, Netlify, and Fastly on the roadmap."
+        description="Six first-class adapters today. Nuxt, Remix, Netlify, and Fastly on the roadmap."
       />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -127,7 +166,7 @@ export function Adapters() {
 
       <div className="mt-10 flex flex-col items-center gap-3 text-center">
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--color-fg-subtle)]">
-          + 12 page-type converters
+          + 14 page-type converters
         </span>
         <div className="flex flex-wrap items-center justify-center gap-1.5">
           {CONVERTERS.map((name) => (
