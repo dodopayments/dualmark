@@ -8,6 +8,7 @@ on:
     paths:
       - "packages/**"
       - "examples/**"
+      - "actions/**"
       - "spec/**"
       - ".github/workflows/conformance.yml"
 
@@ -167,3 +168,16 @@ jobs:
           done
           kill $DOCS_PID
           exit $fail
+
+  action-dogfood:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Smoke test verify action against dualmark.dev
+        uses: ./actions/verify
+        with:
+          url: https://dualmark.dev
+          level: standard
+          comment-on-pr: false
