@@ -6,7 +6,62 @@ description: Run dualmark verify in your pipeline to catch AEO regressions befor
 `dualmark verify` exits non-zero when a required check fails, making it a natural fit for any CI
 pipeline. Add it to your pull-request workflow and block merges the moment conformance drops.
 
-## GitHub Actions
+## GitHub Action (recommended)
+
+The fastest way to add AEO conformance to your pipeline — no Bun setup, no manual parsing.
+
+```yaml
+- uses: dodopayments/dualmark/actions/verify@v1
+  with:
+    url: ${{ vars.STAGING_URL }}
+    level: standard
+```
+
+### Features
+
+| Feature | Description |
+|---|---|
+| **Zero-config** | Action installs Bun, runs the CLI, parses results — all in one step |
+| **Level gating** | Set `level: basic`, `standard`, or `advanced` — fails if below threshold |
+| **Regression detection** | Set `fail-on-regression: true` — compares against the previous run's artifact |
+| **PR comments** | Set `comment-on-pr: true` — posts a sticky score table that updates on re-push |
+| **Artifact upload** | `aeo.json` saved as `aeo-report` — download in later steps or other jobs |
+
+### Full example
+
+```yaml
+name: AEO Conformance
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  aeo:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dodopayments/dualmark/actions/verify@v1
+        with:
+          url: https://staging.example.com/blog/your-post
+          level: standard
+          fail-on-regression: true
+          comment-on-pr: true
+```
+
+<Callout type="info">
+  The action automatically uploads `aeo.json` as a build artifact (`aeo-report`). Use
+  `actions/download-artifact@v4` in downstream jobs.
+</Callout>
+
+See the [Action README](https://github.com/dodopayments/dualmark/tree/main/actions/verify) for full input reference and configuration options.
+
+## GitHub Actions (CLI)
+
+If you prefer to run the CLI directly instead of using the action, add it to your workflow manually:
 
 <Steps>
 
@@ -107,12 +162,6 @@ services:
     image: oven/bun:latest
     command: bunx @dualmark/cli verify https://example.com/blog/your-post
 ```
-
-## GitHub Action (coming soon)
-
-A first-class `dodopayments/dualmark-action` is on the roadmap — it will let you drop AEO
-conformance into any workflow with a single `uses:` line and no Bun setup required. Track progress
-in [issue #17](https://github.com/dodopayments/dualmark/issues/17).
 
 ## Next steps
 
