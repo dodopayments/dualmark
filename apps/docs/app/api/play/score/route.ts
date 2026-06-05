@@ -1,5 +1,6 @@
 import { type VerifyReport, verifyUrl } from "@dualmark/cli";
 import { NextResponse } from "next/server";
+import { signSharePayload } from "@/lib/share-token";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -191,6 +192,23 @@ function summarize(
   };
 }
 
+// Signing needs DUALMARK_SHARE_SECRET. If it's unset (e.g. local dev), skip the
+// token so scoring still works; the client just won't show a share link.
+async function buildShareToken(
+  report: VerifyReport,
+): Promise<string | undefined> {
+  try {
+    return await signSharePayload({
+      u: report.url,
+      s: report.score,
+      m: report.maxScore,
+      t: Math.floor(Date.now() / 1000),
+    });
+  } catch {
+    return undefined;
+  }
+}
+
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -231,8 +249,12 @@ export async function POST(request: Request) {
       }),
       detectFramework(parsed.toString()),
     ]);
+    const shareToken = await buildShareToken(report);
     return NextResponse.json(
-      summarize(report, detection.framework, detection.signals),
+      {
+        ...summarize(report, detection.framework, detection.signals),
+        shareToken,
+      },
       { headers: { "cache-control": "no-store" } },
     );
   } catch (err) {
