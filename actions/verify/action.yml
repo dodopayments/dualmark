@@ -18,6 +18,10 @@ inputs:
     description: Post a sticky PR comment with the score table
     required: false
     default: "false"
+  artifact-name:
+    description: Name of the uploaded artifact (useful for multi-URL workflows)
+    required: false
+    default: "aeo-report"
 
 outputs:
   score:
@@ -35,7 +39,7 @@ runs:
 
   steps:
     - name: Setup Bun
-      uses: oven-sh/setup-bun@v2
+      uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
       with:
         bun-version: latest
 
@@ -44,14 +48,16 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
+        ARTIFACT_NAME: ${{ inputs.artifact-name }}
       run: |
         echo "::group::🔍 Locating previous AEO report"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         BRANCH="${{ github.head_ref || github.ref_name }}"
         echo "  Branch:      $BRANCH"
+        echo "  Artifact:    $ARTIFACT_NAME"
 
         RUN_ID=$(gh api \
-          "/repos/${{ github.repository }}/actions/artifacts?name=aeo-report&per_page=50" \
+          "/repos/${{ github.repository }}/actions/artifacts?name=${ARTIFACT_NAME}&per_page=50" \
           --jq '.artifacts | map(select(.workflow_run.head_branch == "'"$BRANCH"'")) | .[0].workflow_run.id // empty')
 
         if [ -n "$RUN_ID" ]; then
@@ -68,9 +74,9 @@ runs:
     - name: Download previous report
       if: steps.find-previous.outputs.run-id != ''
       id: download
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
       with:
-        name: aeo-report
+        name: ${{ inputs.artifact-name }}
         path: ${{ runner.temp }}/previous
         github-token: ${{ github.token }}
         run-id: ${{ steps.find-previous.outputs.run-id }}
@@ -83,7 +89,7 @@ runs:
 
         PREV_FILE="${{ runner.temp }}/previous/aeo.json"
         if [ -f "$PREV_FILE" ]; then
-          BASELINE=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$PREV_FILE','utf8')).score)")
+          BASELINE=$(bun -e "console.log(JSON.parse(require('fs').readFileSync('$PREV_FILE','utf8')).score)")
           echo "baseline=$BASELINE" >> "$GITHUB_OUTPUT"
           echo "::notice::Previous baseline established: $BASELINE"
         else
@@ -95,13 +101,15 @@ runs:
     - name: Run dualmark verify
       shell: bash
       id: verify
+      env:
+        TARGET_URL: ${{ inputs.url }}
       run: |
         echo "::group::🔬 Running AEO verification"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "  Target URL:  ${{ inputs.url }}"
+        echo "  Target URL:  $TARGET_URL"
         echo "  Executing:   bunx @dualmark/cli verify --json"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        bunx @dualmark/cli verify "${{ inputs.url }}" --json > "${{ runner.temp }}/aeo.json" || true
+        bunx @dualmark/cli verify "$TARGET_URL" --json > "${{ runner.temp }}/aeo.json" || true
         echo "::endgroup::"
 
     - name: Parse report
@@ -112,20 +120,35 @@ runs:
 
         FILE="${{ runner.temp }}/aeo.json"
         if [ ! -f "$FILE" ]; then
-          SCORE=0; MAX=0; LEVEL="none"
-          echo "score=$SCORE" >> "$GITHUB_OUTPUT"
-          echo "max=$MAX" >> "$GITHUB_OUTPUT"
-          echo "level=$LEVEL" >> "$GITHUB_OUTPUT"
-          echo "::error title=CLI Failure::aeo.json not found — check that the URL is reachable"
+          echo "score=0" >> "$GITHUB_OUTPUT"
+          echo "max=0" >> "$GITHUB_OUTPUT"
+          echo "level=none" >> "$GITHUB_OUTPUT"
+          echo "::error title=CLI Failure::aeo.json was not created — the CLI exited without producing a report. Check that the URL is reachable."
           exit 1
         fi
 
-        SCORE=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$FILE','utf8')).score ?? 0)")
-        MAX=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$FILE','utf8')).max ?? 0)")
-        LEVEL=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$FILE','utf8')).level ?? 'none')")
-        echo "score=$SCORE" >> "$GITHUB_OUTPUT"
-        echo "max=$MAX" >> "$GITHUB_OUTPUT"
-        echo "level=$LEVEL" >> "$GITHUB_OUTPUT"
+        bun -e "
+          const fs = require('fs');
+          const out = process.env.GITHUB_OUTPUT;
+          try {
+            const r = JSON.parse(fs.readFileSync('$FILE', 'utf8'));
+            if (typeof r.score !== 'number' || typeof r.max !== 'number') throw new Error('missing numeric fields');
+            fs.appendFileSync(out, 'score=' + (r.score ?? 0) + '\n');
+            fs.appendFileSync(out, 'max=' + (r.max ?? 0) + '\n');
+            fs.appendFileSync(out, 'level=' + (r.level ?? 'none') + '\n');
+            console.log((r.score ?? 0) + ' ' + (r.max ?? 0) + ' ' + (r.level ?? 'none'));
+          } catch (e) {
+            fs.appendFileSync(out, 'score=0\nmax=0\nlevel=none\n');
+            console.log('PARSE_ERROR');
+          }
+        " > /tmp/aeo_parse_result
+
+        read -r SCORE MAX LEVEL < <(cat /tmp/aeo_parse_result)
+        if [ "$SCORE" = "PARSE_ERROR" ]; then
+          echo "::error title=CLI Failure::CLI produced malformed JSON — check the verify logs above"
+          exit 1
+        fi
+
         echo "  Score: $SCORE/$MAX"
         echo "  Level: $LEVEL"
         echo "::endgroup::"
@@ -178,9 +201,9 @@ runs:
         echo "::endgroup::"
 
     - name: Upload report artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with:
-        name: aeo-report
+        name: ${{ inputs.artifact-name }}
         path: ${{ runner.temp }}/aeo.json
         if-no-files-found: error
         overwrite: true
@@ -281,16 +304,20 @@ runs:
         skip_unchanged: true
         message: |
           ## 🛡️ Dualmark AEO Conformance Report
+
           | Metric | Value |
           | :--- | :--- |
           | **Score** | `${{ steps.parse.outputs.score }} / ${{ steps.parse.outputs.max }}` |
+          | **Baseline** | ${{ steps.baseline.outputs.baseline != '-1' && format('`{0}`', steps.baseline.outputs.baseline) || '—' }} |
           | **Level** | `${{ steps.parse.outputs.level }}` (required `${{ inputs.level }}`) |
           | **Level check** | ${{ steps.check-level.outcome == 'success' && '✅ PASS' || '❌ FAIL' }} |
           | **Regression** | ${{ steps.check-regression.outcome == 'success' && '✅ PASS' || '❌ FAIL' }} |
+
           <sub>Powered by <a href="https://dualmark.dev">Dualmark</a> • <a href="https://dualmark.dev/docs/spec/overview">AEO Specification v1.0</a> · Commit \`${{ github.sha }}\`</sub>
 
     - name: Fail if checks failed
-      if: steps.check-level.outcome == 'failure' || steps.check-regression.outcome == 'failure'
+      # Only flag regression failure when fail-on-regression is true (otherwise skipped)
+      if: steps.check-level.outcome == 'failure' || (inputs.fail-on-regression == 'true' && steps.check-regression.outcome == 'failure')
       shell: bash
       env:
         SCORE: ${{ steps.parse.outputs.score }}

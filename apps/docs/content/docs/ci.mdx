@@ -25,7 +25,7 @@ The fastest way to add AEO conformance to your pipeline — no Bun setup, no man
 | **Level gating** | Set `level: basic`, `standard`, or `advanced` — fails if below threshold |
 | **Regression detection** | Set `fail-on-regression: true` — compares against the previous run's artifact |
 | **PR comments** | Set `comment-on-pr: true` — posts a sticky score table that updates on re-push |
-| **Artifact upload** | `aeo.json` saved as `aeo-report` — download in later steps or other jobs |
+| **Artifact upload** | `aeo.json` saved as `aeo-report` (configurable via `artifact-name`) — download in later steps or other jobs |
 
 ### Full example
 
@@ -53,9 +53,32 @@ jobs:
 ```
 
 <Callout type="info">
-  The action automatically uploads `aeo.json` as a build artifact (`aeo-report`). Use
-  `actions/download-artifact@v4` in downstream jobs.
+  The action automatically uploads `aeo.json` as a build artifact (default: `aeo-report`).
+  If you are verifying multiple URLs in the same workflow, pass a unique `artifact-name` to each step to prevent collisions.
+  Use `actions/download-artifact@v4` in downstream jobs.
 </Callout>
+
+### Advanced: Verifying multiple URLs
+
+If you verify multiple URLs, give each step a unique `artifact-name`. Otherwise, the second run overwrites the first one's artifact. The default name is `aeo-report`.
+
+```yaml
+jobs:
+  aeo-multi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dodopayments/dualmark/actions/verify@v1
+        with:
+          url: https://staging.example.com/pricing
+          artifact-name: aeo-report-pricing
+
+      - uses: dodopayments/dualmark/actions/verify@v1
+        with:
+          url: https://staging.example.com/docs
+          artifact-name: aeo-report-docs
+```
 
 See the [Action README](https://github.com/dodopayments/dualmark/tree/main/actions/verify) for full input reference and configuration options.
 
