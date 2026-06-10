@@ -1,0 +1,42 @@
+---
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("blog");
+const terms = await getCollection("glossary");
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dualmark Sanity Example</title>
+    <meta
+      name="description"
+      content="A CMS-driven Astro example that turns Sanity content into Dualmark markdown twins."
+    />
+  </head>
+  <body>
+    <main>
+      <h1>Dualmark Sanity Example</h1>
+      <p>
+        Sanity content is loaded through Astro content collections, rendered as HTML for humans, and
+        emitted as markdown twins for AI agents.
+      </p>
+      <nav>
+        <a href="/blog">Blog</a> · <a href="/glossary">Glossary</a> · <a href="/about">About</a>
+      </nav>
+      <section>
+        <h2>Latest posts</h2>
+        <ul>
+          {posts.map((post) => <li><a href={`/blog/${post.id}`}>{post.data.title}</a></li>)}
+        </ul>
+      </section>
+      <section>
+        <h2>Glossary</h2>
+        <ul>
+          {terms.map((term) => <li><a href={`/glossary/${term.id}`}>{term.data.title}</a></li>)}
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

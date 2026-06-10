@@ -1,0 +1,29 @@
+---
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("blog")).sort(
+  (a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime(),
+);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Blog — Dualmark Sanity Example</title>
+  </head>
+  <body>
+    <main>
+      <h1>Blog</h1>
+      <ul>
+        {posts.map((post) => (
+          <li>
+            <a href={`/blog/${post.id}`}>{post.data.title}</a>
+            {post.data.description && <p>{post.data.description}</p>}
+          </li>
+        ))}
+      </ul>
+      <p><a href="/">Back home</a></p>
+    </main>
+  </body>
+</html>

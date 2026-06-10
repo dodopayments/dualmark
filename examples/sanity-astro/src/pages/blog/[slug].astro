@@ -1,0 +1,35 @@
+---
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{post.data.title} — Dualmark Sanity Example</title>
+    {post.data.description && <meta name="description" content={post.data.description} />}
+  </head>
+  <body>
+    <main>
+      <article>
+        <h1>{post.data.title}</h1>
+        <p>
+          {post.data.author && <>By <strong>{post.data.author}</strong> · </>}
+          <time datetime={post.data.publishedDate.toISOString()}>
+            {post.data.publishedDate.toDateString()}
+          </time>
+        </p>
+        <Content />
+      </article>
+      <p><a href="/blog">Back to all posts</a></p>
+    </main>
+  </body>
+</html>
