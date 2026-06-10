@@ -34,6 +34,25 @@ jobs:
           node ../../packages/cli/dist/cli.js verify http://localhost:4321/blog/hello-world --skip-negotiation
           kill $DEV_PID
 
+  sanity-astro:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: bunx turbo run build --filter='@dualmark/*'
+      - name: Build sanity-astro example from fixtures
+        run: bun run --filter dualmark-example-sanity-astro build
+      - name: Verify sanity-astro under astro dev
+        working-directory: examples/sanity-astro
+        run: |
+          bun run dev &
+          DEV_PID=$!
+          sleep 10
+          node ../../packages/cli/dist/cli.js verify http://127.0.0.1:4322/blog/cms-driven-aeo --skip-negotiation
+          node ../../packages/cli/dist/cli.js verify http://127.0.0.1:4322/glossary/answer-engine-optimization --skip-negotiation
+          kill $DEV_PID
+
   astro-cloudflare-full:
     runs-on: ubuntu-latest
     timeout-minutes: 10
