@@ -36,6 +36,7 @@ jobs:
 | `level` | — | `standard` | Minimum level: `basic`, `standard`, or `advanced` |
 | `fail-on-regression` | — | `false` | Fail if score drops below previous run |
 | `comment-on-pr` | — | `false` | Post a sticky PR comment with results |
+| `artifact-name` | — | `aeo-report` | Artifact name for the uploaded report (use unique names for multi-URL workflows) |
 
 ## Outputs
 

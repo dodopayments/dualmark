@@ -41,7 +41,7 @@ runs:
     - name: Setup Bun
       uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
       with:
-        bun-version: latest
+        bun-version: 1
 
     - name: Find previous report artifact
       id: find-previous
@@ -109,7 +109,7 @@ runs:
         echo "  Target URL:  $TARGET_URL"
         echo "  Executing:   bunx @dualmark/cli verify --json"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        bunx @dualmark/cli verify "$TARGET_URL" --json > "${{ runner.temp }}/aeo.json" || true
+        bunx @dualmark/cli verify "$TARGET_URL" --json > "${{ runner.temp }}/aeo.json" || true # failure handled by parse step
         echo "::endgroup::"
 
     - name: Parse report
