@@ -1,3 +1,9 @@
+export {
+  apiReferenceConverter,
+  fromOpenAPI,
+  type ApiReferenceConverterConfig,
+  type ApiReferenceEntryData,
+} from "./api-reference.js";
 export { blogConverter, type BlogConverterConfig, type BlogEntryData } from "./blog.js";
 export {
   caseStudyConverter,
@@ -64,6 +70,7 @@ export type {
 } from "./types.js";
 
 export const BUILT_IN_CONVERTERS = [
+  "api-reference",
   "blog",
   "case-study",
   "changelog",

@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
+  apiReferenceConverter,
+  fromOpenAPI,
+} from "../src/api-reference.js";
+import { PETSTORE_SPEC } from "./fixtures/petstore-openapi.js";
+import {
   blogConverter,
   caseStudyConverter,
   changelogConverter,
@@ -610,9 +615,101 @@ describe("docsConverter", () => {
   });
 });
 
+describe("apiReferenceConverter", () => {
+  const convert = apiReferenceConverter({ siteUrl: SITE });
+
+  it("renders basic api-reference", () => {
+    const out = convert({
+      id: "get-users",
+      data: {
+        title: "Get Users",
+        summary: "Returns all users",
+        method: "get",
+        path: "/users",
+      },
+    });
+    expect(out).toContain("# Get Users");
+    expect(out).toContain("> Returns all users");
+    expect(out).toContain("- **Method**: GET");
+    expect(out).toContain("- **Path**: `/users`");
+    expect(out).toContain("- **URL**: https://acme.test/docs/get-users");
+  });
+
+  it("renders parameters, request body, responses, and code samples", () => {
+    const out = convert({
+      id: "post-users",
+      data: {
+        title: "Post User",
+        method: "post",
+        path: "/users",
+        parameters: [
+          { name: "id", in: "query", required: true, schema: { type: "string" }, description: "User ID" },
+        ],
+        requestBody: {
+          description: "Body desc",
+          content: { "application/json": {} },
+        },
+        responses: {
+          "200": { description: "Success" },
+        },
+        codeSamples: [
+          { lang: "bash", source: "curl x" },
+        ],
+      },
+    });
+    expect(out).toContain("## Parameters");
+    expect(out).toContain("| `id` | query | `string` | Yes | User ID |");
+    expect(out).toContain("## Request Body");
+    expect(out).toContain("Body desc");
+    expect(out).toContain("**Content-Type**: `application/json`");
+    expect(out).toContain("## Responses");
+    expect(out).toContain("### 200");
+    expect(out).toContain("Success");
+    expect(out).toContain("## Code Samples");
+    expect(out).toContain("```bash\ncurl x\n```");
+  });
+});
+
+describe("fromOpenAPI", () => {
+  it("throws if operationId not found", () => {
+    expect(() => fromOpenAPI(PETSTORE_SPEC, "missingOp")).toThrowError(
+      /Dualmark: operationId 'missingOp' not found. Available ids: getPetById, updatePet/
+    );
+  });
+
+  it("extracts getPetById properly with nested refs and params", () => {
+    const entry = fromOpenAPI(PETSTORE_SPEC, "getPetById");
+    expect(entry.id).toBe("getPetById");
+    expect(entry.data.title).toBe("Find pet by ID");
+    expect(entry.data.method).toBe("get");
+    expect(entry.data.path).toBe("/pets/{petId}");
+    expect(entry.data.parameters).toHaveLength(2);
+    const tenantParam = entry.data.parameters!.find(p => p.name === "tenant");
+    expect(tenantParam?.required).toBe(true);
+
+    const res200 = entry.data.responses?.["200"];
+    expect(res200!.description).toBe("successful operation");
+    const schema = res200!.content!["application/json"].schema!;
+    expect(schema.properties!.category.properties!.parent.$ref).toBe("#/components/schemas/Category");
+    
+    // Nullable schema 3.1
+    expect(schema.properties!.nickname.type).toEqual(["string", "null"]);
+
+    expect(entry.data.codeSamples).toHaveLength(1);
+    expect(entry.data.codeSamples![0].lang).toBe("curl");
+  });
+
+  it("extracts updatePet with request body", () => {
+    const entry = fromOpenAPI(PETSTORE_SPEC, "updatePet");
+    expect(entry.data.requestBody).toBeDefined();
+    expect(entry.data.requestBody!.content!["application/json"].schema!.properties!.name.type).toBe("string");
+  });
+});
+
 describe("BUILT_IN_CONVERTERS export", () => {
   it("lists all built-in names in alphabetical order", () => {
     expect(BUILT_IN_CONVERTERS).toEqual([
+      "api-reference",
       "blog",
       "case-study",
       "changelog",

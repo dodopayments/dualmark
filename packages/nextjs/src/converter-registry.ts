@@ -4,6 +4,7 @@
  * across frameworks unchanged.
  */
 import {
+  apiReferenceConverter,
   blogConverter,
   caseStudyConverter,
   changelogConverter,
@@ -24,6 +25,7 @@ import {
 } from "@dualmark/converters";
 
 export type BuiltInConverterName =
+  | "api-reference"
   | "blog"
   | "case-study"
   | "changelog"
@@ -51,6 +53,8 @@ export function resolveBuiltInConverter(
   const basePath = `/${args.collectionName}`;
   const cfg = { ...args.baseConfig, basePath };
   switch (args.name as BuiltInConverterName) {
+    case "api-reference":
+      return apiReferenceConverter(cfg) as Converter<CollectionEntry<unknown>>;
     case "blog":
       return blogConverter(cfg) as Converter<CollectionEntry<unknown>>;
     case "case-study":
@@ -83,7 +87,7 @@ export function resolveBuiltInConverter(
       return videoConverter(cfg) as Converter<CollectionEntry<unknown>>;
     default:
       throw new Error(
-        `Dualmark: unknown built-in converter '${args.name}'. Valid names: blog, case-study, changelog, compare, docs, feature, glossary, integration, legal, pricing, pseo, status-page, tool, video. Or pass a function.`,
+        `Dualmark: unknown built-in converter '${args.name}'. Valid names: api-reference, blog, case-study, changelog, compare, docs, feature, glossary, integration, legal, pricing, pseo, status-page, tool, video. Or pass a function.`,
       );
   }
 }

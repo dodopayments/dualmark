@@ -12,6 +12,7 @@ bun add @dualmark/converters @dualmark/core
 
 | Factory | Domain |
 |---|---|
+| `apiReferenceConverter` | API References (with `fromOpenAPI` helper) |
 | `blogConverter` | Blog posts |
 | `caseStudyConverter` | Case studies (with stats + customer quote) |
 | `changelogConverter` | Release notes (Keep-a-Changelog grouping) |
@@ -46,6 +47,19 @@ const md = convert({
 ```
 
 Each factory takes a config object and returns a `(entry) => string` converter. Pass them to `@dualmark/astro` collection config or call directly from your own framework.
+
+### OpenAPI helper
+
+Note that OpenAPI YAML must be parsed into a JavaScript object before calling `fromOpenAPI()`.
+
+```ts
+import { fromOpenAPI, apiReferenceConverter } from "@dualmark/converters";
+import { parse } from "yaml";
+
+const spec = parse(yamlString); // You must provide a parsed JS object
+const entry = fromOpenAPI(spec, "getPetById");
+const md = apiReferenceConverter({ siteUrl: "https://example.com" })(entry);
+```
 
 ## License
 

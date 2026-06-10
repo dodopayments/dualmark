@@ -11,6 +11,7 @@ import type { ComponentType, SVGProps } from "react";
 import { Section, SectionHeader } from "./section";
 
 const CONVERTERS = [
+  "api-reference",
   "blog",
   "case-study",
   "changelog",
@@ -166,7 +167,7 @@ export function Adapters() {
 
       <div className="mt-10 flex flex-col items-center gap-3 text-center">
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--color-fg-subtle)]">
-          + 14 page-type converters
+          + 15 page-type converters
         </span>
         <div className="flex flex-wrap items-center justify-center gap-1.5">
           {CONVERTERS.map((name) => (

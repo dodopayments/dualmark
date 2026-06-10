@@ -27,6 +27,7 @@ Each factory takes a config object and returns `(entry: CollectionEntry<Data>) =
 
 | Factory | Domain |
 | --- | --- |
+| `apiReferenceConverter` | API References (with `fromOpenAPI` helper) |
 | `blogConverter` | Blog posts |
 | `caseStudyConverter` | Case studies (with stats + customer quote) |
 | `changelogConverter` | Release notes (Keep-a-Changelog grouping) |
@@ -65,6 +66,19 @@ const md = convert({
   },
   body: "Long-form content.",
 });
+```
+
+### OpenAPI helper
+
+Note that OpenAPI YAML must be parsed into a JavaScript object before calling `fromOpenAPI()`.
+
+```ts
+import { fromOpenAPI, apiReferenceConverter } from "@dualmark/converters";
+import { parse } from "yaml";
+
+const spec = parse(yamlString); // You must provide a parsed JS object
+const entry = fromOpenAPI(spec, "getPetById");
+const md = apiReferenceConverter({ siteUrl: "https://example.com" })(entry);
 ```
 
 ## All factories accept

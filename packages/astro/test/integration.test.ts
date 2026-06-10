@@ -198,6 +198,26 @@ describe("converter-registry resolveBuiltInConverter", () => {
     expect(out).toContain("# X");
   });
 
+  it("returns a callable converter for 'api-reference'", async () => {
+    const { resolveBuiltInConverter } = await import("../src/converter-registry.js");
+    const conv = resolveBuiltInConverter({
+      name: "api-reference",
+      collectionName: "api",
+      baseConfig: { siteUrl: "https://example.com" },
+    });
+    const out = conv({
+      id: "get-users",
+      data: {
+        title: "Get Users",
+        method: "get",
+        path: "/users",
+      },
+    } as never);
+    expect(out).toContain("# Get Users");
+    expect(out).toContain("- **Method**: GET");
+    expect(out).toContain("- **Path**: `/users`");
+  });
+
   it("returns a callable converter for 'status-page'", async () => {
     const { resolveBuiltInConverter } = await import("../src/converter-registry.js");
     const conv = resolveBuiltInConverter({
