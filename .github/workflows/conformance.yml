@@ -151,6 +151,7 @@ jobs:
   action-dogfood:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions: {} # no write access needed
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
