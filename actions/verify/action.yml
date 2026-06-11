@@ -49,10 +49,11 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
         ARTIFACT_NAME: ${{ inputs.artifact-name }}
+        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       run: |
         echo "::group::🔍 Locating previous AEO report"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        BRANCH="${{ github.head_ref || github.ref_name }}"
+        BRANCH="$BRANCH_NAME"
         echo "  Branch:      $BRANCH"
         echo "  Artifact:    $ARTIFACT_NAME"
 
@@ -311,7 +312,7 @@ runs:
           | **Baseline** | ${{ steps.baseline.outputs.baseline != '-1' && format('`{0}`', steps.baseline.outputs.baseline) || '—' }} |
           | **Level** | `${{ steps.parse.outputs.level }}` (required `${{ inputs.level }}`) |
           | **Level check** | ${{ steps.check-level.outcome == 'success' && '✅ PASS' || '❌ FAIL' }} |
-          | **Regression** | ${{ steps.check-regression.outcome == 'success' && '✅ PASS' || '❌ FAIL' }} |
+          | **Regression** | ${{ inputs.fail-on-regression != 'true' && '⏭️ Skipped' || (steps.check-regression.outcome == 'success' && '✅ PASS' || '❌ FAIL') }} |
 
           <sub>Powered by <a href="https://dualmark.dev">Dualmark</a> • <a href="https://dualmark.dev/docs/spec/overview">AEO Specification v1.0</a> · Commit \`${{ github.sha }}\`</sub>
 
