@@ -96,7 +96,7 @@ export function apiReferenceConverter(
         const typeStr = formatSchemaType(p.schema);
         const reqStr = p.required ? "Yes" : "No";
         const desc = p.description ? p.description.replace(/\n/g, " ") : "";
-        parts.push(`| \`${p.name}\` | ${p.in} | ${typeStr} | ${reqStr} | ${desc} |`);
+        parts.push(`| \`${escapeCell(p.name)}\` | ${escapeCell(p.in)} | ${escapeCell(typeStr)} | ${reqStr} | ${escapeCell(desc)} |`);
       }
     }
 
@@ -129,6 +129,10 @@ export function apiReferenceConverter(
     );
     return normalizeUnicode(md);
   };
+}
+
+function escapeCell(val?: string): string {
+  return val ? String(val).replace(/\|/g, "\\|") : "";
 }
 
 function formatSchemaType(schema?: OpenAPISchema): string {
@@ -197,7 +201,7 @@ function formatRequestBody(reqBody: OpenAPIRequestBody): string {
           out += "| --- | --- | --- | --- |\n";
           for (const f of fields) {
             const reqStr = f.required ? "Yes" : "No";
-            out += `| \`${f.name}\` | ${f.type} | ${reqStr} | ${f.description} |\n`;
+            out += `| \`${escapeCell(f.name)}\` | ${escapeCell(f.type)} | ${reqStr} | ${escapeCell(f.description)} |\n`;
           }
           out += "\n";
         }
@@ -224,7 +228,7 @@ function formatResponses(responses: Record<string, OpenAPIResponse>): string {
             out += "| --- | --- | --- | --- |\n";
             for (const f of fields) {
               const reqStr = f.required ? "Yes" : "No";
-              out += `| \`${f.name}\` | ${f.type} | ${reqStr} | ${f.description} |\n`;
+              out += `| \`${escapeCell(f.name)}\` | ${escapeCell(f.type)} | ${reqStr} | ${escapeCell(f.description)} |\n`;
             }
             out += "\n";
           }
@@ -313,7 +317,7 @@ export function fromOpenAPI(spec: any, operationId: string): CollectionEntry<Api
     id: operationId,
     data: {
       title: foundOp.summary || operationId,
-      summary: foundOp.summary,
+      summary: foundOp.summary !== (foundOp.summary || operationId) ? foundOp.summary : undefined,
       description: foundOp.description,
       method: foundMethod as string,
       path: foundPath as string,

@@ -635,6 +635,24 @@ describe("apiReferenceConverter", () => {
     expect(out).toContain("- **URL**: https://acme.test/docs/get-users");
   });
 
+  it("escapes pipe characters in table cells", () => {
+    const out = convert({
+      id: "test",
+      data: {
+        title: "Test",
+        method: "get",
+        path: "/",
+        parameters: [{
+          name: "id|name",
+          in: "query",
+          description: "description|with|pipes",
+          schema: { type: ["string", "null"] }
+        }]
+      }
+    });
+    expect(out).toContain("| `id\\|name` | query | `string \\| null` | No | description\\|with\\|pipes |");
+  });
+
   it("renders parameters, request body, responses, and code samples", () => {
     const out = convert({
       id: "post-users",
@@ -703,6 +721,23 @@ describe("fromOpenAPI", () => {
     const entry = fromOpenAPI(PETSTORE_SPEC, "updatePet");
     expect(entry.data.requestBody).toBeDefined();
     expect(entry.data.requestBody!.content!["application/json"].schema!.properties!.name.type).toBe("string");
+  });
+
+  it("deduplicates summary when identical to derived title", () => {
+    const spec = {
+      openapi: "3.1.0",
+      paths: {
+        "/test": {
+          get: {
+            operationId: "getTest",
+            summary: "Get Test"
+          }
+        }
+      }
+    };
+    const entry = fromOpenAPI(spec, "getTest");
+    expect(entry.data.title).toBe("Get Test");
+    expect(entry.data.summary).toBeUndefined();
   });
 });
 
