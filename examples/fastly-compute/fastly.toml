@@ -1,0 +1,13 @@
+name = "dualmark-fastly-example"
+description = "Example Fastly Compute project using Dualmark"
+language = "javascript"
+manifest_version = 3
+
+[scripts]
+  build = "npm run build"
+
+[setup]
+  [setup.backends]
+    [setup.backends.origin_backend]
+      address = "example.com"
+      port = 443
