@@ -1,0 +1,39 @@
+---
+title: "Fastly Compute"
+description: "Serve AI-optimized markdown at the edge with Fastly Compute"
+---
+
+`@dualmark/fastly` natively integrates with Fastly Compute using Fastly's extended `fetch` API. It transparently serves markdown to AI bots from a designated backend, while falling back to HTML for normal users.
+
+## Installation
+
+```bash
+bun add @dualmark/fastly @dualmark/core
+```
+```bash
+npm install @dualmark/fastly @dualmark/core
+```
+
+## Setup
+
+Use `createAEOFetchEventHandler` to wrap your logic, then specify your Fastly backends:
+
+```js
+import { createAEOFetchEventHandler } from "@dualmark/fastly";
+
+const handler = createAEOFetchEventHandler({
+  backend: "origin_backend",
+  markdownBackend: "markdown_backend", // Optional
+  hooks: {
+    onAIRequest: (info) => {
+      console.log("Served markdown to:", info.botName);
+    }
+  }
+});
+
+addEventListener("fetch", (event) => {
+  event.respondWith(handler(event));
+});
+```
+
+See the [packages reference](/docs/packages/fastly) for detailed options.

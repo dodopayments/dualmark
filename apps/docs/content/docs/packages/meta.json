@@ -1,4 +1,17 @@
 {
   "title": "Packages",
-  "pages": ["core", "converters", "astro", "nextjs", "sveltekit", "cloudflare", "nuxt", "netlify", "vercel", "deno", "cli"]
+  "pages": [
+    "core",
+    "converters",
+    "astro",
+    "nextjs",
+    "sveltekit",
+    "cloudflare",
+    "fastly",
+    "nuxt",
+    "netlify",
+    "vercel",
+    "deno",
+    "cli"
+  ]
 }

@@ -1,0 +1,17 @@
+{
+  "name": "fastly-compute-example",
+  "version": "1.0.0",
+  "description": "Example using @dualmark/fastly",
+  "type": "module",
+  "scripts": {
+    "build": "js-compute-runtime src/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dualmark/fastly": "workspace:*",
+    "@dualmark/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@fastly/js-compute": "^3.19.1"
+  }
+}

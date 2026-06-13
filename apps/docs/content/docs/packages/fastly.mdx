@@ -1,0 +1,47 @@
+---
+title: "@dualmark/fastly"
+description: "Reference for the Fastly Compute edge adapter."
+---
+
+The Fastly Compute edge adapter handles dual-format serving of Markdown and HTML natively on Fastly's global edge network.
+
+## Installation
+
+```bash
+bun add @dualmark/fastly @dualmark/core
+```
+
+## Usage
+
+Create a handler and pass it your configured Fastly `backend` string.
+
+```typescript
+import { createAEOFetchEventHandler } from "@dualmark/fastly";
+
+const handler = createAEOFetchEventHandler({
+  backend: "my_html_backend",
+});
+
+addEventListener("fetch", (event) => event.respondWith(handler(event)));
+```
+
+## API Reference
+
+### `createAEOFetchEventHandler(options)`
+
+Returns an event listener suitable for `addEventListener("fetch")`. It automatically integrates with `event.waitUntil()` to schedule background hooks without blocking the request.
+
+### `createAEORequestHandler(options)`
+
+Returns a raw handler `(request: Request, waitUntil?: (p: Promise<void>) => void) => Promise<Response>` for use in module-based setups or inside custom routers.
+
+### `CreateAEOFastlyOptions`
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `backend` | `string` | **Required** | The name of the Fastly backend serving your standard HTML and assets. |
+| `markdownBackend` | `string` | `backend` | The backend serving your `.md` files. Defaults to your HTML backend. |
+| `hooks.onAIRequest` | `(info: AIRequestInfo) => void` | `undefined` | Called in the background when a bot successfully receives markdown. |
+| `hooks.onMiss` | `(info: MissInfo) => void` | `undefined` | Called in the background when an AI bot hits a 404 for markdown. |
+| `trailingSlash` | `"never" \| "always" \| "preserve"` | `"never"` | Trailing slash normalization behavior. |
+| `enableLinkHeader` | `boolean` | `true` | Injects `Link: rel="alternate"` into HTML responses. |
