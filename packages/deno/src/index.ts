@@ -7,4 +7,5 @@ export type {
   AIRequestInfo,
   MissInfo,
   TrailingSlashMode,
+  TokenEstimator,
 } from "./types.js";

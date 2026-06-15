@@ -92,10 +92,23 @@ Both helpers are idempotent on already-`.md` inputs.
 ## Token estimation
 
 ```ts
-import { estimateTokens } from "@dualmark/core";
+import { estimateTokens, setTokenEstimator, resetTokenEstimator } from "@dualmark/core";
 ```
 
-Whitespace-split counter — fast, zero-dep, good enough for `X-Markdown-Tokens`.
+### `estimateTokens(text, options?): number`
+
+Returns the estimated token count. By default uses a whitespace-split word counter.
+
+```ts
+estimateTokens("hello world");                        // → 2  (default)
+estimateTokens("hello world", { tokenizer: t => t.length }); // → 11  (custom)
+```
+
+### `setTokenEstimator(fn)` / `resetTokenEstimator()`
+
+Set or reset the global default estimator. The inline `tokenizer` option always takes precedence.
+
+See [Custom tokenizer](/docs/custom-tokenizer) for js-tiktoken setup.
 
 ## Text utilities
 

@@ -1,6 +1,6 @@
-import type { AIRequestInfo, MissInfo, TrailingSlashMode } from "@dualmark/core";
+import type { AIRequestInfo, MissInfo, TrailingSlashMode, TokenEstimator } from "@dualmark/core";
 
-export type { AIRequestInfo, MissInfo, TrailingSlashMode };
+export type { AIRequestInfo, MissInfo, TrailingSlashMode, TokenEstimator };
 
 export interface VercelEdgeContext {
   waitUntil: (promise: Promise<unknown>) => void;
@@ -30,4 +30,6 @@ export interface CreateAEOMiddlewareOptions {
     onMiss?: (info: MissInfo) => void | Promise<void>;
   };
   enableLinkHeader?: boolean;
+  /** Custom token estimator. Overrides the default whitespace-word counter. */
+  tokenizer?: TokenEstimator;
 }

@@ -60,10 +60,11 @@ function normalizePath(pathname: string): string {
 function buildMarkdownHeaders(
   body: string,
   cacheControl: string,
+  tokenizer?: (text: string) => number,
   redirectFrom?: string,
   redirectTo?: string,
 ): Headers {
-  const tokens = estimateTokens(body);
+  const tokens = estimateTokens(body, { tokenizer });
   const headers = new Headers({
     "Content-Type": "text/markdown; charset=utf-8",
     "X-Content-Type-Options": "nosniff",
@@ -108,6 +109,7 @@ export function createAEOMiddleware(
   const trailingSlash = options.trailingSlash ?? "never";
   const cacheControl = options.headers?.cacheControl ?? DEFAULT_CACHE_CONTROL;
   const enableLinkHeader = options.enableLinkHeader !== false;
+  const tokenizer = options.tokenizer;
 
   const onAIRequest = options.hooks?.onAIRequest;
   const onMiss = options.hooks?.onMiss;
@@ -163,7 +165,7 @@ export function createAEOMiddleware(
         const body = await assetResponse.text();
         return new Response(body, {
           status: 200,
-          headers: buildMarkdownHeaders(body, cacheControl),
+          headers: buildMarkdownHeaders(body, cacheControl, tokenizer),
         });
       }
       return assetResponse ?? new Response("Not Found", { status: 404 });
@@ -199,7 +201,7 @@ export function createAEOMiddleware(
 
         if (assetResponse && assetResponse.ok) {
           const body = await assetResponse.text();
-          const tokens = estimateTokens(body);
+          const tokens = estimateTokens(body, { tokenizer });
           const info: AIRequestInfo = {
             url,
             botName: bot.name,
@@ -213,7 +215,7 @@ export function createAEOMiddleware(
           else if (onAIRequest) onAIRequest(info);
           return new Response(body, {
             status: 200,
-            headers: buildMarkdownHeaders(body, cacheControl),
+            headers: buildMarkdownHeaders(body, cacheControl, tokenizer),
           });
         }
 
@@ -228,7 +230,7 @@ export function createAEOMiddleware(
             );
             if (targetResp.ok) {
               const body = await targetResp.text();
-              const tokens = estimateTokens(body);
+              const tokens = estimateTokens(body, { tokenizer });
               const info: AIRequestInfo = {
                 url,
                 botName: bot.name,
@@ -242,7 +244,7 @@ export function createAEOMiddleware(
               else if (onAIRequest) onAIRequest(info);
               return new Response(body, {
                 status: 200,
-                headers: buildMarkdownHeaders(body, cacheControl, cleanPath, internalTarget),
+                headers: buildMarkdownHeaders(body, cacheControl, tokenizer, cleanPath, internalTarget),
               });
             }
           } catch {
@@ -253,7 +255,7 @@ export function createAEOMiddleware(
         const externalTarget = externalRedirects[cleanPath];
         if (externalTarget) {
           const body = `# Redirect\n\nThis page has moved to an external location.\n\n- **Redirect**: [${externalTarget}](${externalTarget})\n`;
-          const tokens = estimateTokens(body);
+          const tokens = estimateTokens(body, { tokenizer });
           const info: AIRequestInfo = {
             url,
             botName: bot.name,
@@ -267,7 +269,7 @@ export function createAEOMiddleware(
           else if (onAIRequest) onAIRequest(info);
           return new Response(body, {
             status: 200,
-            headers: buildMarkdownHeaders(body, cacheControl, cleanPath, externalTarget),
+            headers: buildMarkdownHeaders(body, cacheControl, tokenizer, cleanPath, externalTarget),
           });
         }
 

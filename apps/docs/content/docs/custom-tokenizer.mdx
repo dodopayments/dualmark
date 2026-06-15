@@ -1,0 +1,182 @@
+---
+title: Custom tokenizer
+description: Swap the default word counter for js-tiktoken or any BPE tokenizer.
+---
+
+By default Dualmark counts tokens with a whitespace-split word counter. For accurate BPE counts (e.g. matching OpenAI model billing), plug in a custom tokenizer.
+
+## Quick start with js-tiktoken
+
+### 1. Install js-tiktoken
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add js-tiktoken
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install js-tiktoken
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add js-tiktoken
+```
+</Tab>
+</Tabs>
+
+### 2. Create a tokenizer module
+
+```ts title="src/aeo-tokenizer.ts"
+import { encodingForModel } from "js-tiktoken";
+
+const encoder = encodingForModel("gpt-4o");
+
+export default function tokenizer(text: string): number {
+  return encoder.encode(text).length;
+}
+```
+
+Export a default function with the signature `(text: string) => number`.
+
+### 3. Wire it up
+
+Config varies by adapter:
+
+<Tabs items={["Astro", "Next.js", "SvelteKit", "Vercel", "Cloudflare", "Deno"]}>
+<Tab value="Astro">
+
+Astro code-generates route files at build time, so closures can't be serialized. Pass a **module path** instead:
+
+```js title="astro.config.mjs"
+import dualmark from "@dualmark/astro";
+
+export default defineConfig({
+  integrations: [
+    dualmark({
+      siteUrl: "https://example.com",
+      collections: { blog: { converter: "blog" } },
+      tokenizer: "./src/aeo-tokenizer.ts",
+    }),
+  ],
+});
+```
+
+The generated routes will `import` your module directly — no serialization issues with closed-over encoders.
+
+> For simple, self-contained arrow functions that don't close over external state, you can still pass a function directly:
+> ```js
+> tokenizer: (text) => text.split(/\s+/).length * 1.3
+> ```
+
+</Tab>
+<Tab value="Next.js">
+
+```ts title="dualmark.config.ts"
+import type { DualmarkNextConfig } from "@dualmark/nextjs";
+import tokenizer from "./src/aeo-tokenizer";
+
+export const dualmarkConfig: DualmarkNextConfig = {
+  siteUrl: "https://example.com",
+  collections: { blog: { converter: "blog", getEntries: () => [] } },
+  tokenizer,
+};
+```
+
+</Tab>
+<Tab value="SvelteKit">
+
+```ts title="src/dualmark.config.ts"
+import type { DualmarkSvelteKitConfig } from "@dualmark/sveltekit";
+import tokenizer from "./aeo-tokenizer";
+
+const config: DualmarkSvelteKitConfig = {
+  siteUrl: "https://example.com",
+  collections: { blog: { converter: "blog", getEntries: () => [] } },
+  tokenizer,
+};
+
+export default config;
+```
+
+</Tab>
+<Tab value="Vercel">
+
+```ts title="middleware.ts"
+import { createAEOMiddleware } from "@dualmark/vercel";
+import tokenizer from "./src/aeo-tokenizer";
+
+export default createAEOMiddleware({
+  upstream: (req) => fetch(req),
+  fetchAsset: (url, init) => fetch(url, init),
+  tokenizer,
+});
+```
+
+</Tab>
+<Tab value="Cloudflare">
+
+```ts title="src/index.ts"
+import { createAEOWorker } from "@dualmark/cloudflare";
+import tokenizer from "./aeo-tokenizer";
+
+export default createAEOWorker({
+  upstream: { fetch: (req, env, ctx) => env.ASSETS.fetch(req) },
+  tokenizer,
+});
+```
+
+</Tab>
+<Tab value="Deno">
+
+```ts title="main.ts"
+import { createAEOHandler } from "@dualmark/deno";
+import tokenizer from "./aeo-tokenizer.ts";
+
+const handler = createAEOHandler({
+  upstream: (req) => new Response("upstream"),
+  tokenizer,
+});
+
+Deno.serve(handler);
+```
+
+</Tab>
+</Tabs>
+
+## How it works
+
+The `tokenizer` function is called by `estimateTokens()` in `@dualmark/core`. The returned count is set as the `X-Markdown-Tokens` response header on every markdown response.
+
+```
+X-Markdown-Tokens: 1847
+```
+
+AI clients use this header for context-window budget planning. With js-tiktoken the count matches the model's actual BPE encoding.
+
+## Global override (advanced)
+
+For edge cases where you can't pass `tokenizer` through config (e.g. custom middleware), you can set a global default:
+
+```ts
+import { setTokenEstimator, resetTokenEstimator } from "@dualmark/core";
+import { encodingForModel } from "js-tiktoken";
+
+const enc = encodingForModel("gpt-4o");
+setTokenEstimator((text) => enc.encode(text).length);
+
+// Later, to restore the default:
+resetTokenEstimator();
+```
+
+The inline `tokenizer` option in each adapter config always takes precedence over the global override.
+
+## TokenEstimator type
+
+```ts
+type TokenEstimator = (text: string) => number;
+```
+
+Any function matching this signature works — `gpt-tokenizer`, `tiktoken-node`, or a hand-rolled counter.

@@ -75,6 +75,21 @@ export function resolveConfig(
       );
     }
   }
+  if (input.tokenizer !== undefined && typeof input.tokenizer === "string") {
+    if (!input.tokenizer) {
+      throw new DualmarkConfigError(
+        formatError("tokenizer module path must not be empty", filePath),
+      );
+    }
+    if (!input.tokenizer.startsWith("./") && !input.tokenizer.startsWith("../")) {
+      throw new DualmarkConfigError(
+        formatError(
+          `tokenizer module path must be a relative path starting with './' or '../' (got '${input.tokenizer}')`,
+          filePath,
+        ),
+      );
+    }
+  }
   return {
     siteUrl: input.siteUrl,
     collections,

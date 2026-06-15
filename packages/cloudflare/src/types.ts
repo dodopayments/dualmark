@@ -61,5 +61,6 @@ export interface CreateAEOWorkerOptions<Env extends MinimalEnv = MinimalEnv> {
     onMiss?: (info: MissInfo) => void | Promise<void>;
   };
   enableLinkHeader?: boolean;
+  /** Custom token estimator. Overrides the default whitespace-word counter. */
   tokenizer?: TokenEstimator;
 }

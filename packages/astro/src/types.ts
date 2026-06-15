@@ -46,8 +46,12 @@ export interface DualmarkAstroConfig {
     cacheControl?: string;
     noindex?: boolean;
   };
-  /** Custom token estimator. Overrides the default whitespace-word counter. */
-  tokenizer?: TokenEstimator;
+  /**
+   * Custom token estimator. Overrides the default whitespace-word counter.
+   * Pass a function, or a module path (e.g. `"./src/aeo-tokenizer.ts"`)
+   * for tokenizers that close over external state like js-tiktoken.
+   */
+  tokenizer?: TokenEstimator | string;
 }
 
 export interface ResolvedDualmarkConfig extends DualmarkAstroConfig {

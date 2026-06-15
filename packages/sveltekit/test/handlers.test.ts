@@ -99,3 +99,29 @@ describe("createLlmsTxtHandler", () => {
     expect(response.headers.get("content-type")).toContain("text/plain");
   });
 });
+
+describe("tokenizer option", () => {
+  it("uses custom tokenizer for X-Markdown-Tokens header", async () => {
+    const charCounter = (text: string) => text.length;
+    const configWithTokenizer: DualmarkSvelteKitConfig = {
+      ...config,
+      tokenizer: charCounter,
+    };
+    const handler = createDualmarkRouteHandler(configWithTokenizer);
+    const response = await handler.GET({ url: new URL("https://example.com/index.md") });
+
+    expect(response.status).toBe(200);
+    const body = await response.clone().text();
+    const tokens = response.headers.get("x-markdown-tokens");
+    expect(Number(tokens)).toBe(body.length);
+  });
+
+  it("falls back to default word counter when no tokenizer is provided", async () => {
+    const handler = createDualmarkRouteHandler(config);
+    const response = await handler.GET({ url: new URL("https://example.com/index.md") });
+
+    expect(response.status).toBe(200);
+    const tokens = response.headers.get("x-markdown-tokens");
+    expect(Number(tokens)).toBe(2);
+  });
+});

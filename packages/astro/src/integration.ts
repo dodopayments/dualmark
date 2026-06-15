@@ -80,14 +80,26 @@ export function createDualmarkIntegration(input: DualmarkAstroConfig): AstroInte
         if (!existsSync(generatedDir)) mkdirSync(generatedDir, { recursive: true });
 
         const hasTokenizer = !!resolved.tokenizer;
-        if (hasTokenizer) {
+        const tokenizerIsModulePath = typeof resolved.tokenizer === "string";
+        if (hasTokenizer && !tokenizerIsModulePath) {
           writeFileSync(
             join(generatedDir, "tokenizer.mjs"),
-            `export default ${resolved.tokenizer!.toString()};\n`,
+            `export default ${(resolved.tokenizer as Function).toString()};\n`,
             "utf8",
           );
         }
-        const tokenizerImport = hasTokenizer ? `import tokenizer from "./tokenizer.mjs";\n` : "";
+
+        let tokenizerImport = "";
+        if (hasTokenizer) {
+          if (tokenizerIsModulePath) {
+            const absTokenizerPath = join(root, resolved.tokenizer as string);
+            const importPath = rel(generatedDir, absTokenizerPath);
+            const importSpecifier = importPath.startsWith("../") ? importPath : `./${importPath}`;
+            tokenizerImport = `import tokenizer from "${importSpecifier}";\n`;
+          } else {
+            tokenizerImport = `import tokenizer from "./tokenizer.mjs";\n`;
+          }
+        }
         const responseOpts = hasTokenizer
           ? `{ cacheControl: dualmarkConfig.cacheControl, noindex: dualmarkConfig.noindex, tokenizer }`
           : `{ cacheControl: dualmarkConfig.cacheControl, noindex: dualmarkConfig.noindex }`;

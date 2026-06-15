@@ -31,3 +31,4 @@ export type {
   SlugStrategy,
   StaticPageConfig,
 } from "./types.js";
+export type { TokenEstimator } from "@dualmark/core";

@@ -100,4 +100,46 @@ describe("resolveConfig", () => {
       /^\[\/abs\/astro\.config\.mjs\] Dualmark config error: Config must be an object$/,
     );
   });
+
+  it("accepts a function tokenizer", () => {
+    const out = resolveConfig({
+      siteUrl: "https://example.com",
+      tokenizer: (t: string) => t.length,
+    });
+    expect(typeof out.tokenizer).toBe("function");
+  });
+
+  it("accepts a string tokenizer module path", () => {
+    const out = resolveConfig({
+      siteUrl: "https://example.com",
+      tokenizer: "./src/aeo-tokenizer.ts",
+    });
+    expect(out.tokenizer).toBe("./src/aeo-tokenizer.ts");
+  });
+
+  it("accepts a ../ relative tokenizer module path", () => {
+    const out = resolveConfig({
+      siteUrl: "https://example.com",
+      tokenizer: "../shared/tokenizer.ts",
+    });
+    expect(out.tokenizer).toBe("../shared/tokenizer.ts");
+  });
+
+  it("rejects absolute tokenizer module path", () => {
+    expect(() =>
+      resolveConfig({
+        siteUrl: "https://example.com",
+        tokenizer: "/abs/tokenizer.ts" as never,
+      }),
+    ).toThrow(/must be a relative path/);
+  });
+
+  it("rejects bare module tokenizer path", () => {
+    expect(() =>
+      resolveConfig({
+        siteUrl: "https://example.com",
+        tokenizer: "my-tokenizer" as never,
+      }),
+    ).toThrow(/must be a relative path/);
+  });
 });

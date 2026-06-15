@@ -123,5 +123,6 @@ export function resolveConfig(input: DualmarkSvelteKitConfig): ResolvedDualmarkS
       cacheControl: input.headers?.cacheControl ?? "public, max-age=3600",
       noindex: input.headers?.noindex !== false,
     },
+    tokenizer: input.tokenizer,
   };
 }

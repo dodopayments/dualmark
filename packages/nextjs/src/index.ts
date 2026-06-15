@@ -34,3 +34,4 @@ export type {
   ParameterizedRouteConfig,
   SlugStrategy,
 } from "./types.js";
+export type { TokenEstimator } from "@dualmark/core";

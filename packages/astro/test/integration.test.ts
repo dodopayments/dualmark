@@ -170,6 +170,55 @@ describe("createDualmarkIntegration — astro:config:setup", () => {
     await integ.hooks["astro:config:setup"](ctx);
     expect(ctx.logger.warn).toHaveBeenCalled();
   });
+
+  it("writes tokenizer.mjs when tokenizer is a function", async () => {
+    const integ = createDualmarkIntegration({
+      siteUrl: "https://example.com",
+      collections: { blog: { converter: "blog" } },
+      tokenizer: (t: string) => t.length,
+    });
+    const ctx = makeFakeContext(tmpRoot);
+    await integ.hooks["astro:config:setup"](ctx);
+
+    const tokenizerPath = join(tmpRoot, "node_modules", ".dualmark-generated", "tokenizer.mjs");
+    expect(existsSync(tokenizerPath)).toBe(true);
+    const content = readFileSync(tokenizerPath, "utf8");
+    expect(content).toContain("export default");
+
+    // should import from ./tokenizer.mjs
+    const routeFile = ctx.injected[0];
+    const routeSource = readFileSync(
+      typeof routeFile!.entrypoint === "string" ? routeFile!.entrypoint : routeFile!.entrypoint.pathname,
+      "utf8",
+    );
+    expect(routeSource).toContain('import tokenizer from "./tokenizer.mjs"');
+    expect(routeSource).toContain("tokenizer");
+  });
+
+  it("uses direct import when tokenizer is a module path (string)", async () => {
+    const integ = createDualmarkIntegration({
+      siteUrl: "https://example.com",
+      collections: { blog: { converter: "blog" } },
+      tokenizer: "./src/aeo-tokenizer.ts",
+    });
+    const ctx = makeFakeContext(tmpRoot);
+    await integ.hooks["astro:config:setup"](ctx);
+
+    // should NOT write tokenizer.mjs
+    const tokenizerMjsPath = join(tmpRoot, "node_modules", ".dualmark-generated", "tokenizer.mjs");
+    expect(existsSync(tokenizerMjsPath)).toBe(false);
+
+
+    const routeFile = ctx.injected[0];
+    const routeSource = readFileSync(
+      typeof routeFile!.entrypoint === "string" ? routeFile!.entrypoint : routeFile!.entrypoint.pathname,
+      "utf8",
+    );
+    expect(routeSource).toContain("import tokenizer from");
+    expect(routeSource).toContain("aeo-tokenizer");
+    expect(routeSource).not.toContain("./tokenizer.mjs");
+    expect(routeSource).toContain("tokenizer");
+  });
 });
 
 describe("converter-registry resolveBuiltInConverter", () => {
