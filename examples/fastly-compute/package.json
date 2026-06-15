@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "js-compute-runtime src/index.js",
-    "serve": "fastly compute serve --port 8080",
+    "serve": "fastly compute serve --addr 127.0.0.1:8080",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
