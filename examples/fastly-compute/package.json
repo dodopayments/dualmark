@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "js-compute-runtime src/index.js",
+    "serve": "fastly compute serve --port 8080",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

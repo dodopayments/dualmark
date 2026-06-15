@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fastly Compute Dualmark Demo</title>
+  <meta name="description" content="A demonstration of Edge AEO content negotiation using Fastly Compute.">
+</head>
+<body>
+  <header>
+    <h1>Fastly Compute Dualmark Demo</h1>
+    <p>A demonstration of Edge AEO content negotiation using Fastly Compute.</p>
+  </header>
+  <main>
+    <section>
+      <h2>Overview</h2>
+      <p>This is the origin server for our Edge AEO proxy. When AI bots crawl this site via the Fastly Edge, they receive an optimized markdown representation instead of this HTML.</p>
+    </section>
+    <section>
+      <h2>Navigation</h2>
+      <ul>
+        <li><a href="/features">Features Overview</a></li>
+        <li><a href="/pricing">Pricing Details</a></li>
+        <li><a href="/docs">Documentation</a></li>
+      </ul>
+    </section>
+    <section>
+      <h2>FAQ</h2>
+      <dl>
+        <dt>How does it work?</dt>
+        <dd>The Fastly Compute adapter intercepts requests from known AI bots and negotiates the format.</dd>
+      </dl>
+    </section>
+  </main>
+</body>
+</html>

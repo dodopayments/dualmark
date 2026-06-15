@@ -11,3 +11,9 @@ manifest_version = 3
     [setup.backends.origin_backend]
       address = "example.com"
       port = 443
+
+[local_server]
+  [local_server.backends]
+    [local_server.backends.origin_backend]
+      url = "http://127.0.0.1:4000"
+

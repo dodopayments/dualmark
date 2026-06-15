@@ -207,3 +207,26 @@ jobs:
       - name: Stop dualmark-docs server
         if: always()
         run: kill "$(cat "${{ runner.temp }}/docs.pid")" 2>/dev/null || true
+
+  fastly-compute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Setup Fastly CLI
+        uses: fastly/compute-actions/setup@v3
+      - run: bunx turbo run build --filter='@dualmark/*'
+      - name: Build fastly-compute example
+        run: bun run --filter fastly-compute-example build
+      - name: Verify fastly-compute under fastly compute serve
+        working-directory: examples/fastly-compute
+        run: |
+          python3 -m http.server 4000 --directory origin-content &
+          ORIGIN_PID=$!
+          fastly compute serve --port 8080 &
+          FASTLY_PID=$!
+          sleep 10
+          node ../../packages/cli/dist/cli.js verify http://127.0.0.1:8080/
+          kill $FASTLY_PID
+          kill $ORIGIN_PID
