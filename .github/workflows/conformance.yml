@@ -226,7 +226,7 @@ jobs:
           ORIGIN_PID=$!
           fastly compute serve --addr 127.0.0.1:8080 &
           FASTLY_PID=$!
-          sleep 10
+          sleep 30
           node ../../packages/cli/dist/cli.js verify http://127.0.0.1:8080/
           kill $FASTLY_PID
           kill $ORIGIN_PID
