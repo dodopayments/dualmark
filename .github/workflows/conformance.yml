@@ -224,7 +224,7 @@ jobs:
         run: |
           python3 -m http.server 4000 --directory origin-content &
           ORIGIN_PID=$!
-          fastly compute serve --port 8080 &
+          fastly compute serve --addr 127.0.0.1:8080 &
           FASTLY_PID=$!
           sleep 10
           node ../../packages/cli/dist/cli.js verify http://127.0.0.1:8080/
