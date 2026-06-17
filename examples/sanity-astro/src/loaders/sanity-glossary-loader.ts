@@ -14,8 +14,7 @@ export function sanityGlossaryLoader(): Loader {
 
       for (const term of terms) {
         const normalized = normalizeGlossaryTerm(term);
-        const bodyMarkdown = portableTextToMarkdownBody(term.body, env);
-        const markdownBody = [term.definition?.trim(), bodyMarkdown].filter(Boolean).join("\n\n");
+        const markdownBody = portableTextToMarkdownBody(term.body, env);
         const data = await parseData({ id: normalized.id, data: { ...normalized.data } });
         const rendered = await renderMarkdown(markdownBody);
 

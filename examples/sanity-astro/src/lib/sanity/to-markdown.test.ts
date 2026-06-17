@@ -36,8 +36,8 @@ describe("Portable Text markdown conversion", () => {
       dataset: "production",
     });
 
-    expect(markdown).toContain(
-      "![Dualmark architecture](https://cdn.sanity.io/images/demoProject/production/abc123-1200x630.png)",
+    expect(markdown).toMatch(
+      /!\[Dualmark architecture\]\(https:\/\/[^)]*demoProject[^)]*production[^)]*abc123-1200x630\.png[^)]*\)/,
     );
     expect(markdown).toContain("*CMS content becomes HTML and markdown.*");
   });

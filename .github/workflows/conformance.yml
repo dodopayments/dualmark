@@ -41,17 +41,19 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
       - run: bunx turbo run build --filter='@dualmark/*'
+      - name: Test sanity-astro example
+        run: bun run --filter dualmark-example-sanity-astro test
       - name: Build sanity-astro example from fixtures
         run: bun run --filter dualmark-example-sanity-astro build
       - name: Verify sanity-astro under astro dev
         working-directory: examples/sanity-astro
         run: |
-          bun run dev &
+          ./node_modules/.bin/astro dev --host 127.0.0.1 --port 4322 &
           DEV_PID=$!
+          trap 'kill $DEV_PID || true' EXIT
           sleep 10
           node ../../packages/cli/dist/cli.js verify http://127.0.0.1:4322/blog/cms-driven-aeo --skip-negotiation
           node ../../packages/cli/dist/cli.js verify http://127.0.0.1:4322/glossary/answer-engine-optimization --skip-negotiation
-          kill $DEV_PID
 
   astro-cloudflare-full:
     runs-on: ubuntu-latest

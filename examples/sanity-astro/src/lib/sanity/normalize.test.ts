@@ -29,6 +29,20 @@ describe("Sanity content normalization", () => {
     });
   });
 
+  it("maps Sanity modifiedAt to Dualmark modifiedDate", () => {
+    const post: SanityPost = {
+      _id: "post-1",
+      _type: "post",
+      title: "CMS-driven AEO",
+      slug: { current: "cms-driven-aeo" },
+      publishedAt: "2026-06-01T00:00:00.000Z",
+      modifiedAt: "2026-06-08T00:00:00.000Z",
+      body: [],
+    };
+
+    expect(normalizePost(post).data.modifiedDate).toEqual(new Date("2026-06-08T00:00:00.000Z"));
+  });
+
   it("maps glossary definition fields to Dualmark glossary summary fields", () => {
     const term: SanityGlossaryTerm = {
       _id: "term-1",

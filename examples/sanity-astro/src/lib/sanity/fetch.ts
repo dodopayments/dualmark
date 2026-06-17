@@ -27,6 +27,7 @@ function createSanityClient() {
     projectId: env.projectId,
     dataset: env.dataset,
     apiVersion: env.apiVersion,
+    // Build-time fetches should use the live API so generated pages do not use stale CDN data.
     useCdn: false,
   });
 }
