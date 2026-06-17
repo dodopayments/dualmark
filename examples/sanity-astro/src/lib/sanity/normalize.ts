@@ -11,8 +11,13 @@ function definedString(value: string | null | undefined): string | undefined {
   return trimmed ? trimmed : undefined;
 }
 
+function coerceDateOptional(value: string | null | undefined): Date | undefined {
+  const defined = definedString(value);
+  return defined ? new Date(defined) : undefined;
+}
+
 function coerceDate(value: string | null | undefined, fallback: string): Date {
-  return new Date(definedString(value) ?? fallback);
+  return coerceDateOptional(value) ?? new Date(fallback);
 }
 
 function requireSlug(slug: { current?: string | null }, label: string): string {
@@ -29,9 +34,7 @@ export function normalizePost(post: SanityPost): NormalizedEntry<NormalizedPostD
       description: definedString(post.description),
       author: definedString(post.author),
       publishedDate: coerceDate(post.publishedDate ?? post.publishedAt, "1970-01-01T00:00:00.000Z"),
-      modifiedDate: definedString(post.modifiedDate ?? post.modifiedAt)
-        ? new Date(post.modifiedDate ?? post.modifiedAt ?? "")
-        : undefined,
+      modifiedDate: coerceDateOptional(post.modifiedDate ?? post.modifiedAt),
       category: post.category ?? undefined,
     },
   };

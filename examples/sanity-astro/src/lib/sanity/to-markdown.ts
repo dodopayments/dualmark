@@ -2,7 +2,7 @@ import { portableTextToMarkdown } from "@portabletext/markdown";
 import { createImageUrlBuilder } from "@sanity/image-url";
 import type { PortableTextBlock, SanityImageBlock, SanityProjectDetails } from "./types";
 
-interface MarkdownOptions extends SanityProjectDetails {}
+type MarkdownOptions = SanityProjectDetails;
 
 function imageToMarkdown(value: SanityImageBlock, details: SanityProjectDetails): string {
   if (!value.asset || !details.projectId || !details.dataset) return "";
