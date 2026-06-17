@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "@dualmark/netlify": "../../packages/netlify/dist/index.edge.js"
-  }
-}
