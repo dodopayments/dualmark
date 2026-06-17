@@ -1,0 +1,75 @@
+{
+  "name": "@dualmark/nuxt",
+  "version": "0.1.0",
+  "description": "Nuxt module for the Dualmark AEO framework. Auto-generates .md endpoints from collection config + injects Link rel=alternate middleware + generates llms.txt.",
+  "license": "Apache-2.0",
+  "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dodopayments/dualmark.git",
+    "directory": "packages/nuxt"
+  },
+  "bugs": {
+    "url": "https://github.com/dodopayments/dualmark/issues"
+  },
+  "homepage": "https://github.com/dodopayments/dualmark/tree/main/packages/nuxt#readme",
+  "funding": "https://github.com/sponsors/dodopayments",
+  "type": "module",
+  "main": "./dist/module.cjs",
+  "module": "./dist/module.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/module.js",
+      "require": "./dist/module.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo"
+  },
+  "peerDependencies": {
+    "nuxt": "^3.0.0 || ^4.0.0"
+  },
+  "dependencies": {
+    "@dualmark/core": "workspace:*",
+    "@dualmark/converters": "workspace:*",
+    "@nuxt/kit": "^3.21.0",
+    "h3": "^1.15.11"
+  },
+  "devDependencies": {
+    "@nuxt/schema": "^3.21.0",
+    "@types/node": "^22.10.0",
+    "nitropack": "^2.13.4",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "keywords": [
+    "aeo",
+    "answer-engine-optimization",
+    "nuxt",
+    "nuxt-module",
+    "ai-search",
+    "markdown",
+    "llms-txt",
+    "dualmark"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

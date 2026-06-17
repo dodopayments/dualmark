@@ -95,6 +95,25 @@ export function CloudflareLogo({ size = 24, ...props }: LogoProps) {
   );
 }
 
+export function NuxtLogo({ size = 24, ...props }: LogoProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 256 256"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="Nuxt"
+      {...props}
+    >
+      <path
+        d="M178.5 137.9l-49.8-82.5c-3.7-6.2-12.7-6.2-16.4 0l-91.8 152.1c-3.9 6.5.8 14.9 8.4 14.9h182.2c7.6 0 12.3-8.4 8.4-14.9l-41-69.6z"
+        fill="#00DC82"
+      />
+    </svg>
+  );
+}
+
 export function SvelteLogo({ size = 24, ...props }: LogoProps) {
   return (
     <svg
@@ -161,6 +180,22 @@ export function WrenchLogo({ size = 24, ...props }: LogoProps) {
       {...props}
     >
       <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+    </svg>
+  );
+}
+
+export function NetlifyLogo({ size = 24, ...props }: LogoProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      aria-label="Netlify"
+      {...props}
+    >
+      <path d="m7.22 6.1-.95.95v.18l1.44 1.45h1l.14-.14v-1L7.4 6.1zM7.71 15.32l-1.44 1.44v.19l.95.95h.18l1.45-1.45v-.99l-.14-.14zM12.51 9.14H9.42l-.11.11v5.48l.11.11h1.37l.11-.11v-4.15l.07-.07c.43-.02.84-.03 1.19-.02.69.02.91.46.91 1.03v3.21l.11.11h1.37l.11-.11V11.3c0-1.2-.97-2.17-2.17-2.17ZM12.7 7.54l.11-.11V3.32l-.11-.12h-1.38l-.11.12v4.11l.11.11zM7.71 12.69v-1.38l-.11-.11H2.11l-.11.11v1.38l.11.11H7.6zM16.4 11.2l-.11.11v1.38l.11.11h5.49l.11-.11v-1.38l-.11-.11zM11.32 16.46l-.11.11v4.11l.11.12h1.38l.11-.12v-4.11l-.11-.11z"/>
     </svg>
   );
 }

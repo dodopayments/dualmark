@@ -1,0 +1,30 @@
+---
+import { getCollection } from "astro:content";
+const posts = await getCollection("blog");
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dualmark on Netlify Edge</title>
+    <meta name="description" content="Full-stack Dualmark example deployed to Netlify Edge Functions." />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <main>
+      <h1>Dualmark on Netlify Edge</h1>
+      <p>
+        Static Astro output + Netlify Edge Functions = AI bots get markdown at the edge,
+        humans get HTML.
+      </p>
+      <h2>Blog</h2>
+      <ul>{posts.map((p) => <li><a href={`/blog/${p.id}`}>{p.data.title}</a></li>)}</ul>
+      <h2>Links</h2>
+      <ul>
+        <li><a href="/about">About</a></li>
+        <li><a href="/llms.txt">llms.txt</a></li>
+      </ul>
+    </main>
+  </body>
+</html>

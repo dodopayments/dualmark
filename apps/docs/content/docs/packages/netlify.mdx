@@ -1,0 +1,109 @@
+---
+title: "@dualmark/netlify"
+description: Netlify Edge Functions adapter — wraps any edge function.
+---
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/netlify @dualmark/core
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/netlify @dualmark/core
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/netlify @dualmark/core
+```
+</Tab>
+</Tabs>
+
+## `createAEOWorker(options)`
+
+```ts
+import { createAEOWorker } from "@dualmark/netlify";
+
+export default createAEOWorker({
+  trailingSlash: "never",
+  enableLinkHeader: true,
+
+  redirects: {
+    internal: { "/old": "/new" },
+    external: { "/login": "https://app.example.com" },
+  },
+
+  skip: {
+    prefixes: ["/admin", "/api/"],
+    extensions: [".js", ".css", ".png"],
+  },
+
+  headers: { cacheControl: "public, max-age=3600" },
+
+  hooks: {
+    onAIRequest: (info) => console.log(info.botName, info.pathname),
+    onMiss: (info) => console.warn("miss:", info.pathname),
+  },
+
+  assets: {
+    fetch: (req) => fetch(req),
+  },
+});
+```
+
+## Options
+
+| Option | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `assets` | `AssetsFetcher` | internal fetch | Custom logic to retrieve `.md` twins |
+| `trailingSlash` | `"never" \| "always" \| "preserve"` | `"never"` | Redirect policy |
+| `enableLinkHeader` | `boolean` | `true` | Inject `Link rel="alternate"` on HTML |
+| `redirects.internal` | `Record<string, string>` | `{}` | Path → path |
+| `redirects.external` | `Record<string, string>` | `{}` | Path → URL |
+| `skip.prefixes` | `string[]` | `["/admin", "/api/", "/_"]` | Skip negotiation entirely |
+| `skip.extensions` | `string[]` | common assets | Skip negotiation for these extensions |
+| `headers.cacheControl` | `string` | `"public, max-age=3600"` | For markdown responses |
+| `hooks.onAIRequest` | `(info) => void` | `undefined` | Called on every AI hit |
+| `hooks.onMiss` | `(info) => void` | `undefined` | Called when no markdown found |
+
+## Types
+
+```ts
+interface AssetsFetcher {
+  fetch: (url: URL | string) => Promise<Response>;
+}
+
+interface AIRequestInfo {
+  url: URL;
+  botName: string | null;
+  botVendor: string | null;
+  acceptHeader: string;
+  pathname: string;
+  cacheStatus: "hit" | "miss";
+  tokens: number;
+}
+
+interface MissInfo {
+  url: URL;
+  botName: string | null;
+  pathname: string;
+  acceptHeader: string;
+}
+```
+
+## Netlify Configuration
+
+You can configure the routing in your `netlify.toml` or via the `config` export in the function file.
+
+```ts title="netlify/edge-functions/aeo.ts"
+export const config = {
+  path: "/*",
+  excludedPath: [
+    "/*.md",
+    "/_astro/*",
+    "/favicon.*"
+  ]
+};
+```

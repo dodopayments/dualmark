@@ -45,7 +45,7 @@ Export a default function with the signature `(text: string) => number`.
 
 Config varies by adapter:
 
-<Tabs items={["Astro", "Next.js", "SvelteKit", "Vercel", "Cloudflare", "Deno"]}>
+<Tabs items={["Astro", "Nuxt", "Next.js", "SvelteKit", "Vercel", "Cloudflare", "Deno"]}>
 <Tab value="Astro">
 
 Astro code-generates route files at build time, so closures can't be serialized. Pass a **module path** instead:
@@ -68,6 +68,29 @@ The generated routes will `import` your module directly — no serialization iss
 
 > For simple, self-contained arrow functions that don't close over external state, you can still pass a function directly:
 > ```js
+> tokenizer: (text) => text.split(/\s+/).length * 1.3
+> ```
+
+</Tab>
+<Tab value="Nuxt">
+
+Nuxt also code-generates server routes at build time, so closures can't be serialized. Pass a **module path** instead:
+
+```ts title="nuxt.config.ts"
+export default defineNuxtConfig({
+  modules: ["@dualmark/nuxt"],
+  dualmark: {
+    siteUrl: "https://example.com",
+    collections: { blog: { converter: "blog" } },
+    tokenizer: "./src/aeo-tokenizer.ts",
+  },
+});
+```
+
+The generated handlers will `import` your module directly — no serialization issues with closed-over encoders.
+
+> For simple, self-contained arrow functions that don't close over external state, you can still pass a function directly:
+> ```ts
 > tokenizer: (text) => text.split(/\s+/).length * 1.3
 > ```
 

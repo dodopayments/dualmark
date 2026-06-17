@@ -1,0 +1,113 @@
+---
+title: Nuxt
+description: Add Dualmark to a Nuxt 3 site with one module.
+---
+
+## Install
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/nuxt @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/nuxt @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/nuxt @dualmark/core @dualmark/converters
+```
+</Tab>
+</Tabs>
+
+## Minimal config
+
+```ts title="nuxt.config.ts"
+export default defineNuxtConfig({
+  modules: ["@dualmark/nuxt"],
+  dualmark: {
+    siteUrl: "https://example.com",
+    collections: {
+      blog: { converter: "blog" },
+    },
+    llmsTxt: { enabled: true },
+  },
+});
+```
+
+This auto-generates:
+
+- `/blog/<slug>.md` for every entry in your `blog` collection (served dynamically via Nitro middleware)
+- `/blog.md` listing
+- `/llms.txt`
+- A Nitro plugin that adds `Link rel="alternate"` to every SSR HTML response
+
+## Full config
+
+```ts title="nuxt.config.ts"
+export default defineNuxtConfig({
+  modules: ["@dualmark/nuxt"],
+  dualmark: {
+    siteUrl: "https://example.com",
+
+    collections: {
+      blog: {
+        converter: "blog",
+        listingMetadata: {
+          title: "Blog",
+          description: "All blog posts.",
+        },
+      },
+      glossary: { converter: "glossary" },
+    },
+
+    staticPages: [
+      { pattern: "/", render: () => "# Home\n\nWelcome." },
+      { pattern: "/about", render: () => "# About" },
+    ],
+
+    parameterizedRoutes: [
+      {
+        pattern: "/tax/[country]",
+        getStaticPaths: async () => [{ params: { country: "us" } }, { params: { country: "uk" } }],
+        render: ({ country }) => `# Tax: ${country.toUpperCase()}\n\n...`,
+      },
+    ],
+
+    llmsTxt: {
+      enabled: true,
+      brandName: "Acme",
+      description: "Acme's docs and blog.",
+      sections: [
+        {
+          title: "Pages",
+          links: [
+            { title: "Home", href: "https://example.com/" },
+            { title: "Blog", href: "https://example.com/blog" },
+          ],
+        },
+      ],
+    },
+
+    cacheControl: "public, max-age=3600",
+    noindex: true,
+  },
+});
+```
+
+## Available converters
+
+`converter: "blog" | "case-study" | "changelog" | "compare" | "docs" | "feature" | "glossary" | "legal" | "pricing" | "pseo" | "tool" | "video"` — see [@dualmark/converters](/docs/packages/converters).
+
+## Verify
+
+```bash
+bun run dev
+# new terminal:
+bunx @dualmark/cli verify http://localhost:3000/blog/your-post
+```
+
+The example at `examples/nuxt-blog` scores **125/125** under `nuxt dev`.

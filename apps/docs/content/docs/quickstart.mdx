@@ -7,7 +7,7 @@ Dualmark works in any framework that speaks `Request` / `Response`. First-class 
 
 Pick your stack below — every tab is a complete, self-contained install.
 
-<Tabs items={["Astro", "Next.js", "SvelteKit", "Cloudflare Workers", "Deno", "Vercel", "Any framework"]}>
+<Tabs items={["Astro", "Next.js", "Nuxt", "SvelteKit", "Cloudflare Workers", "Deno", "Vercel", "Any framework"]}>
 
 <Tab value="Astro">
 
@@ -188,6 +188,78 @@ Expect **120/125** under `next dev` (Standard conformance).
 </Steps>
 
 → [Full Next.js reference](/docs/integrations/nextjs)
+
+</Tab>
+
+<Tab value="Nuxt">
+
+<Steps>
+
+<Step>
+
+## Install
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/nuxt @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/nuxt @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/nuxt @dualmark/core @dualmark/converters
+```
+</Tab>
+</Tabs>
+
+</Step>
+
+<Step>
+
+## Configure
+
+Add Dualmark to your Nuxt config.
+
+```ts title="nuxt.config.ts"
+export default defineNuxtConfig({
+  modules: ["@dualmark/nuxt"],
+  dualmark: {
+    siteUrl: "https://example.com",
+    collections: {
+      blog: { converter: "blog" },
+    },
+    llmsTxt: { enabled: true },
+  },
+});
+```
+
+</Step>
+
+<Step>
+
+## Build & verify
+
+```bash
+bun run build
+bun run dev
+# in another terminal:
+bunx @dualmark/cli verify http://localhost:3000/blog/your-post
+```
+
+Every blog post now has a markdown twin at `/blog/<slug>.md`, an `llms.txt` is auto-generated, and a Nitro plugin injects `Link: <…>; rel="alternate"; type="text/markdown"` on every HTML response.
+
+Expect **Score 125/125** under `nuxt dev`.
+
+</Step>
+
+</Steps>
+
+→ [Full Nuxt reference](/docs/integrations/nuxt)
 
 </Tab>
 

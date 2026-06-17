@@ -1,0 +1,123 @@
+---
+title: Netlify
+description: Transparently serve markdown twins to AI bots using Netlify Edge Functions.
+---
+
+`@dualmark/netlify` is a higher-order Netlify Edge Function for serving markdown files to AI bots. It intercepts incoming requests, detects AI bots, and serves pre-built markdown files while passing human visitors through to your static site or SSR app.
+
+## Install
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/netlify @dualmark/core
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/netlify @dualmark/core
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/netlify @dualmark/core
+```
+</Tab>
+</Tabs>
+
+## Basic Setup
+
+Create an edge function file (e.g., `netlify/edge-functions/aeo.ts`) and wrap it with `createAEOWorker`.
+
+```ts title="netlify/edge-functions/aeo.ts"
+import { createAEOWorker } from "@dualmark/netlify";
+
+export default createAEOWorker({
+  trailingSlash: "never",
+  enableLinkHeader: true,
+  hooks: {
+    onAIRequest: (info) => {
+      console.log(`[dualmark] ai-hit: ${info.pathname} (${info.botName})`);
+    },
+  },
+});
+
+export const config = {
+  path: "/*",
+  excludedPath: [
+    "/*.md",
+    "/_astro/*",
+    "/favicon.*"
+  ]
+};
+```
+
+<Callout type="info">
+  **Note on Assets**: By default, the adapter tries to `fetch()` the markdown twins from the same origin. For most Netlify sites, this works out-of-the-box as Edge Functions can fetch static assets from the CDN.
+</Callout>
+
+## Configuration
+
+You can configure the edge function routing in your `netlify.toml` or via the `config` export in the function file.
+
+```toml title="netlify.toml"
+[[edge_functions]]
+  path = "/*"
+  function = "aeo"
+```
+
+## Advanced Usage
+
+### Redirects
+
+You can handle internal and external redirects specifically for AI bots. This is useful when you want to guide agents to specific markdown content without affecting human users.
+
+```ts
+export default createAEOWorker({
+  redirects: {
+    internal: {
+      "/old-path": "/new-path", // serves /new-path.md for /old-path
+    },
+    external: {
+      "/login": "https://app.example.com", // returns markdown notice with link
+    },
+  },
+});
+```
+
+### Custom Assets Fetcher
+
+If your markdown twins are stored elsewhere or require specific headers to fetch, you can provide a custom `assets` fetcher.
+
+```ts
+export default createAEOWorker({
+  assets: {
+    fetch: async (req) => {
+      const url = req instanceof URL ? req : new URL(req);
+      // Custom logic, e.g., fetching from a different bucket
+      return fetch(`https://assets.example.com${url.pathname}`);
+    },
+  },
+});
+```
+
+## Verify
+
+You can verify your setup using the `dualmark` CLI against your local Netlify dev server:
+
+```bash
+netlify dev
+# In another terminal:
+npx dualmark verify http://localhost:8888/blog/my-post
+```
+
+## What it does
+
+1.  **AI Bot Detection** — Identifies [known AI crawlers](/docs/spec/ai-bot-detection) via User-Agent.
+2.  **Content Negotiation** — Respects `Accept: text/markdown` headers from agents.
+3.  **Transparent Serving** — Serves `.md` twins for matching HTML routes.
+4.  **Link Header Injection** — Adds `rel="alternate"` links to HTML responses for discovery.
+5.  **Trailing Slash Normalization** — Ensures consistent routing for both bots and humans.
+6.  **Token Estimation** — Injects `X-Markdown-Tokens` headers to help agents manage context.
+7.  **Cache Control** — Configurable headers for edge caching.
+8.  **Hooks** — Observability into AI traffic via `onAIRequest` and `onMiss`.

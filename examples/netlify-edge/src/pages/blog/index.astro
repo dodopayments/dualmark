@@ -1,0 +1,20 @@
+---
+import { getCollection } from "astro:content";
+const posts = await getCollection("blog");
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Blog — Dualmark on Netlify Edge</title>
+    <meta name="description" content="All blog posts on the Netlify Edge example." />
+  </head>
+  <body>
+    <main>
+      <h1>Blog</h1>
+      <ul>{posts.map((p) => <li><a href={`/blog/${p.id}`}>{p.data.title}</a></li>)}</ul>
+      <p><a href="/">← Home</a></p>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,135 @@
+---
+title: "@dualmark/nuxt"
+description: Nuxt 3 integration — auto-generated .md routes, middleware, llms.txt.
+---
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/nuxt @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/nuxt @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/nuxt @dualmark/core @dualmark/converters
+```
+</Tab>
+</Tabs>
+
+## `nuxt.config.ts`
+
+The `@dualmark/nuxt` package provides a Nuxt module.
+
+```ts
+export default defineNuxtConfig({
+  modules: ["@dualmark/nuxt"],
+  dualmark: { /* config */ },
+});
+```
+
+## Config
+
+```ts
+interface DualmarkNuxtConfig {
+  siteUrl: string;
+
+  collections?: Record<string, CollectionConfig>;
+
+  staticPages?: StaticPageConfig[];
+
+  parameterizedRoutes?: ParameterizedRouteConfig[];
+
+  llmsTxt?: {
+    enabled?: boolean;
+    brandName?: string;
+    description?: string;
+    sections?: LlmsTxtSection[];
+  };
+
+  cacheControl?: string;
+  noindex?: boolean;
+}
+```
+
+## Collections
+
+```ts
+collections: {
+  blog: {
+    converter: "blog" | "case-study" | "changelog" | "compare" | "docs"
+              | "feature" | "glossary" | "legal" | "pricing" | "pseo"
+              | "tool" | "video"
+              | ((entry) => string),  // or custom function
+
+    slugStrategy?: "single" | "nested",  // single = /blog/<slug>, nested = /blog/<...>
+
+    listingMetadata?: {
+      title?: string;
+      description?: string;
+    },
+  },
+}
+```
+
+For each collection, the integration generates:
+
+- `/<collection>/<slug>.md` for every entry (served dynamically via Nitro middleware)
+- `/<collection>.md` for the listing
+
+## Static pages
+
+```ts
+staticPages: [
+  { pattern: "/", render: () => "# Home\n\nWelcome." },
+  { pattern: "/about", render: () => "# About" },
+],
+```
+
+Generates `/index.md` and `/about.md`.
+
+## Parameterized routes
+
+```ts
+parameterizedRoutes: [
+  {
+    pattern: "/tax/[country]",
+    getStaticPaths: async () => [
+      { params: { country: "us" } },
+      { params: { country: "uk" } },
+    ],
+    render: ({ country }) => `# Tax in ${country.toUpperCase()}\n\n...`,
+  },
+],
+```
+
+Generates `/tax/us.md`, `/tax/uk.md`.
+
+## Middleware
+
+The module automatically injects a Nitro plugin (`runtime/server/plugin.ts`) that adds the `Link: <…>; rel="alternate"; type="text/markdown"` and `Vary: Accept` headers on every HTML response.
+
+## llms.txt
+
+When `llmsTxt.enabled` is `true`, generates `/llms.txt` from the provided sections.
+
+```ts
+llmsTxt: {
+  enabled: true,
+  brandName: "Acme",
+  description: "Acme's docs and blog.",
+  sections: [
+    {
+      title: "Pages",
+      links: [
+        { title: "Home", href: "https://example.com/" },
+        { title: "Blog", href: "https://example.com/blog" },
+      ],
+    },
+  ],
+}
+```

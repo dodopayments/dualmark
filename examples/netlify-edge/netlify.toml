@@ -1,0 +1,15 @@
+[build]
+  # On Netlify CI, build the Astro site
+  command = "astro build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[dev]
+  # Local dev: point netlify-cli at the astro dev server
+  framework = "astro"
+
+[[edge_functions]]
+  path = "/*"
+  function = "aeo"
