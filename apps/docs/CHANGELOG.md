@@ -1,5 +1,14 @@
 # dualmark-docs
 
+## 0.0.6
+
+### Patch Changes
+
+- 2552ce1: Implemented a new @dualmark/nuxt integration
+- Updated dependencies [d2c271d]
+  - @dualmark/core@0.10.0
+  - @dualmark/cli@0.10.0
+
 ## 0.0.5
 
 ### Patch Changes

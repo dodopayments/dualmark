@@ -1,5 +1,12 @@
 # @dualmark/cli
 
+## 0.10.0
+
+### Patch Changes
+
+- Updated dependencies [d2c271d]
+  - @dualmark/core@0.10.0
+
 ## 0.8.0
 
 ### Minor Changes
