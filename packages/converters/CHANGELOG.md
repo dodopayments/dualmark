@@ -1,5 +1,16 @@
 # @dualmark/converters
 
+## 0.10.0
+
+### Minor Changes
+
+- 2d8f839: Add new OpenAPI-aware `api-reference` converter with `fromOpenAPI` helper.
+
+### Patch Changes
+
+- Updated dependencies [d2c271d]
+  - @dualmark/core@0.10.0
+
 ## 0.8.0
 
 ### Minor Changes
