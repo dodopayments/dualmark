@@ -1,0 +1,38 @@
+---
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const terms = await getCollection("glossary");
+  return terms.map((term) => ({ params: { slug: term.id }, props: { term } }));
+}
+
+const { term } = Astro.props;
+const { Content } = await render(term);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{term.data.title} — Dualmark Sanity Example</title>
+    {term.data.summary && <meta name="description" content={term.data.summary} />}
+  </head>
+  <body>
+    <main>
+      <article>
+        <h1>{term.data.title}</h1>
+        {term.data.summary && <p>{term.data.summary}</p>}
+        <Content />
+        {term.data.learnMore && (
+          <section>
+            <h2>Learn more</h2>
+            <ul>
+              {term.data.learnMore.map((link) => <li><a href={link.href}>{link.title}</a></li>)}
+            </ul>
+          </section>
+        )}
+      </article>
+      <p><a href="/glossary">Back to glossary</a></p>
+    </main>
+  </body>
+</html>

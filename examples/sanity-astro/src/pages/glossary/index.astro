@@ -1,0 +1,29 @@
+---
+import { getCollection } from "astro:content";
+
+const terms = (await getCollection("glossary")).sort((a, b) =>
+  a.data.title.localeCompare(b.data.title),
+);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Glossary — Dualmark Sanity Example</title>
+  </head>
+  <body>
+    <main>
+      <h1>Glossary</h1>
+      <ul>
+        {terms.map((term) => (
+          <li>
+            <a href={`/glossary/${term.id}`}>{term.data.title}</a>
+            {term.data.summary && <p>{term.data.summary}</p>}
+          </li>
+        ))}
+      </ul>
+      <p><a href="/">Back home</a></p>
+    </main>
+  </body>
+</html>

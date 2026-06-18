@@ -319,7 +319,7 @@ Plus:
 - [**`spec/`**](./spec) — the **AEO Specification v1.0**. Public, framework-agnostic, RFC-2119-compliant. Implement it in Go, Rust, PHP, Ruby — your call.
 - [**`apps/docs/`**](./apps/docs) — Fumadocs site at [dualmark.dev](https://dualmark.dev)
 - [**`apps/docs/app/play`**](./apps/docs/app/play) — interactive Accept-header + UA tester. Live at [dualmark.dev/play](https://dualmark.dev/play).
-- [**`examples/`**](./examples) — six end-to-end working examples (Astro, Astro+Cloudflare, Next.js, SvelteKit, Deno, Vercel).
+- [**`examples/`**](./examples) — seven end-to-end working examples (Astro, Astro+Cloudflare, Sanity+Astro, Next.js, SvelteKit, Deno, Vercel).
 
 ---
 
@@ -337,6 +337,7 @@ Plus:
 | `@dualmark/sveltekit` | 17 tests pass |
 | `@dualmark/vercel` | 28 tests pass |
 | `examples/astro-blog` | **80/80** under `astro dev` (`--skip-negotiation`) |
+| `examples/sanity-astro` | **80/80** under `astro dev` (`--skip-negotiation`) for fixture-backed blog + glossary docs |
 | `examples/astro-cloudflare-full` | **125/125 perfect** under `wrangler dev` (full negotiation) |
 | `examples/nextjs-app-router` | **120/125** under `next dev` (now using `@dualmark/nextjs`) |
 | `examples/sveltekit-blog` | **125/125 perfect** under `vite dev` (full negotiation) |

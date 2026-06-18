@@ -1,0 +1,155 @@
+{
+  "posts": [
+    {
+      "_id": "post-cms-driven-aeo",
+      "_type": "post",
+      "title": "CMS-driven AEO with Dualmark",
+      "slug": { "current": "cms-driven-aeo" },
+      "description": "How marketing teams can keep CMS workflows while shipping clean markdown twins for AI agents.",
+      "author": "Dodo Payments",
+      "publishedAt": "2026-06-01T00:00:00.000Z",
+      "modifiedAt": "2026-06-08T00:00:00.000Z",
+      "category": ["AEO", "CMS"],
+      "body": [
+        {
+          "_key": "intro",
+          "_type": "block",
+          "style": "normal",
+          "markDefs": [],
+          "children": [
+            {
+              "_key": "intro-span",
+              "_type": "span",
+              "text": "Sanity remains the editorial source of truth while Dualmark turns every published page into a clean markdown twin.",
+              "marks": []
+            }
+          ]
+        },
+        {
+          "_key": "why",
+          "_type": "block",
+          "style": "h2",
+          "markDefs": [],
+          "children": [
+            { "_key": "why-span", "_type": "span", "text": "Why it matters", "marks": [] }
+          ]
+        },
+        {
+          "_key": "body",
+          "_type": "block",
+          "style": "normal",
+          "markDefs": [
+            {
+              "_key": "term-link",
+              "_type": "internalLink",
+              "type": "glossary",
+              "slug": "answer-engine-optimization"
+            }
+          ],
+          "children": [
+            {
+              "_key": "body-a",
+              "_type": "span",
+              "text": "Editors publish once, humans get Astro HTML, and answer engines get ",
+              "marks": []
+            },
+            {
+              "_key": "body-b",
+              "_type": "span",
+              "text": "Answer Engine Optimization",
+              "marks": ["term-link"]
+            },
+            {
+              "_key": "body-c",
+              "_type": "span",
+              "text": " content without JavaScript chrome.",
+              "marks": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_id": "post-fixture-ci",
+      "_type": "post",
+      "title": "Why CI uses Sanity fixtures",
+      "slug": { "current": "fixture-backed-ci" },
+      "description": "A deterministic fixture export keeps open-source CI stable without live CMS credentials.",
+      "author": "Dodo Payments",
+      "publishedAt": "2026-06-05T00:00:00.000Z",
+      "category": "Engineering",
+      "body": [
+        {
+          "_key": "fixture-body",
+          "_type": "block",
+          "style": "normal",
+          "markDefs": [],
+          "children": [
+            {
+              "_key": "fixture-span",
+              "_type": "span",
+              "text": "Fixture mode mirrors the Sanity document shape but avoids network calls during conformance tests.",
+              "marks": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "glossaryTerms": [
+    {
+      "_id": "term-aeo",
+      "_type": "glossaryTerm",
+      "term": "Answer Engine Optimization",
+      "title": "Answer Engine Optimization",
+      "slug": { "current": "answer-engine-optimization" },
+      "definition": "Structuring web content so answer engines can cite it accurately.",
+      "category": "AEO",
+      "relatedTerms": ["llms-txt"],
+      "canonicalBlog": "/blog/cms-driven-aeo",
+      "body": [
+        {
+          "_key": "aeo-body",
+          "_type": "block",
+          "style": "normal",
+          "markDefs": [],
+          "children": [
+            {
+              "_key": "aeo-span",
+              "_type": "span",
+              "text": "AEO focuses on making content understandable to AI crawlers and answer engines, not just search-result snippets.",
+              "marks": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_id": "term-llms",
+      "_type": "glossaryTerm",
+      "term": "llms.txt",
+      "title": "llms.txt",
+      "slug": { "current": "llms-txt" },
+      "definition": "A discovery file that points AI agents to the most useful markdown resources on a site.",
+      "category": "Discovery",
+      "relatedTerms": ["answer-engine-optimization"],
+      "canonicalBlog": "/blog/fixture-backed-ci",
+      "body": [
+        {
+          "_key": "llms-body",
+          "_type": "block",
+          "style": "normal",
+          "markDefs": [],
+          "children": [
+            {
+              "_key": "llms-span",
+              "_type": "span",
+              "text": "Dualmark can generate llms.txt from the same config that creates markdown twins.",
+              "marks": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
