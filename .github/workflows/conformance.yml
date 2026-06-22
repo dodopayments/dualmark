@@ -154,9 +154,8 @@ jobs:
     permissions:
       contents: read # checkout only, no write intent
     steps:
-      - uses: actions/checkout@v4
       - name: Smoke test verify action against dualmark.dev
-        uses: ./actions/verify
+        uses: dodopayments/dualmark-verify-action@v1
         with:
           url: https://dualmark.dev
           level: standard
