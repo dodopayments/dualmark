@@ -87,6 +87,21 @@ describe("Fastly Adapter", () => {
       expect(fetch).toHaveBeenCalledWith(expect.any(Request), { backend: "markdown_backend" });
     });
 
+    it("uses custom tokenizer when provided", async () => {
+      const handler = createAEORequestHandler({
+        backend: "default_backend",
+        markdownBackend: "markdown_backend",
+        tokenizer: () => 999,
+      });
+      
+      const req = new Request("https://acme.test/blog/post-1", {
+        headers: { "user-agent": "GPTBot/1.0" },
+      });
+      const res = await handler(req);
+      
+      expect(res.headers.get("x-markdown-tokens")).toBe("999");
+    });
+
     it("serves markdown when Accept: text/markdown (no bot UA)", async () => {
       const handler = createAEORequestHandler({
         backend: "default_backend",
