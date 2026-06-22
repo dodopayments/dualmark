@@ -41,7 +41,9 @@ jobs:
   aeo:
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
+      contents: read # checkout
+      pull-requests: write # comment-on-pr
+      actions: read # fail-on-regression reads the previous run's artifact
     steps:
       - uses: actions/checkout@v4
       - uses: dodopayments/dualmark-verify-action@v1.0.0
@@ -51,6 +53,12 @@ jobs:
           fail-on-regression: true
           comment-on-pr: true
 ```
+
+<Callout type="warn">
+  Each input maps to a permission scope: `comment-on-pr` needs `pull-requests: write`, and
+  `fail-on-regression` needs `actions: read` (to read the previous run's artifact). Omitting a scope
+  surfaces as a confusing API permission error at runtime.
+</Callout>
 
 <Callout type="info">
   The action automatically uploads `aeo.json` as a build artifact (default: `aeo-report`).

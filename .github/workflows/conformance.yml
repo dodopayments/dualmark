@@ -35,6 +35,27 @@ jobs:
           node ../../packages/cli/dist/cli.js verify http://localhost:4321/blog/hello-world --skip-negotiation
           kill $DEV_PID
 
+  sanity-astro:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: bunx turbo run build --filter='@dualmark/*'
+      - name: Test sanity-astro example
+        run: bun run --filter dualmark-example-sanity-astro test
+      - name: Build sanity-astro example from fixtures
+        run: bun run --filter dualmark-example-sanity-astro build
+      - name: Verify sanity-astro under astro dev
+        working-directory: examples/sanity-astro
+        run: |
+          ./node_modules/.bin/astro dev --host 127.0.0.1 --port 4322 &
+          DEV_PID=$!
+          trap 'kill $DEV_PID || true' EXIT
+          sleep 10
+          node ../../packages/cli/dist/cli.js verify http://127.0.0.1:4322/blog/cms-driven-aeo --skip-negotiation
+          node ../../packages/cli/dist/cli.js verify http://127.0.0.1:4322/glossary/answer-engine-optimization --skip-negotiation
+
   astro-cloudflare-full:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -177,7 +198,7 @@ jobs:
           echo "::error::Docs server did not start within 30s"
           exit 1
       - name: Smoke test verify action against the freshly-built docs
-        uses: dodopayments/dualmark-verify-action@v1.0.0
+        uses: dodopayments/dualmark-verify-action@8095f353a65f95ebf9470338e5c4d1894049850f # v1.0.0
         with:
           url: http://localhost:4000/docs/quickstart
           level: standard
