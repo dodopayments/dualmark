@@ -98,6 +98,7 @@ export function createAEORequestHandler(options: CreateAEOFastlyOptions): AEOFas
   const trailingSlash = options.trailingSlash ?? "never";
   const cacheControl = options.headers?.cacheControl ?? DEFAULT_CACHE_CONTROL;
   const enableLinkHeader = options.enableLinkHeader !== false;
+  const tokenizer = options.tokenizer;
 
   const onAIRequest = options.hooks?.onAIRequest;
   const onMiss = options.hooks?.onMiss;
@@ -143,7 +144,7 @@ export function createAEORequestHandler(options: CreateAEOFastlyOptions): AEOFas
       }
       if (assetResponse && assetResponse.ok) {
         const body = request.method === "HEAD" ? "" : await assetResponse.text();
-        const tokens = request.method === "HEAD" ? 0 : estimateTokens(body);
+        const tokens = request.method === "HEAD" ? 0 : estimateTokens(body, { tokenizer });
         return new Response(body, {
           status: 200,
           headers: buildMarkdownHeaders(tokens, cacheControl),
@@ -188,7 +189,7 @@ export function createAEORequestHandler(options: CreateAEOFastlyOptions): AEOFas
 
         if (assetResponse && assetResponse.ok) {
           const body = request.method === "HEAD" ? "" : await assetResponse.text();
-          const tokens = request.method === "HEAD" ? 0 : estimateTokens(body);
+          const tokens = request.method === "HEAD" ? 0 : estimateTokens(body, { tokenizer });
           const aiInfo: AIRequestInfo = {
             url,
             botName: bot.name,
@@ -216,7 +217,7 @@ export function createAEORequestHandler(options: CreateAEOFastlyOptions): AEOFas
             const targetResp = await fetch(targetReq, { backend: markdownBackend });
             if (targetResp.ok) {
               const body = request.method === "HEAD" ? "" : await targetResp.text();
-              const tokens = request.method === "HEAD" ? 0 : estimateTokens(body);
+              const tokens = request.method === "HEAD" ? 0 : estimateTokens(body, { tokenizer });
               const aiInfo: AIRequestInfo = {
                 url,
                 botName: bot.name,
@@ -240,7 +241,7 @@ export function createAEORequestHandler(options: CreateAEOFastlyOptions): AEOFas
         const externalTarget = externalRedirects[cleanPath];
         if (externalTarget) {
           const body = `# Redirect\n\nThis page has moved to an external location.\n\n- **Redirect**: [${externalTarget}](${externalTarget})\n`;
-          const tokens = estimateTokens(body);
+          const tokens = estimateTokens(body, { tokenizer });
           const aiInfo: AIRequestInfo = {
             url,
             botName: bot.name,
