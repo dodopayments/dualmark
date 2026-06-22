@@ -8,8 +8,8 @@ on:
     paths:
       - "packages/**"
       - "examples/**"
-      - "actions/**"
       - "spec/**"
+      - "apps/docs/**"
       - ".github/workflows/conformance.yml"
 
 env:
@@ -170,15 +170,40 @@ jobs:
           exit $fail
 
   action-dogfood:
+    # Dogfood the published action against this repo's freshly-built docs (not live
+    # dualmark.dev), so regressions are caught before they ship. See #17.
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     permissions:
-      contents: read # checkout only, no write intent
+      contents: read # checkout only
+      actions: read # the action lists prior aeo-report artifacts via the API
     steps:
-      - name: Smoke test verify action against dualmark.dev
-        uses: dodopayments/dualmark-verify-action@v1
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: bunx turbo run build --filter='@dualmark/*'
+      - name: Build dualmark-docs (the website itself)
+        run: bun run --filter dualmark-docs build
+      - name: Start dualmark-docs server
+        working-directory: apps/docs
+        run: |
+          ./node_modules/.bin/next start --port 4000 &
+          echo $! > "${{ runner.temp }}/docs.pid"
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:4000/ >/dev/null 2>&1; then
+              echo "Docs server is up"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::Docs server did not start within 30s"
+          exit 1
+      - name: Smoke test verify action against the freshly-built docs
+        uses: dodopayments/dualmark-verify-action@v1.0.0
         with:
-          url: https://dualmark.dev
+          url: http://localhost:4000/docs/quickstart
           level: standard
           comment-on-pr: false
           fail-on-regression: false
+      - name: Stop dualmark-docs server
+        if: always()
+        run: kill "$(cat "${{ runner.temp }}/docs.pid")" 2>/dev/null || true

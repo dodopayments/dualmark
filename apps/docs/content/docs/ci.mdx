@@ -11,7 +11,7 @@ pipeline. Add it to your pull-request workflow and block merges the moment confo
 The fastest way to add AEO conformance to your pipeline — no Bun setup, no manual parsing.
 
 ```yaml
-- uses: dodopayments/dualmark-verify-action@v1
+- uses: dodopayments/dualmark-verify-action@v1.0.0
   with:
     url: ${{ vars.STAGING_URL }}
     level: standard
@@ -44,7 +44,7 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
-      - uses: dodopayments/dualmark-verify-action@v1
+      - uses: dodopayments/dualmark-verify-action@v1.0.0
         with:
           url: https://staging.example.com/blog/your-post
           level: standard
@@ -69,12 +69,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dodopayments/dualmark-verify-action@v1
+      - uses: dodopayments/dualmark-verify-action@v1.0.0
         with:
           url: https://staging.example.com/pricing
           artifact-name: aeo-report-pricing
 
-      - uses: dodopayments/dualmark-verify-action@v1
+      - uses: dodopayments/dualmark-verify-action@v1.0.0
         with:
           url: https://staging.example.com/docs
           artifact-name: aeo-report-docs
