@@ -1,0 +1,4 @@
+# Fastly Compute build output
+bin/
+*.wasm
+pkg/

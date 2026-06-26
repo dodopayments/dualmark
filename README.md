@@ -331,7 +331,7 @@ Plus:
 | `@dualmark/core` | 174 tests pass (vitest + fast-check property tests) |
 | `@dualmark/converters` | 31 tests pass |
 | `@dualmark/cloudflare` | 23 tests pass |
-| `@dualmark/fastly` | 18 tests pass |
+| `@dualmark/fastly` | 19 tests pass |
 | `@dualmark/deno` | 23 tests pass |
 | `@dualmark/cli` | 25 tests pass |
 | `@dualmark/astro` | 39 tests pass |
