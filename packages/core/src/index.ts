@@ -2,6 +2,7 @@ export {
   parseAcceptHeader,
   mediaTypeMatches,
   negotiateFormat,
+  shouldServeMarkdown,
   type ParsedMediaType,
 } from "./negotiation.js";
 

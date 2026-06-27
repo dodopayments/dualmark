@@ -83,6 +83,21 @@ describe("createAEOWorker — markdown serving", () => {
     expect(await res.text()).toBe("# Post 1\n\nBody.");
   });
 
+  it("keeps a bot UA on HTML when it explicitly requests text/html (spec §5)", async () => {
+    const worker = createAEOWorker({
+      upstream: makeUpstream(() => new Response("html", { headers: { "Content-Type": "text/html" } })),
+    });
+    const req = new Request("https://acme.test/blog/post-1", {
+      headers: { "user-agent": "GPTBot/1.0", accept: "text/html" },
+    });
+    const res = await worker.fetch(req, env, makeCtx());
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toContain("text/html");
+    expect(res.headers.get("content-type")).not.toContain("text/markdown");
+    expect(res.headers.get("x-robots-tag")).toBeNull();
+    expect(await res.text()).toBe("html");
+  });
+
   it("serves markdown when Accept: text/markdown (no bot UA)", async () => {
     const worker = createAEOWorker({
       upstream: makeUpstream(() => new Response("html", { headers: { "Content-Type": "text/html" } })),

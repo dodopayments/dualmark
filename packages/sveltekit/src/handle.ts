@@ -2,6 +2,7 @@ import {
   detectAIBot,
   injectMarkdownAlternateLink,
   negotiateFormat,
+  shouldServeMarkdown,
   toMarkdownPath,
 } from "@dualmark/core";
 import { resolveConfig } from "./config-validation.js";
@@ -68,7 +69,7 @@ export async function handleRequest(
     const bot = detectAIBot(userAgent);
     const format = negotiateFormat(accept);
 
-    if (bot.isBot || format === "markdown") {
+    if (shouldServeMarkdown(accept, bot.isBot)) {
       return fetchMarkdownTwin(event, pathname);
     }
 

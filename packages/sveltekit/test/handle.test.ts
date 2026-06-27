@@ -49,6 +49,29 @@ describe("handleRequest", () => {
     expect(fetch).toHaveBeenCalledWith("/posts/hello.md", expect.any(Object));
   });
 
+  it("keeps a bot UA on HTML when it explicitly requests text/html (spec §5)", async () => {
+    const fetch = vi.fn(async () => new Response("# Bot Markdown"));
+    const resolve = vi.fn(
+      async () =>
+        new Response("<html></html>", { headers: { "Content-Type": "text/html" } }),
+    );
+    const response = await handleRequest(
+      makeEvent(
+        "https://example.com/posts/hello",
+        { "user-agent": "GPTBot/1.0", accept: "text/html" },
+        fetch,
+      ),
+      resolve,
+      resolved,
+    );
+
+    expect(fetch).not.toHaveBeenCalled();
+    expect(resolve).toHaveBeenCalled();
+    expect(response.headers.get("link")).toContain(
+      '</posts/hello.md>; rel="alternate"; type="text/markdown"',
+    );
+  });
+
   it("returns 406 when Accept rules out HTML and markdown", async () => {
     const response = await handleRequest(
       makeEvent("https://example.com/posts/hello", { accept: "image/png" }),
