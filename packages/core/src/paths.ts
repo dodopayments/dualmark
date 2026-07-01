@@ -18,9 +18,12 @@
  *   "/blog/x.md"  → "/blog/x.md"   (idempotent)
  */
 export function toMarkdownPath(pathname: string): string {
-  if (pathname.endsWith(".md")) return pathname;
+  // Strip trailing slashes before the `.md` check, otherwise a markdown path
+  // with a trailing slash (e.g. "/blog/post.md/") defeats the idempotency
+  // guard and gets a doubled extension ("/blog/post.md.md").
   const trimmed = pathname.replace(/\/+$/, "");
   if (trimmed === "") return "/index.md";
+  if (trimmed.endsWith(".md")) return trimmed;
   return trimmed + ".md";
 }
 
