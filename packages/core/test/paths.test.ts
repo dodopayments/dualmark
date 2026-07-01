@@ -24,6 +24,11 @@ describe("toMarkdownPath", () => {
     expect(toMarkdownPath("/index.md")).toBe("/index.md");
   });
 
+  it("does not double the extension for a .md path with a trailing slash", () => {
+    expect(toMarkdownPath("/a.md/")).toBe("/a.md");
+    expect(toMarkdownPath("/blog/post.md/")).toBe("/blog/post.md");
+  });
+
   it("handles deep nesting", () => {
     expect(toMarkdownPath("/a/b/c/d/e")).toBe("/a/b/c/d/e.md");
   });
