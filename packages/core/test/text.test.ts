@@ -86,6 +86,18 @@ describe("cleanBody", () => {
     expect(cleanBody("see <Highlighted>this</Highlighted>")).toBe("see **this**");
   });
 
+  it("converts a tag whose content spans multiple lines", () => {
+    expect(cleanBody("see <Highlighted>multi\nline</Highlighted> end")).toBe(
+      "see **multi\nline** end",
+    );
+  });
+
+  it("keeps tag replacement lazy across multiple tags", () => {
+    expect(cleanBody("<Em>a</Em> mid <Em>b</Em>", { htmlTagReplacements: { Em: "*" } })).toBe(
+      "*a* mid *b*",
+    );
+  });
+
   it("converts <br> to newline", () => {
     expect(cleanBody("line1<br>line2<br/>line3")).toBe("line1\nline2\nline3");
   });
