@@ -47,7 +47,12 @@ function shouldSkip(
   extensions: ReadonlyArray<string>,
 ): boolean {
   if (extensions.some((ext) => pathname.endsWith(ext))) return true;
-  return prefixes.some((p) => pathname.startsWith(p));
+  return prefixes.some((p) => {
+    if (pathname === p) return true;
+    if (p.endsWith("/")) return pathname.startsWith(p);
+    // Match on a path boundary so "/admin" does not also skip "/administrator".
+    return pathname.startsWith(p + "/");
+  });
 }
 
 function normalizePath(pathname: string): string {

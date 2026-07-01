@@ -62,6 +62,19 @@ describe("createAEOWorker — markdown serving", () => {
     expect(await res.text()).toBe("# Post 1\n\nBody.");
   });
 
+  it("does not skip a path that merely shares a skip prefix (/administrator)", async () => {
+    const worker = createAEOWorker({
+      assets: makeAssets({ "/administrator.md": "# Admin Guide" }),
+    });
+    const req = new Request("https://acme.test/administrator", {
+      headers: { "user-agent": "GPTBot/1.0" },
+    });
+    const res = await worker(req, makeContext());
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toBe("text/markdown; charset=utf-8");
+    expect(await res.text()).toBe("# Admin Guide");
+  });
+
   it("serves markdown when Accept: text/markdown (no bot UA)", async () => {
     const worker = createAEOWorker({ assets });
     const req = new Request("https://acme.test/blog/post-1", {
