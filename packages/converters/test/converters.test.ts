@@ -78,6 +78,18 @@ describe("blogConverter", () => {
     });
     expect(out).toContain("## About Acme");
   });
+
+  it("separates the body from the footer so the last line is not a setext heading", () => {
+    const out = convert({
+      id: "p",
+      data: { title: "T", publishedDate: new Date("2026-01-01T00:00:00Z") },
+      body: "Final body line.",
+    });
+    // "Final body line.\n---" would render as a setext H2 in CommonMark,
+    // turning the last body line into a heading and dropping the rule.
+    expect(out).toContain("Final body line.\n\n---");
+    expect(out).not.toContain("Final body line.\n---\n");
+  });
 });
 
 describe("caseStudyConverter", () => {
