@@ -112,6 +112,25 @@ describe("handleRequest", () => {
       '</posts/hello.md>; rel="alternate"; type="text/markdown"',
     );
   });
+
+  it("sets Vary: Accept on HTML even when the Link header is disabled", async () => {
+    const r = resolveConfig({
+      siteUrl: "https://example.com",
+      middleware: { injectLinkHeader: false },
+    });
+    const response = await handleRequest(
+      makeEvent("https://example.com/posts/hello", {
+        "user-agent": "Mozilla/5.0 Chrome/130",
+        accept: "text/html,*/*;q=0.8",
+      }),
+      async () =>
+        new Response("<html></html>", { headers: { "Content-Type": "text/html" } }),
+      r,
+    );
+
+    expect((response.headers.get("vary") ?? "").toLowerCase()).toContain("accept");
+    expect(response.headers.get("link")).toBeNull();
+  });
 });
 
 describe("createDualmarkHandle", () => {

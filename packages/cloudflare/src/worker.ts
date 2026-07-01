@@ -276,21 +276,22 @@ export function createAEOWorker<Env extends MinimalEnv = MinimalEnv>(
       const upstreamResponse = await options.upstream.fetch(request, env, ctx);
 
       if (
-        enableLinkHeader &&
         !shouldSkip(pathname, skipPrefixes, skipExtensions) &&
         !pathname.endsWith(".md") &&
         upstreamResponse.headers.get("content-type")?.includes("text/html")
       ) {
-        const mdPath = toMarkdownPath(pathname);
         const newHeaders = new Headers(upstreamResponse.headers);
-        const link = `<${mdPath}>; rel="alternate"; type="text/markdown"`;
-        const existing = newHeaders.get("Link");
-        newHeaders.set("Link", existing ? `${existing}, ${link}` : link);
         const vary = newHeaders.get("Vary");
         if (!vary) {
           newHeaders.set("Vary", "Accept");
         } else if (!vary.split(",").map((s) => s.trim().toLowerCase()).includes("accept")) {
           newHeaders.set("Vary", `${vary}, Accept`);
+        }
+        if (enableLinkHeader) {
+          const mdPath = toMarkdownPath(pathname);
+          const link = `<${mdPath}>; rel="alternate"; type="text/markdown"`;
+          const existing = newHeaders.get("Link");
+          newHeaders.set("Link", existing ? `${existing}, ${link}` : link);
         }
         return new Response(upstreamResponse.body, {
           status: upstreamResponse.status,
