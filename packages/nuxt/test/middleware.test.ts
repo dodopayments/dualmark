@@ -54,6 +54,9 @@ describe('makeCollectionMiddleware content negotiation', () => {
     const res = await handler(event) as Response;
     expect(res).toBeInstanceOf(Response);
     expect(res.status).toBe(406);
+    // Spec section 4: a 406 MUST set Vary: Accept and should be typed text/plain.
+    expect((res.headers.get('vary') ?? '').toLowerCase()).toContain('accept');
+    expect(res.headers.get('content-type')).toContain('text/plain');
   });
 
   it('serves markdown if .md extension is used', async () => {
