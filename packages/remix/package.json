@@ -1,0 +1,75 @@
+{
+  "name": "@dualmark/remix",
+  "version": "0.0.0",
+  "description": "React Router v7 Framework Mode adapter for the Dualmark AEO framework. Generated markdown resource routes plus entry.server negotiation.",
+  "license": "Apache-2.0",
+  "author": "Dodo Payments <opensource@dodopayments.com> (https://dodopayments.com)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dodopayments/dualmark.git",
+    "directory": "packages/remix"
+  },
+  "bugs": {
+    "url": "https://github.com/dodopayments/dualmark/issues"
+  },
+  "homepage": "https://github.com/dodopayments/dualmark/tree/main/packages/remix#readme",
+  "funding": "https://github.com/sponsors/dodopayments",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./routes": {
+      "types": "./dist/routes.d.ts",
+      "import": "./dist/routes.js",
+      "require": "./dist/routes.cjs"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo"
+  },
+  "peerDependencies": {
+    "@react-router/dev": ">=7.0.0",
+    "react-router": ">=7.0.0",
+    "vite": ">=5.0.0"
+  },
+  "dependencies": {
+    "@dualmark/core": "workspace:*",
+    "@dualmark/converters": "workspace:*"
+  },
+  "devDependencies": {
+    "@react-router/dev": "7.9.4",
+    "@types/node": "^22.10.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vite": "^7.2.7",
+    "vitest": "^2.1.8"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "keywords": [
+    "aeo",
+    "answer-engine-optimization",
+    "react-router",
+    "remix",
+    "markdown",
+    "llms-txt",
+    "dualmark"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
