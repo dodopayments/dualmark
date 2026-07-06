@@ -1,4 +1,4 @@
-import { isAbsolute } from "node:path";
+import { isAbsolute, win32 } from "node:path";
 import type { DualmarkRemixConfig, ResolvedDualmarkRemixConfig } from "./types.js";
 
 export class DualmarkConfigError extends Error {
@@ -12,7 +12,7 @@ const DEFAULT_CONFIG_PATH = "app/dualmark.config.ts";
 const DEFAULT_GENERATED_DIR = "app/.dualmark-remix";
 
 function validateProjectRelativePath(name: string, path: string): void {
-  if (isAbsolute(path) || path.includes("..")) {
+  if (isAbsolute(path) || win32.isAbsolute(path) || path.includes("..")) {
     throw new DualmarkConfigError(
       `Dualmark config: ${name} must be project-relative (got '${path}')`,
     );
