@@ -5,6 +5,7 @@
     "converters",
     "astro",
     "nextjs",
+    "remix",
     "sveltekit",
     "cloudflare",
     "fastly",

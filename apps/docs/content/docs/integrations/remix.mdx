@@ -1,0 +1,120 @@
+---
+title: React Router
+description: Add Dualmark to a React Router v7 Framework Mode app with @dualmark/remix.
+---
+
+`@dualmark/remix` is the React Router v7 Framework Mode adapter. The package name keeps the Remix ecosystem name, but the target surface is React Router v7.
+
+It ships:
+
+- `dualmark(config)` Vite plugin that generates `.md` resource route modules and `/llms.txt`
+- `dualmarkRoutes(config)` for `app/routes.ts`
+- `createDualmarkEntryServer(config)` for `app/entry.server.tsx` negotiation before HTML rendering
+- `createDualmarkResourceRoute(config)` and `createLlmsTxtResourceRoute(config)` for generated resource routes
+
+## Install
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/remix @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/remix @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/remix @dualmark/core @dualmark/converters
+```
+</Tab>
+</Tabs>
+
+## Config
+
+```ts title="app/dualmark.config.ts"
+import type { DualmarkRemixConfig } from "@dualmark/remix";
+
+const config: DualmarkRemixConfig = {
+  siteUrl: "https://example.com",
+  collections: {
+    posts: {
+      converter: "blog",
+      route: "posts",
+      slugStrategy: "single",
+      getEntries: () => yourPosts,
+    },
+  },
+  staticPages: [{ pattern: "/", render: () => "# Home\n\nWelcome." }],
+  llmsTxt: { enabled: true, brandName: "Example", sections: [] },
+};
+
+export default config;
+```
+
+## Vite plugin
+
+Add the Dualmark plugin before React Router so generated route modules exist before React Router reads `app/routes.ts`.
+
+```ts title="vite.config.ts"
+import { reactRouter } from "@react-router/dev/vite";
+import { defineConfig } from "vite";
+import dualmark from "@dualmark/remix";
+import dualmarkConfig from "./app/dualmark.config";
+
+export default defineConfig({
+  plugins: [dualmark(dualmarkConfig), reactRouter()],
+});
+```
+
+## Routes
+
+```ts title="app/routes.ts"
+import { index, route, type RouteConfig } from "@react-router/dev/routes";
+import { dualmarkRoutes } from "@dualmark/remix/routes";
+import dualmarkConfig from "./dualmark.config";
+
+export default [
+  index("routes/home.tsx"),
+  route("posts", "routes/posts.tsx"),
+  route("posts/:slug", "routes/post.tsx"),
+  ...dualmarkRoutes(dualmarkConfig),
+] satisfies RouteConfig;
+```
+
+## Entry server
+
+```tsx title="app/entry.server.tsx"
+import { ServerRouter } from "react-router";
+import { renderToReadableStream } from "react-dom/server";
+import { createDualmarkEntryServer } from "@dualmark/remix";
+import dualmarkConfig from "./dualmark.config";
+
+const withDualmark = createDualmarkEntryServer(dualmarkConfig);
+
+export default withDualmark(async function handleRequest(
+  request,
+  responseStatusCode,
+  responseHeaders,
+  routerContext,
+) {
+  const body = await renderToReadableStream(
+    <ServerRouter context={routerContext} url={request.url} />,
+  );
+  responseHeaders.set("Content-Type", "text/html; charset=utf-8");
+  return new Response(body, { status: responseStatusCode, headers: responseHeaders });
+});
+```
+
+## Verify
+
+```bash
+curl -sI http://localhost:5174/posts/hello
+curl -sI -H "User-Agent: GPTBot/1.0" -H "Accept: text/markdown" http://localhost:5174/posts/hello
+curl -sI http://localhost:5174/posts/hello.md
+dualmark verify http://localhost:5174/posts/hello
+```
+
+The reference example lives at `examples/remix-blog`.
