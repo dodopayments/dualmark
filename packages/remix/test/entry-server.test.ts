@@ -42,6 +42,35 @@ describe("createDualmarkEntryServer", () => {
     expect(await response.text()).toContain("# Hello");
   });
 
+  it("keeps a bot on HTML when it explicitly requests text/html", async () => {
+    const entry = createDualmarkEntryServer(config)(async (_request, _status, headers) =>
+      new Response("html", {
+        headers: {
+          ...Object.fromEntries(headers),
+          "Content-Type": "text/html; charset=utf-8",
+        },
+      }),
+    );
+
+    const response = await entry(
+      new Request("https://example.com/posts/hello", {
+        headers: {
+          "user-agent": "GPTBot/1.0",
+          accept: "text/html",
+        },
+      }),
+      200,
+      new Headers(),
+      {},
+      {},
+    );
+
+    expect(response.headers.get("content-type")).toContain("text/html");
+    expect(response.headers.get("content-type")).not.toContain("text/markdown");
+    expect(response.headers.get("x-robots-tag")).toBeNull();
+    expect(await response.text()).toBe("html");
+  });
+
   it("adds Link alternate headers before rendering HTML", async () => {
     const entry = createDualmarkEntryServer(config)(async (_request, _status, headers) =>
       new Response("html", { headers }),

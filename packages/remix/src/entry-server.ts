@@ -1,4 +1,4 @@
-import { detectAIBot, negotiateFormat, toMarkdownPath } from "@dualmark/core";
+import { detectAIBot, negotiateFormat, shouldServeMarkdown, toMarkdownPath } from "@dualmark/core";
 import { resolveConfig } from "./config-validation.js";
 import { createDualmarkResourceRoute } from "./handlers.js";
 import type { DualmarkRemixConfig } from "./types.js";
@@ -75,7 +75,7 @@ export function createDualmarkEntryServer(
           },
         });
       }
-      if (bot.isBot || format === "markdown") {
+      if (shouldServeMarkdown(accept, bot.isBot)) {
         const response = await markdownRoute.loader({ request: markdownRequest(request), params: {} });
         return method === "HEAD" ? withoutBody(response) : response;
       }
