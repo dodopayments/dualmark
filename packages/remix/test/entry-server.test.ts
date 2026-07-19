@@ -61,6 +61,33 @@ describe("createDualmarkEntryServer", () => {
     expect(response.headers.get("vary")).toContain("Accept");
   });
 
+  it("sets Vary: Accept when the Link header is disabled", async () => {
+    const entry = createDualmarkEntryServer({
+      ...config,
+      middleware: { injectLinkHeader: false },
+    })(async (_request, _status, headers) =>
+      new Response("html", {
+        headers: {
+          ...Object.fromEntries(headers),
+          "Content-Type": "text/html; charset=utf-8",
+        },
+      }),
+    );
+
+    const response = await entry(
+      new Request("https://example.com/posts/hello", {
+        headers: { accept: "text/html" },
+      }),
+      200,
+      new Headers(),
+      {},
+      {},
+    );
+
+    expect(response.headers.get("link")).toBeNull();
+    expect((response.headers.get("vary") ?? "").toLowerCase()).toContain("accept");
+  });
+
   it("returns 406 when Accept excludes HTML and markdown", async () => {
     const entry = createDualmarkEntryServer(config)(async () => new Response("html"));
 

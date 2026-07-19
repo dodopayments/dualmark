@@ -79,11 +79,11 @@ export function createDualmarkEntryServer(
         const response = await markdownRoute.loader({ request: markdownRequest(request), params: {} });
         return method === "HEAD" ? withoutBody(response) : response;
       }
+      appendVaryAccept(responseHeaders);
       if (resolved.middleware.injectLinkHeader) {
         const link = `<${toMarkdownPath(pathname)}>; rel="alternate"; type="text/markdown"`;
         const existing = responseHeaders.get("Link");
         responseHeaders.set("Link", existing ? `${existing}, ${link}` : link);
-        appendVaryAccept(responseHeaders);
       }
     }
     return handler(request, responseStatusCode, responseHeaders, routerContext, loadContext);
