@@ -21,7 +21,9 @@ Tu blog ocupa el puesto n.º 1 en Google. ChatGPT cita a tu competencia.
 
 Eso no es un problema de contenido. Es un **problema de infraestructura**. Los motores de búsqueda basados ​​en IA (ChatGPT, Claude, Perplexity, Gemini, Google AI Overviews) leen la web de manera diferente a los humanos: buscan un Markdown limpio, sin elementos de navegación, JavaScript ni banners de cookies. La mayoría de los sitios de marketing les ofrecen una «sopa de HTML» y se preguntan por qué son ignorados.
 
-**Dualmark dota a cada página de un gemelo en Markdown.** La misma URL. Dos formatos. Seleccionados mediante negociación de contenido HTTP. Intégralo en tu pila tecnológica (stack) de Astro, Next.js o Cloudflare en 30 segundos. Verifica su puntuación con `dualmark verify`. ```diff
+**Dualmark dota a cada página de un gemelo en Markdown.** La misma URL. Dos formatos. Seleccionados mediante negociación de contenido HTTP. Intégralo en tu pila tecnológica (stack) de Astro, Next.js o Cloudflare en 30 segundos. Verifica su puntuación con `dualmark verify`.
+
+```diff
 - npm install @next-seo/some-meta-tag-thing
 + bun add @dualmark/astro
 ```
@@ -77,18 +79,14 @@ import { createDualmarkMiddleware } from "@dualmark/nextjs";
 
 export default createDualmarkMiddleware({ siteUrl: "https://yourcompany.com" });
 
-``` export const config = {
-
-matcher: [
-{
-source: "/((?!_next/|favicon.ico|md/).*)",
-
-missing: [{ type: "header", key: "next-router-prefetch" }],
-},
-
-],
+export const config = {
+  matcher: [
+    {
+      source: "/((?!_next/|favicon.ico|md/).*)",
+      missing: [{ type: "header", key: "next-router-prefetch" }],
+    },
+  ],
 };
-
 ```
 
 ```ts
@@ -255,9 +253,8 @@ Tres niveles de conformidad: **Básico** (60%), **Estándar** (80%), **Avanzado*
 | [`@dualmark/core`](./packages/core) | `npm i @dualmark/core` | 14 KB | Primitivas agnósticas a frameworks: negociación de contenido (RFC 7231), detección de bots de IA (24 bots conocidos), constructor de respuestas Markdown, estimación de tokens, utilidades de composición, renderizado de `llms.txt`. Cero dependencias en tiempo de ejecución. |
 | [`@dualmark/converters`](./packages/converters) | `npm i @dualmark/converters` | 16 KB | 13 fábricas de convertidores probadas en producción. |
 | [`@dualmark/astro`](./packages/astro) | `npm i @dualmark/astro` | 22 KB | Integración con Astro 5. Genera automáticamente endpoints `.md`, incluye middleware y genera `llms.txt`. |
-| [`@dualmark/nextjs`](./packages/nextjs) | `npm i @dualmark/nextjs` | 15 KB | Adaptador para el App Router de Next.js. | `withDualmark()`, `createDualmarkMiddleware()`, `createDualmarkRouteHandler()`, `createLlmsTxtHandler()`. |
-| [`@dualmark/cloudflare`](./packages/cloudflare) | `npm i @dualmark/cloudflare` | 9 KB | Adaptador de borde para Workers. Envuelve cualquier Worker ascendente. Hooks para análisis.Análisis + telemetría. |
-
+| [`@dualmark/nextjs`](./packages/nextjs) | `npm i @dualmark/nextjs` | 15 KB | Adaptador para el App Router de Next.js. `withDualmark()`, `createDualmarkMiddleware()`, `createDualmarkRouteHandler()`, `createLlmsTxtHandler()`. |
+| [`@dualmark/cloudflare`](./packages/cloudflare) | `npm i @dualmark/cloudflare` | 9 KB | Adaptador de borde para Workers. Envuelve cualquier Worker ascendente. Hooks para analíticas + telemetría. |
 | [`@dualmark/cli`](./packages/cli) | `npm i -g @dualmark/cli` | 16 KB | `dualmark verify <url>`. También API programática. |
 
 Además:
@@ -269,7 +266,7 @@ Además:
 
 - [**`examples/`**](./examples) — tres ejemplos funcionales de extremo a extremo (Astro, Astro+Cloudflare, Next.js).
 
---
+---
 
 ## Verificación de extremo a extremo
 
@@ -317,9 +314,9 @@ Nuestro objetivo es que Dualmark se convierta en **la** infraestructura AEO para
 - **Evolución de la especificación hacia AEO 1.1+** con sugerencias de datos estructurados, anclas Markdown por sección y sitemap.md
 - **Integraciones con CMS**: plugins de Sanity, Contentful y Builder.io para que usuarios sin conocimientos técnicos puedan crear contenido con doble marcado
 
-Si eres ingeniero de marketing y estás leyendo esto, y alguna de estas funcionalidades se integraría en tu pila tecnológica, [abre una incidencia](https://github.com/dodopayments/dualmark/issues) o [+1 a una existente] [https://github.com/dodopayments/dualmark/issues](https://github.com/dodopayments/dualmark/issues).
+Si eres ingeniero de marketing y estás leyendo esto, y alguna de estas funcionalidades se integraría en tu pila tecnológica, [abre una incidencia](https://github.com/dodopayments/dualmark/issues) o [+1 a una existente](https://github.com/dodopayments/dualmark/issues).
 
---
+---
 
 ## Contribuciones
 
