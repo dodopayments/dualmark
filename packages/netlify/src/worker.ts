@@ -2,6 +2,7 @@ import {
   detectAIBot,
   estimateTokens,
   negotiateFormat,
+  shouldServeMarkdown,
   toMarkdownPath,
 } from "@dualmark/core";
 import type {
@@ -181,7 +182,7 @@ export function createAEOWorker(
         );
       }
 
-      if (bot.isBot || fmt === "markdown") {
+      if (shouldServeMarkdown(accept, bot.isBot)) {
         const mdPathname = toMarkdownPath(pathname);
         const assetRes = await fetchMd(assets, url.origin, mdPathname, subrequestHeader);
 

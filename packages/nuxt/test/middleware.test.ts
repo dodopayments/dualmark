@@ -81,6 +81,15 @@ describe('makeCollectionMiddleware content negotiation', () => {
     expect(await res.text()).toContain('# Post 1');
   });
 
+  it('keeps a bot UA on HTML when it explicitly requests text/html (spec §5)', async () => {
+    const event = createFakeEvent('/blog/post-1', {
+      'user-agent': 'GPTBot/1.0',
+      accept: 'text/html',
+    });
+    const res = await handler(event);
+    expect(res).toBeUndefined();
+  });
+
   it('returns 404 Response for non-existent markdown slugs', async () => {
     const event = createFakeEvent('/blog/non-existent.md');
     const res = await handler(event) as Response;

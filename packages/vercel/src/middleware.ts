@@ -1,4 +1,4 @@
-import { detectAIBot, estimateTokens, negotiateFormat, toMarkdownPath } from "@dualmark/core";
+import { detectAIBot, estimateTokens, negotiateFormat, shouldServeMarkdown, toMarkdownPath } from "@dualmark/core";
 import type { AIRequestInfo, MissInfo } from "./types.js";
 import type { CreateAEOMiddlewareOptions, VercelEdgeContext } from "./types.js";
 
@@ -187,7 +187,7 @@ export function createAEOMiddleware(
         });
       }
 
-      const serveMarkdown = bot.isBot || fmt === "markdown";
+      const serveMarkdown = shouldServeMarkdown(accept, bot.isBot);
 
       if (serveMarkdown) {
         const mdPath = toMarkdownPath(pathname);

@@ -1,4 +1,4 @@
-import { detectAIBot, negotiateFormat, toMarkdownPath } from "@dualmark/core";
+import { detectAIBot, negotiateFormat, shouldServeMarkdown, toMarkdownPath } from "@dualmark/core";
 import { resolveConfig } from "./config-validation.js";
 import type { DualmarkNextConfig, ResolvedDualmarkNextConfig } from "./types.js";
 
@@ -119,7 +119,7 @@ export function handleRequest(
   const bot = detectAIBot(ua);
   const fmt = negotiateFormat(accept);
 
-  if (bot.isBot || fmt === "markdown") {
+  if (shouldServeMarkdown(accept, bot.isBot)) {
     const url = request.nextUrl.clone();
     url.pathname = toInternalMarkdownPath(pathname, internalNamespace);
     return NextResponse.rewrite(url);

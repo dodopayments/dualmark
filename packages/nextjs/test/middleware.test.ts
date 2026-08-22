@@ -76,6 +76,17 @@ describe("handleRequest — bot/Accept negotiation", () => {
     expect(res.headers.get("x-middleware-rewrite")).toBe("https://example.com/md/blog/hello");
   });
 
+  it("keeps a bot UA on HTML when it explicitly requests text/html (spec §5)", () => {
+    const req = makeReq("https://example.com/blog/hello", {
+      "user-agent": "GPTBot/1.0",
+      accept: "text/html",
+    });
+    const res = handleRequest(req, FakeNextResponse, resolved);
+    expect(res.headers.get("x-middleware-rewrite")).toBeNull();
+    expect(res.headers.get("x-middleware-next")).toBe("1");
+    expect(res.headers.get("link")).toContain('</blog/hello.md>; rel="alternate"; type="text/markdown"');
+  });
+
   it("rewrites to /md/<path> for Accept: text/markdown", () => {
     const req = makeReq("https://example.com/blog/hello", { accept: "text/markdown" });
     const res = handleRequest(req, FakeNextResponse, resolved);

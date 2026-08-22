@@ -48,6 +48,21 @@ describe("createAEOHandler — markdown serving", () => {
     expect(await res.text()).toBe("# Post 1\n\nBody.");
   });
 
+  it("keeps a bot UA on HTML when it explicitly requests text/html (spec §5)", async () => {
+    const handler = createAEOHandler({
+      upstream: makeUpstream(files),
+    });
+    const req = new Request("https://acme.test/blog/post-1", {
+      headers: { "user-agent": "GPTBot/1.0", accept: "text/html" },
+    });
+    const res = await handler(req, makeInfo());
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toContain("text/html");
+    expect(res.headers.get("content-type")).not.toContain("text/markdown");
+    expect(res.headers.get("x-robots-tag")).toBeNull();
+    expect(await res.text()).toBe("<html>Post 1</html>");
+  });
+
   it("serves markdown when Accept: text/markdown (no bot UA)", async () => {
     const handler = createAEOHandler({
       upstream: makeUpstream(files),

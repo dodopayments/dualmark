@@ -2,6 +2,7 @@ import {
   detectAIBot,
   estimateTokens,
   negotiateFormat,
+  shouldServeMarkdown,
   toMarkdownPath,
 } from "@dualmark/core";
 import type {
@@ -167,7 +168,7 @@ export function createAEOHandler(options: CreateAEOHandlerOptions): AEODenoHandl
         );
       }
 
-      const serveMarkdown = bot.isBot || fmt === "markdown";
+      const serveMarkdown = shouldServeMarkdown(accept, bot.isBot);
 
       if (serveMarkdown) {
         const mdPath = toMarkdownPath(pathname);
