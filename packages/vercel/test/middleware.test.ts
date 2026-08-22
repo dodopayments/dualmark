@@ -410,6 +410,26 @@ describe("createAEOMiddleware — Link header injection", () => {
     const res = await middleware(new Request("https://acme.test/page"), makeCtx());
     expect(res.headers.get("link")).toBeNull();
   });
+
+  it("sets Vary: Accept on HTML even when the Link header is disabled", async () => {
+    const htmlResponse = new Response("<html></html>", {
+      headers: { "Content-Type": "text/html" },
+    });
+    const middleware = createAEOMiddleware({
+      upstream: makeUpstream(() => htmlResponse),
+      fetchAsset,
+      enableLinkHeader: false,
+    });
+    const req = new Request("https://acme.test/page", {
+      headers: {
+        "user-agent": "Mozilla/5.0 Chrome/130",
+        accept: "text/html,*/*;q=0.8",
+      },
+    });
+    const res = await middleware(req, makeCtx());
+    expect((res.headers.get("vary") ?? "").toLowerCase()).toContain("accept");
+    expect(res.headers.get("link")).toBeNull();
+  });
 });
 
 describe("createAEOMiddleware — edge cases", () => {

@@ -135,6 +135,20 @@ describe("handleRequest — bot/Accept negotiation", () => {
     const res = handleRequest(req, FakeNextResponse, r);
     expect(res.headers.get("link")).toBeNull();
   });
+
+  it("sets Vary: Accept on HTML even when the Link header is disabled", () => {
+    const r = resolveConfig({
+      siteUrl: "https://example.com",
+      middleware: { injectLinkHeader: false },
+    });
+    const req = makeReq("https://example.com/blog/hello", {
+      "user-agent": "Mozilla/5.0 Chrome/130",
+      accept: "text/html,*/*;q=0.8",
+    });
+    const res = handleRequest(req, FakeNextResponse, r);
+    expect((res.headers.get("vary") ?? "").toLowerCase()).toContain("accept");
+    expect(res.headers.get("link")).toBeNull();
+  });
 });
 
 describe("handleRequest — skip rules", () => {

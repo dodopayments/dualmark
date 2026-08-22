@@ -393,6 +393,25 @@ describe("createAEOWorker — Link header injection", () => {
     expect(res.headers.get("link")).toBeNull();
   });
 
+  it("sets Vary: Accept on HTML even when the Link header is disabled", async () => {
+    const assets = makeAssets({});
+    const worker = createAEOWorker({ assets, enableLinkHeader: false });
+    const req = new Request("https://acme.test/page", {
+      headers: {
+        "user-agent": "Mozilla/5.0 Chrome/130",
+        accept: "text/html,*/*;q=0.8",
+      },
+    });
+    const res = await worker(
+      req,
+      makeContext(
+        () => new Response("<html></html>", { headers: { "Content-Type": "text/html" } }),
+      ),
+    );
+    expect((res.headers.get("vary") ?? "").toLowerCase()).toContain("accept");
+    expect(res.headers.get("link")).toBeNull();
+  });
+
   it("appends Accept to existing Vary header", async () => {
     const assets = makeAssets({});
     const worker = createAEOWorker({ assets });

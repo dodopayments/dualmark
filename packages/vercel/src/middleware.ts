@@ -286,11 +286,7 @@ export function createAEOMiddleware(
 
     const upstreamResponse = await options.upstream(request);
 
-    if (
-      enableLinkHeader &&
-      !shouldSkip(pathname, skipPrefixes, skipExtensions) &&
-      !pathname.endsWith(".md")
-    ) {
+    if (!shouldSkip(pathname, skipPrefixes, skipExtensions) && !pathname.endsWith(".md")) {
       const ct = upstreamResponse.headers.get("content-type");
       // Passthrough responses (e.g. NextResponse.next()) have no content-type yet —
       // always inject. For concrete responses, only inject on text/html.
@@ -298,14 +294,15 @@ export function createAEOMiddleware(
         const mdPath = toMarkdownPath(pathname);
         try {
           // Fast path: mutate headers in-place (works for NextResponse.next() and
-          // freshly constructed Response objects).
-          appendLinkHeader(upstreamResponse.headers, mdPath);
+          // freshly constructed Response objects). Vary: Accept is always required
+          // on a negotiable page; the Link header is opt-out via enableLinkHeader.
           appendVaryAccept(upstreamResponse.headers);
+          if (enableLinkHeader) appendLinkHeader(upstreamResponse.headers, mdPath);
         } catch {
           // Immutable headers (e.g. from fetch()) — clone into new Response.
           const newHeaders = new Headers(upstreamResponse.headers);
-          appendLinkHeader(newHeaders, mdPath);
           appendVaryAccept(newHeaders);
+          if (enableLinkHeader) appendLinkHeader(newHeaders, mdPath);
           return new Response(upstreamResponse.body, {
             status: upstreamResponse.status,
             statusText: upstreamResponse.statusText,

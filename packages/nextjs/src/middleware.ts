@@ -139,12 +139,14 @@ export function handleRequest(
   }
 
   const res = NextResponse.next();
+  // Vary: Accept is always required on a negotiable page; the Link header is
+  // opt-out via injectLinkHeader.
+  appendVaryAccept(res.headers);
   if (resolved.middleware.injectLinkHeader) {
     const mdPath = toMarkdownPath(pathname);
     const link = `<${mdPath}>; rel="alternate"; type="text/markdown"`;
     const existing = res.headers.get("Link");
     res.headers.set("Link", existing ? `${existing}, ${link}` : link);
-    appendVaryAccept(res.headers);
   }
   return res;
 }
