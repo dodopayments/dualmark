@@ -17,7 +17,7 @@
     },
     "apps/docs": {
       "name": "dualmark-docs",
-      "version": "0.0.6",
+      "version": "0.0.7",
       "dependencies": {
         "@dualmark/cli": "workspace:^",
         "@dualmark/core": "workspace:^",
@@ -46,7 +46,7 @@
     },
     "examples/astro-blog": {
       "name": "dualmark-example-astro-blog",
-      "version": "0.0.10",
+      "version": "0.0.11",
       "dependencies": {
         "@dualmark/astro": "workspace:*",
         "@dualmark/converters": "workspace:*",
@@ -56,7 +56,7 @@
     },
     "examples/astro-cloudflare-full": {
       "name": "dualmark-example-astro-cloudflare-full",
-      "version": "0.0.10",
+      "version": "0.0.11",
       "dependencies": {
         "@dualmark/astro": "workspace:*",
         "@dualmark/cloudflare": "workspace:*",
@@ -71,7 +71,7 @@
     },
     "examples/fastly-compute": {
       "name": "fastly-compute-example",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "dependencies": {
         "@dualmark/core": "workspace:*",
         "@dualmark/fastly": "workspace:*",
@@ -82,7 +82,7 @@
     },
     "examples/netlify-edge": {
       "name": "dualmark-example-netlify-edge",
-      "version": "0.0.2",
+      "version": "0.0.3",
       "dependencies": {
         "@dualmark/astro": "workspace:*",
         "@dualmark/converters": "workspace:*",
@@ -97,7 +97,7 @@
     },
     "examples/nextjs-app-router": {
       "name": "dualmark-example-nextjs-app-router",
-      "version": "0.0.9",
+      "version": "0.0.10",
       "dependencies": {
         "@dualmark/converters": "workspace:*",
         "@dualmark/core": "workspace:*",
@@ -125,7 +125,7 @@
     },
     "examples/sanity-astro": {
       "name": "dualmark-example-sanity-astro",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@dualmark/astro": "workspace:*",
         "@dualmark/converters": "workspace:*",
@@ -143,7 +143,7 @@
     },
     "examples/sveltekit-blog": {
       "name": "dualmark-example-sveltekit-blog",
-      "version": "0.0.3",
+      "version": "0.0.4",
       "dependencies": {
         "@dualmark/converters": "workspace:*",
         "@dualmark/core": "workspace:*",
@@ -160,7 +160,7 @@
     },
     "examples/vercel-edge-full": {
       "name": "dualmark-example-vercel-edge-full",
-      "version": "0.0.3",
+      "version": "0.0.4",
       "dependencies": {
         "@dualmark/core": "workspace:*",
         "@dualmark/vercel": "workspace:*",
@@ -177,7 +177,7 @@
     },
     "packages/astro": {
       "name": "@dualmark/astro",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "dependencies": {
         "@dualmark/converters": "workspace:*",
         "@dualmark/core": "workspace:*",
@@ -195,7 +195,7 @@
     },
     "packages/cli": {
       "name": "@dualmark/cli",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "bin": {
         "dualmark": "./dist/cli.js",
       },
@@ -211,7 +211,7 @@
     },
     "packages/cloudflare": {
       "name": "@dualmark/cloudflare",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "dependencies": {
         "@dualmark/core": "workspace:*",
       },
@@ -225,7 +225,7 @@
     },
     "packages/converters": {
       "name": "@dualmark/converters",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "dependencies": {
         "@dualmark/core": "workspace:*",
       },
@@ -238,7 +238,7 @@
     },
     "packages/core": {
       "name": "@dualmark/core",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "devDependencies": {
         "@types/node": "^22.10.0",
         "@vitest/coverage-v8": "^2.1.8",
@@ -250,7 +250,7 @@
     },
     "packages/deno": {
       "name": "@dualmark/deno",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "dependencies": {
         "@dualmark/core": "workspace:*",
       },
@@ -263,7 +263,7 @@
     },
     "packages/fastly": {
       "name": "@dualmark/fastly",
-      "version": "0.1.0",
+      "version": "0.11.0",
       "dependencies": {
         "@dualmark/core": "workspace:*",
       },
@@ -277,7 +277,7 @@
     },
     "packages/netlify": {
       "name": "@dualmark/netlify",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "dependencies": {
         "@dualmark/core": "workspace:*",
       },
@@ -291,7 +291,7 @@
     },
     "packages/nextjs": {
       "name": "@dualmark/nextjs",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "dependencies": {
         "@dualmark/converters": "workspace:*",
         "@dualmark/core": "workspace:*",
@@ -309,7 +309,7 @@
     },
     "packages/nuxt": {
       "name": "@dualmark/nuxt",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "dependencies": {
         "@dualmark/converters": "workspace:*",
         "@dualmark/core": "workspace:*",
@@ -330,7 +330,7 @@
     },
     "packages/sveltekit": {
       "name": "@dualmark/sveltekit",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "dependencies": {
         "@dualmark/converters": "workspace:*",
         "@dualmark/core": "workspace:*",
@@ -350,7 +350,7 @@
     },
     "packages/vercel": {
       "name": "@dualmark/vercel",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "dependencies": {
         "@dualmark/core": "workspace:*",
       },

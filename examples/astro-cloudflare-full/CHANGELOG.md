@@ -1,5 +1,21 @@
 # dualmark-example-astro-cloudflare-full
 
+## 0.0.11
+
+### Patch Changes
+
+- Updated dependencies [8611bed]
+- Updated dependencies [8424d5e]
+- Updated dependencies [ba3ae37]
+- Updated dependencies [6b8572e]
+- Updated dependencies [ccd1929]
+- Updated dependencies [f513326]
+- Updated dependencies [c6fee24]
+  - @dualmark/converters@0.11.0
+  - @dualmark/core@0.11.0
+  - @dualmark/cloudflare@0.11.0
+  - @dualmark/astro@0.11.0
+
 ## 0.0.10
 
 ### Patch Changes

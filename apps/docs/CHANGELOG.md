@@ -1,5 +1,15 @@
 # dualmark-docs
 
+## 0.0.7
+
+### Patch Changes
+
+- Updated dependencies [8424d5e]
+- Updated dependencies [ba3ae37]
+- Updated dependencies [f513326]
+  - @dualmark/core@0.11.0
+  - @dualmark/cli@0.11.0
+
 ## 0.0.6
 
 ### Patch Changes
