@@ -70,7 +70,11 @@ export function cleanBody(body: string, opts: CleanBodyOptions = {}): string {
   let out = stripImg ? stripImages(body) : body;
 
   for (const [tag, marker] of Object.entries(replacements)) {
-    const re = new RegExp(`<${tag}>(.*?)<\\/${tag}>`, "g");
+    // `s` (dotAll) so a tag whose content spans multiple lines is still
+    // replaced; without it a multi-line `<Tag>…</Tag>` leaks its raw markup
+    // into the cleaned markdown. `.*?` stays lazy, so it still stops at the
+    // first closing tag.
+    const re = new RegExp(`<${tag}>(.*?)<\\/${tag}>`, "gs");
     out = out.replace(re, `${marker}$1${marker}`);
   }
 
