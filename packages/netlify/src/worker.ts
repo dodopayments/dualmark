@@ -269,7 +269,7 @@ export function createAEOWorker(
     if (
       !shouldSkip(pathname, skipPrefixes, skipExtensions) &&
       !pathname.endsWith(".md") &&
-      originResponse.headers.get("content-type")?.includes("text/html")
+      originResponse.headers.get("content-type")?.toLowerCase().includes("text/html")
     ) {
       const newHeaders = new Headers(originResponse.headers);
       const vary = newHeaders.get("Vary");

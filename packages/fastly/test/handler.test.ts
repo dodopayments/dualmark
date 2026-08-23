@@ -158,6 +158,30 @@ describe("Fastly Adapter", () => {
       expect(fetch).toHaveBeenCalledWith(req, { backend: "default_backend" });
     });
 
+    it("injects Link and Vary on HTML with a mixed-case Content-Type", async () => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(
+          async () =>
+            new Response("<html></html>", {
+              status: 200,
+              headers: { "Content-Type": "Text/HTML; charset=UTF-8" },
+            }),
+        ),
+      );
+      const handler = createAEORequestHandler({ backend: "default_backend" });
+      const req = new Request("https://acme.test/page", {
+        headers: {
+          "user-agent": "Mozilla/5.0 Chrome/130",
+          accept: "text/html,*/*;q=0.8",
+        },
+      });
+      const res = await handler(req);
+      expect(res.status).toBe(200);
+      expect(res.headers.get("link")).toContain('rel="alternate"');
+      expect(res.headers.get("vary")).toContain("Accept");
+    });
+
     it("handles missing .md (cache miss) for bot — falls to upstream HTML", async () => {
       const handler = createAEORequestHandler({
         backend: "default_backend",

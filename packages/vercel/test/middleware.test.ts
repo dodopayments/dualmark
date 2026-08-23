@@ -446,6 +446,27 @@ describe("createAEOMiddleware — Link header injection", () => {
     expect((res.headers.get("vary") ?? "").toLowerCase()).toContain("accept");
     expect(res.headers.get("link")).toBeNull();
   });
+
+  it("injects Link and Vary on HTML with a mixed-case Content-Type", async () => {
+    const middleware = createAEOMiddleware({
+      upstream: makeUpstream(
+        () =>
+          new Response("<html></html>", {
+            headers: { "Content-Type": "Text/HTML; charset=UTF-8" },
+          }),
+      ),
+      fetchAsset,
+    });
+    const req = new Request("https://acme.test/page", {
+      headers: {
+        "user-agent": "Mozilla/5.0 Chrome/130",
+        accept: "text/html,*/*;q=0.8",
+      },
+    });
+    const res = await middleware(req, makeCtx());
+    expect(res.headers.get("link")).toContain('rel="alternate"');
+    expect((res.headers.get("vary") ?? "").toLowerCase()).toContain("accept");
+  });
 });
 
 describe("createAEOMiddleware — edge cases", () => {

@@ -493,4 +493,23 @@ describe("createAEOWorker — default options", () => {
     expect(res.status).toBe(301);
     expect(res.headers.get("location")).toBe("https://acme.test/blog?ref=twitter");
   });
+
+  it("injects Link and Vary on HTML with a mixed-case Content-Type", async () => {
+    const assets = makeAssets({});
+    const worker = createAEOWorker({ assets });
+    const req = new Request("https://acme.test/page", {
+      headers: {
+        "user-agent": "Mozilla/5.0 Chrome/130",
+        accept: "text/html,*/*;q=0.8",
+      },
+    });
+    const res = await worker(
+      req,
+      makeContext(
+        () => new Response("<html></html>", { headers: { "Content-Type": "Text/HTML; charset=UTF-8" } }),
+      ),
+    );
+    expect(res.headers.get("link")).toContain('rel="alternate"');
+    expect((res.headers.get("vary") ?? "").toLowerCase()).toContain("accept");
+  });
 });
