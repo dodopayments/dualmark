@@ -4,6 +4,7 @@ import {
   parseAcceptHeader,
   mediaTypeMatches,
   negotiateFormat,
+  shouldServeMarkdown,
   registerFormat,
   getRegisteredFormats,
 } from "../src/negotiation.js";
@@ -294,5 +295,34 @@ describe("parseAcceptHeader — property tests", () => {
       }),
       { numRuns: 200 },
     );
+  });
+});
+
+describe("shouldServeMarkdown", () => {
+  it("serves markdown when Accept explicitly negotiates markdown (any UA)", () => {
+    expect(shouldServeMarkdown("text/markdown", false)).toBe(true);
+    expect(shouldServeMarkdown("text/markdown", true)).toBe(true);
+  });
+
+  it("serves markdown to a bot with no Accept or a wildcard Accept", () => {
+    expect(shouldServeMarkdown("", true)).toBe(true);
+    expect(shouldServeMarkdown("*/*", true)).toBe(true);
+    expect(shouldServeMarkdown("text/*", true)).toBe(true);
+  });
+
+  it("keeps a bot on HTML when it explicitly requests text/html (spec §5)", () => {
+    // "UA detection MUST NOT override an explicit Accept"
+    expect(shouldServeMarkdown("text/html", true)).toBe(false);
+  });
+
+  it("keeps a bot on HTML when HTML strictly outranks markdown", () => {
+    // Browser-like Accept from a bot UA: html=1.0 > markdown(via wildcard)=0.8
+    expect(shouldServeMarkdown("text/html,application/xhtml+xml,*/*;q=0.8", true)).toBe(false);
+  });
+
+  it("does not serve markdown to a non-bot unless Accept asks for it", () => {
+    expect(shouldServeMarkdown("", false)).toBe(false);
+    expect(shouldServeMarkdown("*/*", false)).toBe(false);
+    expect(shouldServeMarkdown("text/html", false)).toBe(false);
   });
 });

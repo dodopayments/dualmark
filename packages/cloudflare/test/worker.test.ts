@@ -97,6 +97,21 @@ describe("createAEOWorker — markdown serving", () => {
     expect(await res.text()).toBe("# Admin Guide");
   });
 
+  it("keeps a bot UA on HTML when it explicitly requests text/html (spec §5)", async () => {
+    const worker = createAEOWorker({
+      upstream: makeUpstream(() => new Response("html", { headers: { "Content-Type": "text/html" } })),
+    });
+    const req = new Request("https://acme.test/blog/post-1", {
+      headers: { "user-agent": "GPTBot/1.0", accept: "text/html" },
+    });
+    const res = await worker.fetch(req, env, makeCtx());
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toContain("text/html");
+    expect(res.headers.get("content-type")).not.toContain("text/markdown");
+    expect(res.headers.get("x-robots-tag")).toBeNull();
+    expect(await res.text()).toBe("html");
+  });
+
   it("serves markdown when Accept: text/markdown (no bot UA)", async () => {
     const worker = createAEOWorker({
       upstream: makeUpstream(() => new Response("html", { headers: { "Content-Type": "text/html" } })),
@@ -443,6 +458,25 @@ describe("createAEOWorker — Link header injection", () => {
       enableLinkHeader: false,
     });
     const res = await worker.fetch(new Request("https://acme.test/page"), env, makeCtx());
+    expect(res.headers.get("link")).toBeNull();
+  });
+
+  it("sets Vary: Accept on HTML even when the Link header is disabled", async () => {
+    const env: TestEnv = { ASSETS: makeAssets({}) };
+    const worker = createAEOWorker({
+      upstream: makeUpstream(
+        () => new Response("<html></html>", { headers: { "Content-Type": "text/html" } }),
+      ),
+      enableLinkHeader: false,
+    });
+    const req = new Request("https://acme.test/page", {
+      headers: {
+        "user-agent": "Mozilla/5.0 Chrome/130",
+        accept: "text/html,*/*;q=0.8",
+      },
+    });
+    const res = await worker.fetch(req, env, makeCtx());
+    expect((res.headers.get("vary") ?? "").toLowerCase()).toContain("accept");
     expect(res.headers.get("link")).toBeNull();
   });
 });

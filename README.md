@@ -309,8 +309,10 @@ Three conformance levels — **Basic** (60%), **Standard** (80%), **Advanced** (
 | [`@dualmark/astro`](./packages/astro) | `npm i @dualmark/astro` | 22 KB | Astro 5 integration. Auto-generates `.md` endpoints, ships middleware, generates `llms.txt`. |
 | [`@dualmark/nextjs`](./packages/nextjs) | `npm i @dualmark/nextjs` | 15 KB | Next.js App Router adapter. `withDualmark()`, `createDualmarkMiddleware()`, `createDualmarkRouteHandler()`, `createLlmsTxtHandler()`. |
 | [`@dualmark/sveltekit`](./packages/sveltekit) | `npm i @dualmark/sveltekit` | 19 KB | SvelteKit adapter. Vite route generator, `createDualmarkHandle()`, generated `.md` endpoints, and `llms.txt`. |
+| [`@dualmark/nuxt`](./packages/nuxt) | `npm i @dualmark/nuxt` | 15 KB | Nuxt module. Auto-generates `.md` endpoints, injects `Link rel="alternate"` middleware, generates `llms.txt`. |
 | [`@dualmark/cloudflare`](./packages/cloudflare) | `npm i @dualmark/cloudflare` | 9 KB | Workers edge adapter. Wraps any upstream Worker. Hooks for analytics + telemetry. |
 | [`@dualmark/fastly`](./packages/fastly) | `npm i @dualmark/fastly` | 9 KB | Fastly Compute edge adapter. Natively proxies to Fastly backends with background hooks. |
+| [`@dualmark/netlify`](./packages/netlify) | `npm i @dualmark/netlify` | 9 KB | Netlify Edge Functions adapter. Wraps `context.next()` and serves markdown to AI bots at the edge. |
 | [`@dualmark/vercel`](./packages/vercel) | `npm i @dualmark/vercel` | 9 KB | Vercel Edge Middleware adapter. `createAEOMiddleware()` wraps any upstream handler; serves pre-built `.md` with lifecycle hooks. |
 | [`@dualmark/deno`](./packages/deno) | `npm i @dualmark/deno` | 8 KB | Deno Deploy edge adapter. Wraps any Deno fetch handler. Lifecycle hooks scheduled on `info.completed`. |
 | [`@dualmark/cli`](./packages/cli) | `npm i -g @dualmark/cli` | 16 KB | `dualmark verify <url>`. Programmatic API too. |
@@ -320,7 +322,7 @@ Plus:
 - [**`spec/`**](./spec) — the **AEO Specification v1.0**. Public, framework-agnostic, RFC-2119-compliant. Implement it in Go, Rust, PHP, Ruby — your call.
 - [**`apps/docs/`**](./apps/docs) — Fumadocs site at [dualmark.dev](https://dualmark.dev)
 - [**`apps/docs/app/play`**](./apps/docs/app/play) — interactive Accept-header + UA tester. Live at [dualmark.dev/play](https://dualmark.dev/play).
-- [**`examples/`**](./examples) — seven end-to-end working examples (Astro, Astro+Cloudflare, Sanity+Astro, Next.js, SvelteKit, Deno, Vercel).
+- [**`examples/`**](./examples) — ten end-to-end working examples (Astro, Astro+Cloudflare, Sanity+Astro, Next.js, SvelteKit, Nuxt, Deno, Netlify, Fastly, Vercel).
 
 ---
 
@@ -337,6 +339,8 @@ Plus:
 | `@dualmark/astro` | 39 tests pass |
 | `@dualmark/nextjs` | 47 tests pass |
 | `@dualmark/sveltekit` | 17 tests pass |
+| `@dualmark/nuxt` | 37 tests pass |
+| `@dualmark/netlify` | 28 tests pass |
 | `@dualmark/vercel` | 28 tests pass |
 | `examples/astro-blog` | **80/80** under `astro dev` (`--skip-negotiation`) |
 | `examples/sanity-astro` | **80/80** under `astro dev` (`--skip-negotiation`) for fixture-backed blog + glossary docs |
@@ -360,8 +364,7 @@ bun run build && bun run test && bun run typecheck   # 407 tests across 9 packag
 
 We're building toward Dualmark being **the** AEO infrastructure for marketing sites — the same way Tailwind became the default for marketing CSS or Vercel for marketing hosting. The roadmap:
 
-- **More framework adapters**: Remix/React Router, Nuxt
-- **More edge adapters**: Netlify
+- **More framework adapters**: Remix/React Router
 - **More converters**: pricing tables, changelog, docs/API reference, status pages, integrations
 - **AEO Analytics**: a hosted dashboard on top of the `onAIRequest` hook, so marketing can see which bot reads which page, when
 - **Spec evolution toward AEO 1.1+** with structured data hints, per-section markdown anchors, and sitemap.md

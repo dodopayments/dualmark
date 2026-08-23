@@ -2,7 +2,10 @@ import {
   AstroLogo,
   CloudflareLogo,
   DenoLogo,
+  FastlyLogo,
+  NetlifyLogo,
   NextLogo,
+  NuxtLogo,
   SvelteLogo,
   VercelLogo,
 } from "@/components/brand-logos";
@@ -81,6 +84,16 @@ const adapters: Adapter[] = [
     Logo: SvelteLogo,
   },
   {
+    name: "Nuxt",
+    pkg: "@dualmark/nuxt",
+    desc: "Nuxt module. Auto-generates .md endpoints, injects Link rel=alternate middleware, generates llms.txt.",
+    install: "bun add @dualmark/nuxt",
+    score: "125/125",
+    status: "Stable",
+    accent: "oklch(0.78 0.17 160)",
+    Logo: NuxtLogo,
+  },
+  {
     name: "Deno",
     pkg: "@dualmark/deno",
     desc: "Deno Deploy edge adapter. Wraps any Deno fetch handler. Lifecycle hooks scheduled on info.completed.",
@@ -100,6 +113,26 @@ const adapters: Adapter[] = [
     accent: "oklch(0.985 0 0)",
     Logo: VercelLogo,
   },
+  {
+    name: "Netlify",
+    pkg: "@dualmark/netlify",
+    desc: "Netlify Edge Functions adapter. Wraps context.next() and serves markdown to AI bots at the edge.",
+    install: "bun add @dualmark/netlify",
+    score: "120/125",
+    status: "Stable",
+    accent: "oklch(0.78 0.13 190)",
+    Logo: NetlifyLogo,
+  },
+  {
+    name: "Fastly",
+    pkg: "@dualmark/fastly",
+    desc: "Fastly Compute edge adapter. Natively proxies to Fastly backends with background hooks.",
+    install: "bun add @dualmark/fastly",
+    score: "125/125",
+    status: "Stable",
+    accent: "oklch(0.72 0.19 25)",
+    Logo: FastlyLogo,
+  },
 ];
 
 export function Adapters() {
@@ -113,7 +146,7 @@ export function Adapters() {
             <span className="text-[var(--color-accent)]">your stack.</span>
           </>
         }
-        description="Six first-class adapters today. Nuxt, Remix, Netlify, and Fastly on the roadmap."
+        description="Nine first-class adapters today. Remix/React Router on the roadmap."
       />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

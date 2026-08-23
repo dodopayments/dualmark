@@ -252,7 +252,7 @@ function getMiddlewareCode(
 ) {
   return `
 import { defineEventHandler } from 'h3';
-import { negotiateFormat, detectAIBot, toMarkdownPath, markdownResponse, listingToMarkdown } from '@dualmark/core';
+import { negotiateFormat, shouldServeMarkdown, detectAIBot, toMarkdownPath, markdownResponse, listingToMarkdown } from '@dualmark/core';
 import { resolveBuiltInConverter } from ${JSON.stringify(resolverPath)};
 ${collectionCode}
 ${tokenizerDecl}const dualmarkConfig = ${dualmarkConfigStr};
@@ -281,10 +281,16 @@ export default defineEventHandler(async (event) => {
 
   // 406: client's Accept explicitly excludes both text/html and text/markdown
   if (!isMd && format === null && !botInfo.isBot) {
-    return new Response('Not Acceptable', { status: 406 });
+    return new Response('Not Acceptable\\n\\nSupported types: text/html, text/markdown\\n', {
+      status: 406,
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        Vary: 'Accept',
+      },
+    });
   }
 
-  const serveMarkdown = isMd || botInfo.isBot || format === 'markdown';
+  const serveMarkdown = isMd || shouldServeMarkdown(accept, botInfo.isBot);
 
   if (!serveMarkdown) {
     // Regular HTML request — pass through to Nuxt SSR.

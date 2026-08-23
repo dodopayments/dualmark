@@ -1,5 +1,5 @@
 import { defineEventHandler, getRequestHeader } from 'h3';
-import { negotiateFormat, detectAIBot, markdownResponse, listingToMarkdown } from '@dualmark/core';
+import { negotiateFormat, shouldServeMarkdown, detectAIBot, markdownResponse, listingToMarkdown } from '@dualmark/core';
 import type { Converter, CollectionEntry } from '@dualmark/converters';
 import type { H3Event } from 'h3';
 
@@ -35,10 +35,16 @@ export function makeCollectionMiddleware<TEntry = CollectionEntry<unknown>>(
     const format = negotiateFormat(accept);
 
     if (!isMd && format === null && !botInfo.isBot) {
-      return new Response('Not Acceptable', { status: 406 });
+      return new Response('Not Acceptable\n\nSupported types: text/html, text/markdown\n', {
+        status: 406,
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          Vary: 'Accept',
+        },
+      });
     }
 
-    const serveMarkdown = isMd || botInfo.isBot || format === 'markdown';
+    const serveMarkdown = isMd || shouldServeMarkdown(accept, botInfo.isBot);
 
     if (!serveMarkdown) {
       // Regular HTML request — pass through to Nuxt SSR.

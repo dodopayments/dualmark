@@ -52,6 +52,10 @@ export function blogConverter(
       footer.push(`- [All articles](${config.siteUrl}${basePath})`);
     }
     if (config.brandFooter) footer.push("", config.brandFooter);
-    return normalizeUnicode(base + footer.join("\n"));
+    // Separate the body from the footer with a blank line. `base` ends with the
+    // body's last line (no trailing newline) and `footer` starts with "---";
+    // without the blank line CommonMark parses "lastline\n---" as a setext H2,
+    // turning the final body line into a heading and swallowing the rule.
+    return normalizeUnicode(base + "\n" + footer.join("\n"));
   };
 }

@@ -125,3 +125,25 @@ export function negotiateFormat<T extends string = "html" | "markdown">(
 
   return best === null ? null : (best as { fmt: T; q: number; idx: number }).fmt;
 }
+
+/**
+ * Decide whether a request should be served the markdown twin instead of HTML.
+ *
+ * This encodes the AEO spec §5 rule for UA-based markdown: a known AI bot MAY
+ * receive markdown, but "UA detection MUST NOT override an explicit `Accept`".
+ * Markdown is served when either:
+ *
+ *   1. RFC 7231 negotiation on the `Accept` header already picks markdown, or
+ *   2. the request is from a known AI bot AND markdown is at least as
+ *      acceptable as HTML for that `Accept` header.
+ *
+ * Case 2 is checked by negotiating with markdown listed first, so a tie (a
+ * wildcard Accept, or no Accept at all) resolves to markdown for bots, while an
+ * explicit `Accept: text/html` (where HTML strictly outranks markdown, or
+ * markdown is not acceptable at all) keeps the bot on HTML.
+ */
+export function shouldServeMarkdown(accept: string, isBot: boolean): boolean {
+  if (negotiateFormat(accept) === "markdown") return true;
+  if (!isBot) return false;
+  return negotiateFormat(accept, ["markdown", "html"]) === "markdown";
+}

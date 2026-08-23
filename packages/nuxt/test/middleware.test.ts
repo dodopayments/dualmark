@@ -54,6 +54,9 @@ describe('makeCollectionMiddleware content negotiation', () => {
     const res = await handler(event) as Response;
     expect(res).toBeInstanceOf(Response);
     expect(res.status).toBe(406);
+    // Spec section 4: a 406 MUST set Vary: Accept and should be typed text/plain.
+    expect((res.headers.get('vary') ?? '').toLowerCase()).toContain('accept');
+    expect(res.headers.get('content-type')).toContain('text/plain');
   });
 
   it('serves markdown if .md extension is used', async () => {
@@ -76,6 +79,15 @@ describe('makeCollectionMiddleware content negotiation', () => {
     });
     const res = await handler(event) as Response;
     expect(await res.text()).toContain('# Post 1');
+  });
+
+  it('keeps a bot UA on HTML when it explicitly requests text/html (spec §5)', async () => {
+    const event = createFakeEvent('/blog/post-1', {
+      'user-agent': 'GPTBot/1.0',
+      accept: 'text/html',
+    });
+    const res = await handler(event);
+    expect(res).toBeUndefined();
   });
 
   it('returns 404 Response for non-existent markdown slugs', async () => {

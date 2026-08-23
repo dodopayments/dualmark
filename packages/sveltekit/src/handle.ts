@@ -2,6 +2,7 @@ import {
   detectAIBot,
   injectMarkdownAlternateLink,
   negotiateFormat,
+  shouldServeMarkdown,
   toMarkdownPath,
 } from "@dualmark/core";
 import { resolveConfig } from "./config-validation.js";
@@ -68,7 +69,7 @@ export async function handleRequest(
     const bot = detectAIBot(userAgent);
     const format = negotiateFormat(accept);
 
-    if (bot.isBot || format === "markdown") {
+    if (shouldServeMarkdown(accept, bot.isBot)) {
       return fetchMarkdownTwin(event, pathname);
     }
 
@@ -78,13 +79,29 @@ export async function handleRequest(
   }
 
   const response = await resolve(event);
-  if (!resolved.middleware.injectLinkHeader) return response;
   if (pathname.endsWith(".md")) return response;
 
   const contentType = response.headers.get("content-type") ?? "";
   if (!contentType.toLowerCase().includes("text/html")) return response;
 
-  return injectMarkdownAlternateLink(response, pathname, toMarkdownPath(pathname));
+  if (resolved.middleware.injectLinkHeader) {
+    return injectMarkdownAlternateLink(response, pathname, toMarkdownPath(pathname));
+  }
+
+  // Even with the Link header disabled, a negotiable HTML page MUST advertise
+  // Vary: Accept so a shared cache does not serve it to a markdown client.
+  const headers = new Headers(response.headers);
+  const vary = headers.get("Vary");
+  if (!vary) {
+    headers.set("Vary", "Accept");
+  } else if (!vary.split(",").map((s) => s.trim().toLowerCase()).includes("accept")) {
+    headers.set("Vary", `${vary}, Accept`);
+  }
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 }
 
 export function createDualmarkHandle(input: DualmarkSvelteKitConfig): DualmarkHandle {
