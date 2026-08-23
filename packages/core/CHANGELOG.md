@@ -1,5 +1,25 @@
 # @dualmark/core
 
+## 0.11.0
+
+### Minor Changes
+
+- 8424d5e: Respect an explicit `Accept: text/html` from AI bot user agents.
+
+  Per AEO spec section 5, UA-based markdown negotiation must not override an explicit `Accept`. Until now every edge and framework adapter served the markdown twin whenever the request came from a known bot UA, even when that request asked for `Accept: text/html`. A search or preview crawler that sends a bot UA together with `Accept: text/html` was therefore handed `text/markdown` with `X-Robots-Tag: noindex` on the canonical URL.
+
+  `@dualmark/core` now exports `shouldServeMarkdown(accept, isBot)`, which keeps the UA-based markdown extension but defers to RFC 7231 negotiation when the client states a concrete format preference. All adapters use it, so a bot UA now stays on HTML when it explicitly requests `text/html`, while `Accept: */*`, no `Accept`, and `Accept: text/markdown` behave exactly as before.
+
+### Patch Changes
+
+- ba3ae37: Fix `cleanBody` leaking raw tags when a tag spans multiple lines.
+
+  The HTML-tag replacement (e.g. `<Highlighted>…</Highlighted>` to `**…**`, and any custom `htmlTagReplacements`) used a regex without the dotAll flag, so `.` never matched newlines. A tag whose content spanned more than one line was left untouched, leaking raw markup into the cleaned markdown that AI clients read. The regex now uses the `s` flag while keeping the lazy match, so multi-line tags are converted and adjacent tags are not merged.
+
+- f513326: Fix `toMarkdownPath` doubling the extension on a `.md` path with a trailing slash.
+
+  The `.md` idempotency check ran before trailing slashes were stripped, so `toMarkdownPath("/blog/post.md/")` returned `/blog/post.md.md` (and `toMarkdownUrl` produced the same doubled path), which would 404. Trailing slashes are now stripped first, so a markdown path with a trailing slash maps back to itself. All other cases (root to `/index.md`, trailing-slash stripping, deep nesting) are unchanged.
+
 ## 0.10.0
 
 ### Minor Changes

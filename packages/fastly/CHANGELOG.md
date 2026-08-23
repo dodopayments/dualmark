@@ -1,6 +1,10 @@
-# @dualmark/nuxt
+# @dualmark/fastly
 
 ## 0.11.0
+
+### Minor Changes
+
+- 478b5f3: Initial Fastly Compute adapter.
 
 ### Patch Changes
 
@@ -10,26 +14,11 @@
 
   `@dualmark/core` now exports `shouldServeMarkdown(accept, isBot)`, which keeps the UA-based markdown extension but defers to RFC 7231 negotiation when the client states a concrete format preference. All adapters use it, so a bot UA now stays on HTML when it explicitly requests `text/html`, while `Accept: */*`, no `Accept`, and `Accept: text/markdown` behave exactly as before.
 
-- 3501da1: Set the required headers on the Nuxt 406 response.
+- 6b8572e: Match the HTML `Content-Type` case-insensitively when deciding to inject `Vary: Accept` and the `Link` alternate header.
 
-  When a request explicitly excluded both `text/html` and `text/markdown`, the Nuxt adapter returned `new Response('Not Acceptable', { status: 406 })` with no headers. The spec (content-negotiation.md section 4) requires a 406 to set `Vary: Accept`, and it should carry a `Content-Type` and a body listing the supported types. The 406 now matches the other adapters: `Content-Type: text/plain; charset=utf-8`, `Vary: Accept`, and a supported-types body. This applies to both the generated collection middleware and the runtime middleware.
+  HTTP media types are case-insensitive (RFC 7231 §3.1.1.1), but the cloudflare, deno, fastly, netlify and vercel adapters gated markdown-twin advertisement on a case-sensitive `contentType.includes("text/html")`. An upstream that emitted `Content-Type: Text/HTML` (or any non-lowercase spelling) skipped the block, so the negotiable HTML response was returned without `Vary: Accept` — risking a shared cache serving HTML to a markdown client — and without the `Link rel="alternate"` twin. The check now lowercases the header first, matching the astro, nuxt and sveltekit adapters which already did this.
 
-- Updated dependencies [8611bed]
 - Updated dependencies [8424d5e]
 - Updated dependencies [ba3ae37]
 - Updated dependencies [f513326]
-  - @dualmark/converters@0.11.0
   - @dualmark/core@0.11.0
-
-## 0.10.0
-
-### Minor Changes
-
-- 2552ce1: Implemented a new @dualmark/nuxt integration
-
-### Patch Changes
-
-- Updated dependencies [2d8f839]
-- Updated dependencies [d2c271d]
-  - @dualmark/converters@0.10.0
-  - @dualmark/core@0.10.0
