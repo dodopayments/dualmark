@@ -292,6 +292,15 @@ describe("createAEOHandler — Link header injection", () => {
     const res = await handler(new Request("https://acme.test/data"), makeInfo());
     expect(res.headers.get("link")).toBeNull();
   });
+
+  it("injects Link and Vary on HTML with a mixed-case Content-Type", async () => {
+    const upstream: DenoUpstreamHandler = async () =>
+      new Response("<html></html>", { headers: { "Content-Type": "Text/HTML; charset=UTF-8" } });
+    const handler = createAEOHandler({ upstream });
+    const res = await handler(new Request("https://acme.test/page"), makeInfo());
+    expect(res.headers.get("link")).toContain('rel="alternate"');
+    expect((res.headers.get("vary") ?? "").toLowerCase()).toContain("accept");
+  });
 });
 
 describe("createAEOHandler — direct .md handling", () => {

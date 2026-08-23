@@ -275,7 +275,7 @@ export function createAEOHandler(options: CreateAEOHandlerOptions): AEODenoHandl
     if (
       !shouldSkip(pathname, skipPrefixes, skipExtensions) &&
       !pathname.endsWith(".md") &&
-      upstreamResponse.headers.get("content-type")?.includes("text/html")
+      upstreamResponse.headers.get("content-type")?.toLowerCase().includes("text/html")
     ) {
       const newHeaders = new Headers(upstreamResponse.headers);
       const vary = newHeaders.get("Vary");

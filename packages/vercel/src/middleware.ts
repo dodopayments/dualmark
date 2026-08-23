@@ -295,7 +295,7 @@ export function createAEOMiddleware(
       const ct = upstreamResponse.headers.get("content-type");
       // Passthrough responses (e.g. NextResponse.next()) have no content-type yet —
       // always inject. For concrete responses, only inject on text/html.
-      if (!ct || ct.includes("text/html")) {
+      if (!ct || ct.toLowerCase().includes("text/html")) {
         const mdPath = toMarkdownPath(pathname);
         try {
           // Fast path: mutate headers in-place (works for NextResponse.next() and
