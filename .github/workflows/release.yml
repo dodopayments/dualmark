@@ -48,11 +48,13 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       # npm Trusted Publishing (OIDC) requires npm >= 11.5.1, but Node 22
-      # ships npm 10.x. Pin an explicit version rather than @latest because
-      # `npm install -g npm@latest` has hit broken self-upgrade chains
-      # (missing transitive deps like promise-retry).
+      # ships npm 10.x. We pin 11.6.2 rather than the 11.5.1 floor: 11.5.2
+      # fixed an OIDC/provenance ordering bug (npm/cli#8467) and 11.6.2 is the
+      # version reported to actually resolve trusted-publishing failures in the
+      # wild (npm/cli#9088). Pin (not @latest) for reproducible release runs;
+      # bump this deliberately.
       - name: Upgrade npm for trusted publishing
-        run: npm install -g npm@11.5.1
+        run: npm install -g npm@11.6.2
 
       # Refresh bun.lock workspace metadata so `bun pm pack` (later step)
       # rewrites `workspace:*` deps in the tarball to the tag's actual
@@ -118,23 +120,64 @@ jobs:
         # `id-token: write` OIDC identity that signs provenance also
         # authenticates the publish, so `npm publish` needs no NODE_AUTH_TOKEN.
         # Each @dualmark/* package must have this repo + this workflow file
-        # (release.yml) registered as a trusted publisher on npmjs.com. With
-        # OIDC, `--provenance` is implied and can be omitted, but we keep it
-        # explicit for clarity.
+        # (release.yml) registered as a trusted publisher on npmjs.com.
+        # `--provenance` is kept explicit: npm's OIDC auto-enable path only
+        # fires when `provenance` is at its default config state, so passing
+        # the flag guarantees provenance rather than relying on that branch.
+        #
+        # NODE_AUTH_TOKEN is unset here on purpose. `actions/setup-node`
+        # (in the setup composite) writes an npmrc and exports NODE_AUTH_TOKEN
+        # defaulted to a literal placeholder ("XXXXX-...") when no real token
+        # is supplied. That placeholder is a syntactically valid credential,
+        # so if the OIDC exchange fails (`oidc()` is designed to never throw),
+        # npm would skip its ENEEDAUTH fail-fast and PUT with the dummy token —
+        # surfacing a trusted-publisher misconfig as an opaque 404 instead of
+        # an auth error (npm/cli#9088). Clearing it forces a loud, correct
+        # failure. `--loglevel verbose` makes the `oidc` log lines visible.
+        env:
+          NODE_AUTH_TOKEN: ""
         run: |
-          set -euo pipefail
-          published_count=0
+          set -uo pipefail
+
+          # Pre-flight: build the list of packages that still need publishing,
+          # so a bad state is visible before the first PUT rather than halfway
+          # through. `npm view` runs unauthenticated against the public
+          # registry (the idempotent-skip signal).
+          to_publish=()
+          echo "::group::Pre-flight — packages pending publish"
           for pkg_dir in packages/*; do
-            if [ ! -f "$pkg_dir/package.json" ]; then continue; fi
+            [ -f "$pkg_dir/package.json" ] || continue
             pkg_name=$(node -p "require('./$pkg_dir/package.json').name")
             pkg_version=$(node -p "require('./$pkg_dir/package.json').version")
             published=$(npm view "$pkg_name@$pkg_version" version --silent 2>/dev/null || true)
             if [ -n "$published" ]; then
-              echo "::group::$pkg_name@$pkg_version (skip — already on npm)"
-              echo "  registry reports version: $published"
-              echo "::endgroup::"
-              continue
+              echo "  $pkg_name@$pkg_version — already on npm, will skip"
+            else
+              echo "  $pkg_name@$pkg_version — PENDING"
+              to_publish+=("$pkg_dir")
             fi
+          done
+          echo "::endgroup::"
+
+          if [ "${#to_publish[@]}" -eq 0 ]; then
+            echo "Nothing to publish — every package version is already on npm."
+            exit 0
+          fi
+
+          # Publish each pending package. Do NOT abort the whole loop on a
+          # single failure: auth is now per-package (each needs its own
+          # trusted-publisher registration), so one misconfigured or
+          # un-bootstrapped package (e.g. a brand-new adapter that has never
+          # had a manual first publish) must not strand the rest. Re-runs are
+          # idempotent via the pre-flight skip, so continue-on-error is safe.
+          # Failures are collected and re-raised at the end so the job still
+          # goes red.
+          published_count=0
+          failed=()
+          for pkg_dir in "${to_publish[@]}"; do
+            pkg_name=$(node -p "require('./$pkg_dir/package.json').name")
+            pkg_version=$(node -p "require('./$pkg_dir/package.json').version")
+
             echo "::group::Packing $pkg_name@$pkg_version"
             # `bun pm pack --quiet` prints the tarball filename, but bun 1.3.5
             # wraps it in stray whitespace — a leading \n on Linux runners
@@ -148,14 +191,26 @@ jobs:
             tarball_abs="$(cd "$pkg_dir" && readlink -f "$tarball")"
             if [ ! -f "$tarball_abs" ]; then
               echo "::error::bun pm pack produced no tarball at expected path: $tarball_abs"
-              exit 1
+              echo "::endgroup::"
+              failed+=("$pkg_name@$pkg_version (pack)")
+              continue
             fi
             echo "  tarball: $tarball_abs"
             echo "::endgroup::"
+
             echo "::group::Publishing $pkg_name@$pkg_version (with provenance)"
-            npm publish "$tarball_abs" --access public --tag latest --provenance
+            if npm publish "$tarball_abs" --access public --tag latest --provenance --loglevel verbose; then
+              published_count=$((published_count + 1))
+            else
+              echo "::error::Failed to publish $pkg_name@$pkg_version — check the trusted-publisher registration on npmjs.com for this package (repo dodopayments/dualmark + workflow release.yml). A brand-new package needs a manual first publish before OIDC can take over."
+              failed+=("$pkg_name@$pkg_version (publish)")
+            fi
             echo "::endgroup::"
-            published_count=$((published_count + 1))
           done
+
           echo ""
           echo "Published $published_count package(s) to npm with provenance attestation."
+          if [ "${#failed[@]}" -gt 0 ]; then
+            echo "::error::${#failed[@]} package(s) failed: ${failed[*]}"
+            exit 1
+          fi
