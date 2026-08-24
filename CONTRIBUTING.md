@@ -73,12 +73,21 @@ Publishing the release fires the **`Release (npm publish)`** workflow which:
 - Publishes each tarball with `npm publish <tarball> --provenance --access public --tag latest`, which:
   - Uploads the pre-packed tarball
   - Generates a [Sigstore-backed npm provenance attestation](https://docs.npmjs.com/generating-provenance-statements) tying the published artifact to this exact workflow run + commit SHA (visible as a "Provenance" badge on the package's npm page)
-- Auth via `NODE_AUTH_TOKEN` env (wired into `~/.npmrc` by `actions/setup-node` in the composite setup action)
-- Skips packages already at that version on the registry (idempotent re-runs)
+- Auth via [npm Trusted Publishing (OIDC)](https://docs.npmjs.com/trusted-publishers) — no `NPM_TOKEN` secret. The workflow's `id-token: write` identity authenticates the publish, and each `@dualmark/*` package must have this repo + `release.yml` registered as a trusted publisher on npmjs.com
+- Skips packages already at that version on the registry (idempotent re-runs), and does **not** abort on a single package's failure — it publishes every package it can, then fails the job at the end listing the ones that didn't. A re-run then picks up only the stragglers.
 
 Why `bun pm pack` + `npm publish` instead of just `bun publish`? As of bun 1.3.5, `bun publish` does not yet support `--provenance` (tracked at [oven-sh/bun#15601](https://github.com/oven-sh/bun/issues/15601)). When that ships in a stable bun release, the two-step flow collapses back to a single `bun publish --provenance` call.
 
-If anything fails, the release is on GitHub but nothing is on npm — fix and re-run the workflow via **Actions → Release → Run workflow** with the tag as input.
+If some packages fail to publish, the ones that succeeded are already on npm; fix the failing packages (usually a missing trusted-publisher registration — see below) and re-run the workflow via **Actions → Release → Run workflow** with the tag as input. The re-run skips whatever already published.
+
+### Trusted-publisher rules (read before adding a package or renaming the workflow)
+
+Because publishing is OIDC-based, a few operational rules apply that are easy to trip over:
+
+- **Every new `@dualmark/*` package needs a one-time bootstrap.** npm's trusted publishing requires the package to already exist on the registry before a trusted publisher can be attached ([npm/cli#8544](https://github.com/npm/cli/issues/8544)), so CI cannot make a package's *first* publish. When you add an adapter: publish `@dualmark/<name>@<version>` once manually (a local `npm publish` with 2FA, no CI token needed), then register its trusted publisher, then let CI take over. Skipping this makes the next release fail on the new package (the rest still publish).
+- **Register the trusted publisher per package** — repo `dodopayments/dualmark`, workflow file `release.yml`. Via the npm web UI (Package → Settings → Trusted Publishers) or the CLI (`npm trust github "@dualmark/<name>" --repository dodopayments/dualmark --file release.yml --allow-publish -y`; requires npm ≥ 11.15.0 locally and account 2FA; add a short sleep between calls when looping to avoid rate limits).
+- **Do not rename `release.yml`.** The trusted publisher is bound to the *workflow filename*. Renaming or moving this file silently breaks publishing for all packages until every registration is updated to the new filename.
+- **Revoke the old `NPM_TOKEN` once OIDC is proven.** After the first successful OIDC release, delete the `NPM_TOKEN` repository secret and revoke the token on npmjs.com — leaving it in place preserves the long-lived-credential exposure this flow removed.
 
 ### Verifying provenance
 
