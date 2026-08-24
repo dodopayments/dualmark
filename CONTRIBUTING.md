@@ -73,7 +73,7 @@ Publishing the release fires the **`Release (npm publish)`** workflow which:
 - Publishes each tarball with `npm publish <tarball> --provenance --access public --tag latest`, which:
   - Uploads the pre-packed tarball
   - Generates a [Sigstore-backed npm provenance attestation](https://docs.npmjs.com/generating-provenance-statements) tying the published artifact to this exact workflow run + commit SHA (visible as a "Provenance" badge on the package's npm page)
-- Auth via `NODE_AUTH_TOKEN` env (wired into `~/.npmrc` by `actions/setup-node` in the composite setup action)
+- Auth via [npm Trusted Publishing (OIDC)](https://docs.npmjs.com/trusted-publishers) — no `NPM_TOKEN` secret. The workflow's `id-token: write` identity authenticates the publish, and each `@dualmark/*` package must have this repo + `release.yml` registered as a trusted publisher on npmjs.com
 - Skips packages already at that version on the registry (idempotent re-runs)
 
 Why `bun pm pack` + `npm publish` instead of just `bun publish`? As of bun 1.3.5, `bun publish` does not yet support `--provenance` (tracked at [oven-sh/bun#15601](https://github.com/oven-sh/bun/issues/15601)). When that ships in a stable bun release, the two-step flow collapses back to a single `bun publish --provenance` call.

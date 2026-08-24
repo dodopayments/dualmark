@@ -47,6 +47,13 @@ jobs:
         with:
           registry-url: https://registry.npmjs.org
 
+      # npm Trusted Publishing (OIDC) requires npm >= 11.5.1, but Node 22
+      # ships npm 10.x. Pin an explicit version rather than @latest because
+      # `npm install -g npm@latest` has hit broken self-upgrade chains
+      # (missing transitive deps like promise-retry).
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@11.5.1
+
       # Refresh bun.lock workspace metadata so `bun pm pack` (later step)
       # rewrites `workspace:*` deps in the tarball to the tag's actual
       # versions. `bun install --frozen-lockfile` (in setup) does NOT update
@@ -107,8 +114,13 @@ jobs:
         #   is cryptographically tied to this exact workflow file + commit SHA.
         #   Permission is granted at the job level above.
         #
-        # Auth: `actions/setup-node` (in our setup composite action) writes
-        # ~/.npmrc to read $NODE_AUTH_TOKEN, which is what `npm publish` uses.
+        # Auth: npm Trusted Publishing (OIDC) — no NPM_TOKEN. The same
+        # `id-token: write` OIDC identity that signs provenance also
+        # authenticates the publish, so `npm publish` needs no NODE_AUTH_TOKEN.
+        # Each @dualmark/* package must have this repo + this workflow file
+        # (release.yml) registered as a trusted publisher on npmjs.com. With
+        # OIDC, `--provenance` is implied and can be omitted, but we keep it
+        # explicit for clarity.
         run: |
           set -euo pipefail
           published_count=0
@@ -147,5 +159,3 @@ jobs:
           done
           echo ""
           echo "Published $published_count package(s) to npm with provenance attestation."
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
