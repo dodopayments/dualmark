@@ -55,7 +55,7 @@ This section is novel to AEO and addresses a real failure mode: AI agents confla
 
 ### Markdown Twin URLs in llms.txt
 
-A conformant `llms.txt` SHOULD link to HTML URLs (not `.md` URLs) in its Section lists. AI agents can discover the markdown twin via the [`Link rel="alternate"` header](./discovery.md#1-link-relalternate-header-required) on the HTML response.
+A conformant `llms.txt` SHOULD link to HTML URLs (not `.md` URLs) in its Section lists. AI agents can discover the markdown twin via the [`Link rel="alternate"` header](/docs/spec/discovery#1-link-relalternate-header-required) on the HTML response.
 
 This is intentional: HTML URLs are stable, link-shareable, and conform to user expectations. The markdown is an alternate representation, not a separate resource.
 

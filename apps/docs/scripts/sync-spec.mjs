@@ -26,9 +26,12 @@ for (const name of readdirSync(specDir)) {
 
   let body = readFileSync(join(specDir, name), "utf8");
 
-  body = body.replace(/^# .+\n+/, "");
+  body = body.replace(/^# .+(?:\r?\n)+/, "");
 
-  body = body.replace(/\]\(\.\/([\w-]+)\.md\)/g, (_m, slug) => `](/docs/spec/${FILE_MAP[`${slug}.md`]?.slug ?? slug})`);
+  body = body.replace(
+    /\]\(\.\/([\w-]+)\.md(#[^)]+)?\)/g,
+    (_m, slug, hash = "") => `](/docs/spec/${FILE_MAP[`${slug}.md`]?.slug ?? slug}${hash})`,
+  );
 
   body = body.replace(/\.\.\/packages\/([\w-]+)/g, (_m, pkg) => `/docs/packages/${pkg}`);
   body = body.replace(/\.\.\/packages/g, "/docs/packages/core");
