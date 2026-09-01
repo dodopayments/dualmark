@@ -6,6 +6,7 @@ import {
   NetlifyLogo,
   NextLogo,
   NuxtLogo,
+  ReactRouterLogo,
   SvelteLogo,
   VercelLogo,
 } from "@/components/brand-logos";
@@ -94,6 +95,16 @@ const adapters: Adapter[] = [
     Logo: NuxtLogo,
   },
   {
+    name: "React Router",
+    pkg: "@dualmark/remix",
+    desc: "React Router v7 Framework Mode adapter. Generated .md resource routes plus entry.server negotiation.",
+    install: "bun add @dualmark/remix",
+    score: "125/125",
+    status: "Stable",
+    accent: "oklch(0.74 0.18 250)",
+    Logo: ReactRouterLogo,
+  },
+  {
     name: "Deno",
     pkg: "@dualmark/deno",
     desc: "Deno Deploy edge adapter. Wraps any Deno fetch handler. Lifecycle hooks scheduled on info.completed.",
@@ -146,7 +157,7 @@ export function Adapters() {
             <span className="text-[var(--color-accent)]">your stack.</span>
           </>
         }
-        description="Nine first-class adapters today. Remix/React Router on the roadmap."
+        description="Ten first-class adapters today. More platform adapters are on the roadmap."
       />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
