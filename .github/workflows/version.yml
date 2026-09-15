@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -35,7 +35,7 @@ jobs:
         uses: ./.github/actions/setup
 
       - name: Open / update Version Packages PR
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
           # No `publish:` argument — this job ONLY versions, never releases.
           version: bun run version-packages
