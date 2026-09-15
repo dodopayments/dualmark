@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: bunx turbo run build --filter='@dualmark/*'
       - name: Build astro-blog example
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: bunx turbo run build --filter='@dualmark/*'
       - name: Test sanity-astro example
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: bunx turbo run build --filter='@dualmark/*'
       - name: Build astro-cloudflare-full
@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: bunx turbo run build --filter='@dualmark/*'
       - name: Run nextjs-app-router under next dev
@@ -94,7 +94,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: bunx turbo run build --filter='@dualmark/*'
       - name: Run vercel-edge-full under next dev
@@ -110,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: bunx turbo run build --filter='@dualmark/*'
       - name: Build sveltekit-blog example
@@ -128,7 +128,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: bunx turbo run build --filter='@dualmark/*'
       - name: Setup Deno
@@ -143,7 +143,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: bunx turbo run build --filter='@dualmark/*'
       - name: Build dualmark-docs (the website itself)
@@ -178,7 +178,7 @@ jobs:
       contents: read # checkout only
       actions: read # the action lists prior aeo-report artifacts via the API
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: bunx turbo run build --filter='@dualmark/*'
       - name: Build dualmark-docs (the website itself)
@@ -212,10 +212,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - name: Setup Fastly CLI
-        uses: fastly/compute-actions/setup@v3
+        uses: fastly/compute-actions/setup@v14
       - run: bunx turbo run build --filter='@dualmark/*'
       - name: Build fastly-compute example
         run: bun run --filter fastly-compute-example build
