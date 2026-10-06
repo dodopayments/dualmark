@@ -3,6 +3,7 @@
   "pages": [
     "astro",
     "nextjs",
+    "remix",
     "sveltekit",
     "cloudflare-workers",
     "fastly-compute",

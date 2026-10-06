@@ -132,6 +132,26 @@ export function SvelteLogo({ size = 24, ...props }: LogoProps) {
   );
 }
 
+export function ReactRouterLogo({ size = 24, ...props }: LogoProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="React Router"
+      {...props}
+    >
+      <circle cx="6" cy="12" r="3" fill="#F44250" />
+      <circle cx="18" cy="12" r="3" fill="#121212" />
+      <path d="M8.8 10.9h6.4v2.2H8.8z" fill="currentColor" />
+      <circle cx="12" cy="6" r="3" fill="#F44250" />
+      <path d="M10.9 8.8h2.2v2.3h-2.2z" fill="currentColor" />
+    </svg>
+  );
+}
+
 export function DenoLogo({ size = 24, ...props }: LogoProps) {
   return (
     <svg

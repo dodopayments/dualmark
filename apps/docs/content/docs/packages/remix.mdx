@@ -1,0 +1,83 @@
+---
+title: "@dualmark/remix"
+description: React Router v7 Framework Mode adapter - generated markdown resource routes and entry.server negotiation.
+---
+
+<Tabs items={["bun", "npm", "yarn"]}>
+<Tab value="bun">
+```bash
+bun add @dualmark/remix @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install @dualmark/remix @dualmark/core @dualmark/converters
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add @dualmark/remix @dualmark/core @dualmark/converters
+```
+</Tab>
+</Tabs>
+
+## `dualmark(config)`
+
+The default export is a Vite plugin factory. Add it before `@react-router/dev/vite` in `vite.config.ts`.
+
+```ts title="vite.config.ts"
+import { reactRouter } from "@react-router/dev/vite";
+import { defineConfig } from "vite";
+import dualmark from "@dualmark/remix";
+import dualmarkConfig from "./app/dualmark.config";
+
+export default defineConfig({
+  plugins: [dualmark(dualmarkConfig), reactRouter()],
+});
+```
+
+The plugin writes generated route modules into `app/.dualmark-remix`. Generated files start with a fixed header comment. Do not copy that header into hand-written files.
+
+## `dualmarkRoutes(config)`
+
+Use this helper from `@dualmark/remix/routes` in `app/routes.ts`.
+
+```ts title="app/routes.ts"
+import { index, route, type RouteConfig } from "@react-router/dev/routes";
+import { dualmarkRoutes } from "@dualmark/remix/routes";
+import dualmarkConfig from "./dualmark.config";
+
+export default [
+  index("routes/home.tsx"),
+  route("posts", "routes/posts.tsx"),
+  route("posts/:slug", "routes/post.tsx"),
+  ...dualmarkRoutes(dualmarkConfig),
+] satisfies RouteConfig;
+```
+
+## `createDualmarkEntryServer(config)`
+
+Wrap your `entry.server.tsx` handler. The wrapper:
+
+- serves markdown before render for AI bot user agents
+- honors `Accept: text/markdown`
+- returns `406 Not Acceptable` when the request excludes HTML and markdown
+- adds `Link: <...>; rel="alternate"; type="text/markdown"` and `Vary: Accept` to HTML responses
+
+## Config
+
+```ts
+interface DualmarkRemixConfig {
+  siteUrl: string;
+  configPath?: string;      // default: app/dualmark.config.ts
+  generatedDir?: string;    // default: app/.dualmark-remix
+  collections?: Record<string, CollectionConfig>;
+  staticPages?: StaticPageConfig[];
+  parameterizedRoutes?: ParameterizedRouteConfig[];
+  llmsTxt?: { enabled?: boolean; brandName?: string; sections?: LlmsTxtSection[] };
+  middleware?: { injectLinkHeader?: boolean; skipPaths?: ReadonlyArray<string> };
+  headers?: { cacheControl?: string; noindex?: boolean };
+}
+```
+
+`slugStrategy: "single"` is supported today. `slugStrategy: "catch-all"` is rejected because React Router v7 splats only match safely at the end of a route (`docs/*`). That route would also catch human HTML paths such as `/docs/a/b`, so the adapter does not generate it.

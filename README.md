@@ -140,6 +140,42 @@ Full example with `vite dev` → 125/125 conformance score:
 
 [Full SvelteKit example →](./examples/sveltekit-blog)
 
+### React Router v7 / Remix (60 seconds)
+
+```bash
+bun add @dualmark/remix
+```
+
+```ts
+// vite.config.ts
+import { reactRouter } from "@react-router/dev/vite";
+import { defineConfig } from "vite";
+import dualmark from "@dualmark/remix";
+import dualmarkConfig from "./app/dualmark.config";
+
+export default defineConfig({
+  plugins: [dualmark(dualmarkConfig), reactRouter()],
+});
+```
+
+```ts
+// app/routes.ts
+import { index, route, type RouteConfig } from "@react-router/dev/routes";
+import { dualmarkRoutes } from "@dualmark/remix/routes";
+import dualmarkConfig from "./dualmark.config";
+
+export default [
+  index("routes/home.tsx"),
+  route("posts", "routes/posts.tsx"),
+  route("posts/:slug", "routes/post.tsx"),
+  ...dualmarkRoutes(dualmarkConfig),
+] satisfies RouteConfig;
+```
+
+Full example with `react-router dev` → 125/125 conformance score:
+
+[Full React Router example →](./examples/remix-blog)
+
 ### Cloudflare Workers (60 seconds)
 
 Wrap your existing Worker. AI bots get markdown at the edge — single-digit-ms first-byte from 300+ cities.
@@ -308,6 +344,7 @@ Three conformance levels — **Basic** (60%), **Standard** (80%), **Advanced** (
 | [`@dualmark/converters`](./packages/converters) | `npm i @dualmark/converters` | 16 KB | Production-tested converter factories. |
 | [`@dualmark/astro`](./packages/astro) | `npm i @dualmark/astro` | 22 KB | Astro 5 integration. Auto-generates `.md` endpoints, ships middleware, generates `llms.txt`. |
 | [`@dualmark/nextjs`](./packages/nextjs) | `npm i @dualmark/nextjs` | 15 KB | Next.js App Router adapter. `withDualmark()`, `createDualmarkMiddleware()`, `createDualmarkRouteHandler()`, `createLlmsTxtHandler()`. |
+| [`@dualmark/remix`](./packages/remix) | `npm i @dualmark/remix` | 12 KB | React Router v7 Framework Mode adapter. Generated markdown resource routes plus `entry.server` negotiation. |
 | [`@dualmark/sveltekit`](./packages/sveltekit) | `npm i @dualmark/sveltekit` | 19 KB | SvelteKit adapter. Vite route generator, `createDualmarkHandle()`, generated `.md` endpoints, and `llms.txt`. |
 | [`@dualmark/nuxt`](./packages/nuxt) | `npm i @dualmark/nuxt` | 15 KB | Nuxt module. Auto-generates `.md` endpoints, injects `Link rel="alternate"` middleware, generates `llms.txt`. |
 | [`@dualmark/cloudflare`](./packages/cloudflare) | `npm i @dualmark/cloudflare` | 9 KB | Workers edge adapter. Wraps any upstream Worker. Hooks for analytics + telemetry. |
@@ -322,7 +359,7 @@ Plus:
 - [**`spec/`**](./spec) — the **AEO Specification v1.0**. Public, framework-agnostic, RFC-2119-compliant. Implement it in Go, Rust, PHP, Ruby — your call.
 - [**`apps/docs/`**](./apps/docs) — Fumadocs site at [dualmark.dev](https://dualmark.dev)
 - [**`apps/docs/app/play`**](./apps/docs/app/play) — interactive Accept-header + UA tester. Live at [dualmark.dev/play](https://dualmark.dev/play).
-- [**`examples/`**](./examples) — ten end-to-end working examples (Astro, Astro+Cloudflare, Sanity+Astro, Next.js, SvelteKit, Nuxt, Deno, Netlify, Fastly, Vercel).
+- [**`examples/`**](./examples) — eleven end-to-end working examples (Astro, Astro+Cloudflare, Sanity+Astro, Next.js, React Router, SvelteKit, Nuxt, Deno, Netlify, Fastly, Vercel).
 
 ---
 
@@ -338,6 +375,7 @@ Plus:
 | `@dualmark/cli` | 25 tests pass |
 | `@dualmark/astro` | 39 tests pass |
 | `@dualmark/nextjs` | 47 tests pass |
+| `@dualmark/remix` | 24 tests pass |
 | `@dualmark/sveltekit` | 17 tests pass |
 | `@dualmark/nuxt` | 37 tests pass |
 | `@dualmark/netlify` | 28 tests pass |
@@ -346,6 +384,7 @@ Plus:
 | `examples/sanity-astro` | **80/80** under `astro dev` (`--skip-negotiation`) for fixture-backed blog + glossary docs |
 | `examples/astro-cloudflare-full` | **125/125 perfect** under `wrangler dev` (full negotiation) |
 | `examples/nextjs-app-router` | **120/125** under `next dev` (now using `@dualmark/nextjs`) |
+| `examples/remix-blog` | **125/125 perfect** under `react-router dev` (`@dualmark/remix`) |
 | `examples/sveltekit-blog` | **125/125 perfect** under `vite dev` (full negotiation) |
 | `examples/deno-deploy` | **125/125 perfect** under `deno run` (full negotiation) |
 | `examples/fastly-compute` | **125/125 perfect** under `fastly compute serve` (full negotiation) |
@@ -364,7 +403,6 @@ bun run build && bun run test && bun run typecheck   # 407 tests across 9 packag
 
 We're building toward Dualmark being **the** AEO infrastructure for marketing sites — the same way Tailwind became the default for marketing CSS or Vercel for marketing hosting. The roadmap:
 
-- **More framework adapters**: Remix/React Router
 - **More converters**: pricing tables, changelog, docs/API reference, status pages, integrations
 - **AEO Analytics**: a hosted dashboard on top of the `onAIRequest` hook, so marketing can see which bot reads which page, when
 - **Spec evolution toward AEO 1.1+** with structured data hints, per-section markdown anchors, and sitemap.md

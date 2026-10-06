@@ -1,0 +1,31 @@
+{
+  "name": "dualmark-example-remix-blog",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "react-router dev --host 127.0.0.1 --port 5174",
+    "build": "react-router build",
+    "start": "react-router-serve ./build/server/index.js",
+    "verify": "node ../../packages/cli/dist/cli.js verify http://localhost:5174/posts/hello"
+  },
+  "dependencies": {
+    "@dualmark/core": "workspace:*",
+    "@dualmark/converters": "workspace:*",
+    "@dualmark/remix": "workspace:*",
+    "@react-router/node": "7.9.4",
+    "@react-router/serve": "7.9.4",
+    "isbot": "^5.1.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router": "7.9.4"
+  },
+  "devDependencies": {
+    "@react-router/dev": "7.9.4",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "^5.7.2",
+    "vite": "^7.2.7"
+  }
+}
