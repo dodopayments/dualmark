@@ -11,6 +11,12 @@ bun run build
 bun run start
 ```
 
+## Environment
+
+`DUALMARK_SHARE_SECRET` signs the share tokens used by `/play` score links and
+the `/api/og/score` card. Set it to any long random string. Without it the
+playground still works; the share buttons just don't show up.
+
 ## Structure
 
 ```

@@ -37,6 +37,7 @@ interface ScoreResult {
   skippedNegotiation: boolean;
   passed: CheckSummary[];
   failed: CheckSummary[];
+  shareToken?: string;
 }
 
 const FRAMEWORK_LABEL: Record<Framework, string> = {
@@ -411,6 +412,8 @@ function ResultPanel({ result }: { result: ScoreResult }) {
         </div>
       </section>
 
+      <ShareBar result={result} />
+
       <CheckList
         title="Failed — required"
         accent="var(--color-danger)"
@@ -435,6 +438,90 @@ function ResultPanel({ result }: { result: ScoreResult }) {
 
       <NextStepsCard result={result} />
     </div>
+  );
+}
+
+function hostFromUrl(url: string): string {
+  try {
+    return new URL(url).host;
+  } catch {
+    return url;
+  }
+}
+
+function ShareBar({ result }: { result: ScoreResult }) {
+  const [copied, setCopied] = useState(false);
+  const token = result.shareToken;
+
+  useEffect(() => {
+    if (!copied) return;
+    const t = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(t);
+  }, [copied]);
+
+  if (!token) return null;
+
+  const host = hostFromUrl(result.url);
+  const shareUrl = () => `${window.location.origin}/play/r/${token}`;
+  const imageUrl = `/api/og/score?token=${encodeURIComponent(token)}`;
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(shareUrl());
+      setCopied(true);
+    } catch {
+      void 0;
+    }
+  }
+
+  function postToX() {
+    const text = `${host} scored ${result.score}/${result.maxScore} (${result.level}) on the AEO Spec v1.0`;
+    const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+      text,
+    )}&url=${encodeURIComponent(shareUrl())}`;
+    window.open(intent, "_blank", "noopener,noreferrer");
+  }
+
+  return (
+    <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-elev-1)]/40 px-5 py-4">
+      <div className="flex items-center gap-2">
+        <ShareIcon className="size-4 text-[var(--color-accent)]" />
+        <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--color-fg-subtle)]">
+          Share this score
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={copyLink}
+          className="inline-flex h-9 items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev-1)] px-3 text-xs font-medium text-[var(--color-fg)] transition-colors hover:border-[var(--color-accent)]/50 hover:bg-[var(--color-bg-elev-2)]"
+        >
+          {copied ? (
+            <CheckIcon className="size-4 text-[var(--color-success)]" />
+          ) : (
+            <UrlIcon className="size-4" />
+          )}
+          {copied ? "Copied!" : "Copy link"}
+        </button>
+        <button
+          type="button"
+          onClick={postToX}
+          className="inline-flex h-9 items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev-1)] px-3 text-xs font-medium text-[var(--color-fg)] transition-colors hover:border-[var(--color-accent)]/50 hover:bg-[var(--color-bg-elev-2)]"
+        >
+          <XGlyph className="size-3.5" />
+          Post on X
+        </button>
+        <a
+          href={imageUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex h-9 items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev-1)] px-3 text-xs font-medium text-[var(--color-fg)] transition-colors hover:border-[var(--color-accent)]/50 hover:bg-[var(--color-bg-elev-2)]"
+        >
+          <ImageIcon className="size-4" />
+          Image
+        </a>
+      </div>
+    </section>
   );
 }
 
@@ -991,6 +1078,51 @@ function CursorGlyph({ className }: { className?: string }) {
         d="M22.35 5.99L11.925 12 1.5 5.99 11.925 24V12z"
         fill="currentColor"
         opacity="0.55"
+      />
+    </svg>
+  );
+}
+function ShareIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <path
+        d="M8.7 13.3 15.3 17M15.3 7 8.7 10.7M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm12 7a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+function XGlyph({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden>
+      <path
+        d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+function ImageIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <rect
+        x="3"
+        y="4"
+        width="18"
+        height="16"
+        rx="2"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+      <circle cx="8.5" cy="9.5" r="1.5" fill="currentColor" />
+      <path
+        d="m4 18 5-5 4 4 3-3 4 4"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
