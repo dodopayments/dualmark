@@ -59,12 +59,32 @@ export function toInternalMarkdownPath(pathname: string, internalNamespace: stri
   return `/${internalNamespace}${stripped}`;
 }
 
+// Static files have no markdown twin. Same list as the other adapters, so
+// /sitemap.xml, /robots.txt and /llms.txt are never rewritten or advertised.
+const ASSET_EXTENSIONS = [
+  ".js",
+  ".css",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".webp",
+  ".svg",
+  ".gif",
+  ".ico",
+  ".woff",
+  ".woff2",
+  ".xml",
+  ".json",
+  ".txt",
+  ".pdf",
+];
+
 function shouldSkip(
   pathname: string,
   internalNamespace: string,
   skipPaths: ReadonlyArray<string>,
 ): boolean {
-  if (pathname === "/llms.txt") return true;
+  if (ASSET_EXTENSIONS.some((ext) => pathname.endsWith(ext))) return true;
   if (pathname.startsWith(`/${internalNamespace}/`)) return true;
   if (pathname.startsWith("/_next/") || pathname === "/favicon.ico") return true;
   for (const skip of skipPaths) {
