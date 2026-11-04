@@ -161,6 +161,32 @@ describe("handleRequest — skip rules", () => {
     expect(res.headers.get("x-middleware-rewrite")).toBeNull();
   });
 
+  it("skips static files such as sitemap.xml and robots.txt", () => {
+    for (const path of ["/sitemap.xml", "/robots.txt", "/manifest.json", "/assets/app.js"]) {
+      const md = handleRequest(
+        makeReq(`https://example.com${path}`, { accept: "text/markdown" }),
+        FakeNextResponse,
+        resolved,
+      );
+      expect(md.headers.get("x-middleware-next")).toBe("1");
+      expect(md.headers.get("x-middleware-rewrite")).toBeNull();
+
+      const bot = handleRequest(
+        makeReq(`https://example.com${path}`, { "user-agent": "GPTBot/1.0" }),
+        FakeNextResponse,
+        resolved,
+      );
+      expect(bot.headers.get("x-middleware-rewrite")).toBeNull();
+
+      const browser = handleRequest(
+        makeReq(`https://example.com${path}`, { accept: "text/html" }),
+        FakeNextResponse,
+        resolved,
+      );
+      expect(browser.headers.get("Link")).toBeNull();
+    }
+  });
+
   it("skips internal namespace paths", () => {
     const req = makeReq("https://example.com/md/blog/hello", { "user-agent": "GPTBot/1.0" });
     const res = handleRequest(req, FakeNextResponse, resolved);
