@@ -122,6 +122,10 @@ export function createDualmarkIntegration(input: DualmarkAstroConfig): AstroInte
 
         for (const [collectionName, c] of Object.entries(resolved.collections)) {
           const route = c.route ?? collectionName;
+          // Collection names may contain "/" (e.g. locale-prefixed routes like
+          // "zh/blog"); sanitize before interpolating into a filename or
+          // writeFileSync treats the slash as a directory separator.
+          const safeName = collectionName.replace(/[^a-z0-9-]/gi, "_");
           const slugSeg = c.slugStrategy === "single" ? "[slug]" : "[...slug]";
           const detailPattern = `/${route}/${slugSeg}.md`;
           const listingPattern = `/${route}.md`;
@@ -173,13 +177,13 @@ export const GET = endpoint.GET;
 
           routes.push({
             pattern: detailPattern,
-            fileName: `collection-${collectionName}-detail.mjs`,
+            fileName: `collection-${safeName}-detail.mjs`,
             source: detailSource,
           });
           if (c.emitListing !== false) {
             routes.push({
               pattern: listingPattern,
-              fileName: `collection-${collectionName}-listing.mjs`,
+              fileName: `collection-${safeName}-listing.mjs`,
               source: listingSource,
             });
           }
