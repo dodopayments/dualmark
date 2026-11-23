@@ -33,6 +33,26 @@ describe("createDualmarkIntegration — astro:config:setup", () => {
     expect(typeof integ.hooks["astro:config:setup"]).toBe("function");
   });
 
+  it("sanitizes collection names containing a slash in generated filenames", async () => {
+    const integ = createDualmarkIntegration({
+      siteUrl: "https://example.com",
+      collections: { "zh/blog": { converter: "blog", route: "zh/blog", slugStrategy: "single" } },
+    });
+    const ctx = makeFakeContext(tmpRoot);
+    // Before the fix this hook threw ENOENT: the unsanitized name put a "/"
+    // inside the generated filename and writeFileSync read it as a path.
+    await integ.hooks["astro:config:setup"](ctx);
+    const patterns = ctx.injected.map((r) => r.pattern);
+    expect(patterns).toContain("/zh/blog/[slug].md");
+    expect(patterns).toContain("/zh/blog.md");
+    expect(
+      existsSync(join(tmpRoot, "node_modules/.dualmark-generated/collection-zh_blog-detail.mjs")),
+    ).toBe(true);
+    expect(
+      existsSync(join(tmpRoot, "node_modules/.dualmark-generated/collection-zh_blog-listing.mjs")),
+    ).toBe(true);
+  });
+
   it("injects detail + listing routes for a collection", async () => {
     const integ = createDualmarkIntegration({
       siteUrl: "https://example.com",
@@ -188,7 +208,9 @@ describe("createDualmarkIntegration — astro:config:setup", () => {
     // should import from ./tokenizer.mjs
     const routeFile = ctx.injected[0];
     const routeSource = readFileSync(
-      typeof routeFile!.entrypoint === "string" ? routeFile!.entrypoint : routeFile!.entrypoint.pathname,
+      typeof routeFile!.entrypoint === "string"
+        ? routeFile!.entrypoint
+        : routeFile!.entrypoint.pathname,
       "utf8",
     );
     expect(routeSource).toContain('import tokenizer from "./tokenizer.mjs"');
@@ -208,10 +230,11 @@ describe("createDualmarkIntegration — astro:config:setup", () => {
     const tokenizerMjsPath = join(tmpRoot, "node_modules", ".dualmark-generated", "tokenizer.mjs");
     expect(existsSync(tokenizerMjsPath)).toBe(false);
 
-
     const routeFile = ctx.injected[0];
     const routeSource = readFileSync(
-      typeof routeFile!.entrypoint === "string" ? routeFile!.entrypoint : routeFile!.entrypoint.pathname,
+      typeof routeFile!.entrypoint === "string"
+        ? routeFile!.entrypoint
+        : routeFile!.entrypoint.pathname,
       "utf8",
     );
     expect(routeSource).toContain("import tokenizer from");
